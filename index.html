@@ -444,17 +444,13 @@ input.g:placeholder-shown+.sf{display:none}
 .sc th:last-child,.sc td:last-child{position:sticky;right:0;z-index:1}
 .sc td:first-child{background:var(--card)}
 .sc td.pfc{background:color-mix(in srgb,#00F03C 20%,var(--card))}
-/* Combinaciones en celular: cada opcion es una tarjeta (promedio final arriba y las notas en cuadricula) en vez de una tabla ancha con scroll */
+/* Combinaciones en celular: misma tabla con scroll, mas compacta y con "Promedio final" en dos filas */
 @media (max-width:600px){
- .sc.cbt{overflow:visible;background:transparent;border:0}
- .sc.cbt table{display:block;width:100%;min-width:0;counter-reset:op}
- .sc.cbt tbody{display:grid;gap:12px}
- .sc.cbt tr.ch{display:none}
- .sc.cbt tr{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);counter-increment:op}
- .sc.cbt td,.sc.cbt td:first-child,.sc.cbt td:last-child{position:static;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:10px 12px;border:0;background:transparent;text-align:left;font-size:1.1rem;font-weight:800}
- .sc.cbt td::before{content:attr(data-l);font-size:.62rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);line-height:1.2}
- .sc.cbt td.pfc,.sc.cbt td.pfc:first-child,.sc.cbt td.pfc:last-child{grid-column:1/-1;order:-1;flex-direction:row;justify-content:space-between;align-items:center;font-size:1.5rem;background:color-mix(in srgb,#00F03C 22%,var(--card));border-bottom:1px solid var(--line)}
- .sc.cbt td.pfc::before{content:"Opción " counter(op) " · Promedio final";font-size:.7rem;color:var(--ink)}
+ .sc th{min-width:58px;padding:9px 5px;font-size:.62rem;letter-spacing:.02em}
+ .sc td{padding:9px 5px;font-size:.92rem}
+ .sc th.pfc,.sc td.pfc{min-width:64px;padding-left:6px;padding-right:6px}
+ .sc td.pfc{border-left:1px solid var(--line)}
+ .sc th.pfc span{display:block}
 }
 .sc th:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.35)}
 .sc td:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2)}
@@ -996,9 +992,8 @@ function update(){
  let cb="";
  if(n){
   const fp=(x,l)=>String(Math.round(x*(l.mx||20)/20*100)/100);
-  const ea=s=>String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
-  const hdr=`<tr class="ch">${P.map(l=>`<th>${l.n}</th>`).join("")}<th class="pfc">Promedio final</th></tr>`;
-  const mk=o=>{const v=ev(R,full(o)),pv=S.rf?rnd(v):fmt(v);return `<tr>${P.map(l=>`<td data-l="${ea(l.n)}">${fp(o[l.id],l)}</td>`).join("")}<td class="pfc" data-l="Promedio final">${pv}</td></tr>`};
+  const hdr=`<tr>${P.map(l=>`<th>${l.n}</th>`).join("")}<th class="pfc"><span>Promedio</span> <span>final</span></th></tr>`;
+  const mk=o=>{const v=ev(R,full(o)),pv=S.rf?rnd(v):fmt(v);return `<tr>${P.map(l=>`<td>${fp(o[l.id],l)}</td>`).join("")}<td class="pfc">${pv}</td></tr>`};
   /* Combinaciones: las evaluaciones van en orden de rendición (las primeras son las más fáciles).
      Cada fila es una escalera que baja: primeras notas más altas, últimas más bajas, y todas llegan a la nota mínima.
      D = diferencia entre la primera y la última nota pendiente (0 = todas parecidas). Para cada D se busca la nota "base" más baja que aprueba. */
@@ -1010,7 +1005,7 @@ function update(){
    for(let x=-D/2;x<=20+D/2+1e-9;x+=.5){
     const o={};P.forEach((l,i)=>o[l.id]=sn(Math.max(0,Math.min(20,x+D*(.5-i/(n-1)))),l));
     if(okc(o)){const k=P.map(l=>o[l.id]).join(",");if(!seen.has(k)){seen.add(k);rows.push(mk(o))}break}}}
-  cb=okk?`<p class="msg">Ya aprobaste: aunque saques 0 en lo que falta, llegas a ${S.pm}.</p>`:!rows.length?`<p class="msg bad">Ni con 20 en todo lo que falta llegarías a ${S.pm}.</p>`:`<h2>Combinaciones posibles para aprobar</h2><div class="sc cbt"><table>${hdr}${rows.join("")}</table></div>`;
+  cb=okk?`<p class="msg">Ya aprobaste: aunque saques 0 en lo que falta, llegas a ${S.pm}.</p>`:!rows.length?`<p class="msg bad">Ni con 20 en todo lo que falta llegarías a ${S.pm}.</p>`:`<h2>Combinaciones posibles para aprobar</h2><div class="sc"><table>${hdr}${rows.join("")}</table></div>`;
  }
  $("cb").innerHTML=cb;
  trackCombo();
