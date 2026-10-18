@@ -91,12 +91,12 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     a Formspree o Resend; la direccion de Formspree ya NO esta en este archivo (vive en la variable de entorno FORMSPREE_ENDPOINT).
   - Analiticas: PostHog (constantes PH_KEY y PH_REGION al inicio del script). Eventos con track(nombre, datos): pantalla, empezar_click,
     curso_elegido, primera_nota, nota_ingresada, calculo_actualizado, combos_vistos, resumen_visto, faq_abierta, compartir_*, sugerencia_*,
-    instagram_click, tema_cambiado, etc. Nunca se envian los valores de las notas. Las grabaciones enmascaran todos los campos.
+    tema_cambiado, nota_escribiendo, nota_fuera_de_rango, meta_cambiada, etc. Nunca se envian los valores de las notas. Las grabaciones enmascaran todos los campos.
   - Rendimiento: la fuente Montserrat (variable, solo latin, 38 KB) se sirve desde /fonts/ con preload y una fuente de respaldo con las mismas
     medidas ("Montserrat Fallback") para que el texto no salte al cargar. El logo de bienvenida tiene preload y prioridad alta; los demas logos
     prioridad baja. PostHog y favicon se cargan al final (idle()). vercel.json da cache de 365 dias a /fonts y agrega cabeceras de seguridad.
     404.html es la pagina de error (Vercel la usa sola si esta junto a index).
-  - Formulario: protecciones en el navegador (trampa _gotcha, tiempo minimo, sin enlaces, sin repetidos, 1 por minuto, 3 al dia: clave mp-sg).
+  - Formulario: protecciones en el navegador (trampa _gotcha, tiempo minimo, sin enlaces, sin repetidos, 3 al dia: clave mp-sg).
     Son solo comodidad: cualquiera puede saltarselas. Las protecciones reales estan en el servidor (api/sugerencia.js), ver punto 9.
   - No se guardan notas en ningun servidor; lo unico que sale del navegador es el mensaje que el alumno envia por el formulario.
 
@@ -114,7 +114,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     1) Regla de Vercel Firewall (Rate Limit por IP sobre /api/sugerencia). Se crea en el panel, sin codigo.
     2) La funcion: solo POST con JSON, origen permitido, trampa _gotcha, largo, sin enlaces, captcha Turnstile (si hay TURNSTILE_SECRET),
        espera entre envios y maximo por dia por IP, mensaje repetido, y tope global por dia y por mes (protege el limite mensual de Formspree).
-    3) El navegador (solo comodidad): tiempo minimo, 1 por minuto y 3 al dia.
+    3) El navegador (solo comodidad): tiempo minimo y 3 al dia.
   Sin Upstash los contadores viven en la memoria de cada instancia de la funcion: sirven de freno, pero no son estrictos.
   Para activar Turnstile: poner la clave del sitio en TS_SITEKEY (bloque "Comentarios o sugerencias" del JavaScript) y TURNSTILE_SECRET en Vercel.
   Logos: alojados en /img/ (WebP). La vista previa del enlace usa /img/og.png (1200x630) con URL absoluta en og:image y og:url.
@@ -444,6 +444,18 @@ input.g:placeholder-shown+.sf{display:none}
 .sc th:last-child,.sc td:last-child{position:sticky;right:0;z-index:1}
 .sc td:first-child{background:var(--card)}
 .sc td.pfc{background:color-mix(in srgb,#00F03C 20%,var(--card))}
+/* Combinaciones en celular: cada opcion es una tarjeta (promedio final arriba y las notas en cuadricula) en vez de una tabla ancha con scroll */
+@media (max-width:600px){
+ .sc.cbt{overflow:visible;background:transparent;border:0}
+ .sc.cbt table{display:block;width:100%;min-width:0;counter-reset:op}
+ .sc.cbt tbody{display:grid;gap:12px}
+ .sc.cbt tr.ch{display:none}
+ .sc.cbt tr{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);counter-increment:op}
+ .sc.cbt td,.sc.cbt td:first-child,.sc.cbt td:last-child{position:static;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:10px 12px;border:0;background:transparent;text-align:left;font-size:1.1rem;font-weight:800}
+ .sc.cbt td::before{content:attr(data-l);font-size:.62rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);line-height:1.2}
+ .sc.cbt td.pfc,.sc.cbt td.pfc:first-child,.sc.cbt td.pfc:last-child{grid-column:1/-1;order:-1;flex-direction:row;justify-content:space-between;align-items:center;font-size:1.5rem;background:color-mix(in srgb,#00F03C 22%,var(--card));border-bottom:1px solid var(--line)}
+ .sc.cbt td.pfc::before{content:"Opción " counter(op) " · Promedio final";font-size:.7rem;color:var(--ink)}
+}
 .sc th:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.35)}
 .sc td:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2)}
 .sc th:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.35)}
@@ -659,9 +671,11 @@ input.g:placeholder-shown+.sf{display:none}
 .shb:hover{background:var(--green);color:var(--navy)}
 .shb:active{transform:scale(.96)}
 .shb:focus-visible{outline:2px solid #fff;outline-offset:2px}
+/* Banner superior: unico boton, verde y con texto tambien en celular */
+.bar .shb{background:var(--green);color:var(--navy);border-color:var(--green)}
+.bar .shb:hover{background:var(--green);color:var(--navy);filter:brightness(1.1)}
 .shf{margin-top:16px;height:44px;padding:0 16px}
-@media (max-width:600px){.hr .shb span{display:none}.hr .shb{padding:0;width:40px}}
-@media (max-width:480px){.hr{gap:6px}.hd1 .btn{padding:12px 10px;font-size:.66rem}.lg-h{max-width:calc(100vw - 214px)}}
+@media (max-width:480px){.hr{gap:6px}.hd1 .btn{padding:12px 10px;font-size:.66rem}.lg-h{max-width:calc(100vw - 190px)}}
 .sgf{margin:8px 0 0;max-width:460px}
 .sgr{display:flex;gap:8px;align-items:stretch}
 .sgf textarea{flex:1;min-width:0;min-height:52px;max-height:130px;resize:none;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.32);border-radius:2px;padding:12px;font:500 .85rem/1.35 Montserrat,"Montserrat Fallback",Arial,sans-serif;transition:border-color .2s,background .2s}
@@ -689,7 +703,7 @@ input.g:placeholder-shown+.sf{display:none}
 <div class="wbot"><div class="strip"><i style="background:#0A5CFF"></i><i style="background:#00F03C"></i><i style="background:#F000F0"></i><i style="background:#fff"></i></div>
 <div class="cta rv" style="--i:5"><button type="button" class="btn xl" id="go">Empezar</button></div></div>
 </div>
-<div class="wm"><a href="https://www.instagram.com/matiastf_/" target="_blank" rel="noopener" aria-label="Instagram de @matiastf_"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>@matiastf_</span></a><a href="https://www.instagram.com/fabi_mvi/" target="_blank" rel="noopener" aria-label="Instagram de @fabi_mvi"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>@fabi_mvi</span></a></div></div>
+</div>
 
 
 
@@ -697,10 +711,10 @@ input.g:placeholder-shown+.sf{display:none}
 <h1 class="wt eq"><span class="t1 mr" style="--i:0">Elige tu</span><span class="t2 mr" style="--i:1">curso</span></h1>
 <div class="pgs" id="plist"></div>
 </div>
-<div class="wm"><a href="https://www.instagram.com/matiastf_/" target="_blank" rel="noopener" aria-label="Instagram de @matiastf_"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>@matiastf_</span></a><a href="https://www.instagram.com/fabi_mvi/" target="_blank" rel="noopener" aria-label="Instagram de @fabi_mvi"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>@fabi_mvi</span></a></div></div>
+</div>
 
 <div id="v-tool" hidden>
-<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button><a class="btn" href="#faq">Cómo funciona</a></div></div></div>
+<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div></div>
 <header class="hd">
 <div class="wrap cs rv" style="--i:1"><button id="cbtn" type="button" aria-controls="clist" aria-expanded="false"><span class="cq">Curso:</span><span class="cv" id="cval"></span><i class="chev"></i></button><div id="clist" hidden></div></div>
 </header>
@@ -724,12 +738,12 @@ input.g:placeholder-shown+.sf{display:none}
 <details class="qa"><summary><span class="no">03</span><span class="q">¿Qué significa "Por rendir"?</span><i class="pm"></i></summary><div class="ans"><p>Es una evaluación que aún no has dado. Si la dejas en blanco, cuenta como 0 en "Mi promedio hasta ahora" y la tabla te dice qué necesitas sacar en ella. Si escribes un 0, cuenta como una nota ya rendida.</p></div></details>
 <details class="qa"><summary><span class="no">04</span><span class="q">¿Es una herramienta oficial?</span><i class="pm"></i></summary><div class="ans"><p>No. Es una calculadora para planificar tus notas. El resultado oficial es el que publica la universidad.</p></div></details>
 </div></section>
-<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Esta es una herramienta no oficial. Usamos los pesos y reglas de los reglamentos de cada curso, pero si notas alguna diferencia, lo que valida tu profesor o la universidad es lo que cuenta.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form><div class="igs"><a class="ig" href="https://www.instagram.com/matiastf_/" target="_blank" rel="noopener" aria-label="Instagram de @matiastf_"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>@matiastf_</span></a><a class="ig" href="https://www.instagram.com/fabi_mvi/" target="_blank" rel="noopener" aria-label="Instagram de @fabi_mvi"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>@fabi_mvi</span></a></div></div></div></footer>
+<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Esta es una herramienta no oficial. Usamos los pesos y reglas de los reglamentos de cada curso, pero si notas alguna diferencia, lo que valida tu profesor o la universidad es lo que cuenta.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form></div></div></footer>
 </div>
 
 
 <div id="v-fi" hidden>
-<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home2" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><a class="btn" href="#fifaq">Cómo funciona</a></div></div>
+<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home2" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div>
 <header class="hd"><div class="wrap"><button type="button" class="fback" data-pick="1"><small>Ir a</small><b>Ponderado de un curso</b></button></div></header>
 <section class="hero"><div class="hdeco" aria-hidden="true"><i class="dt" style="width:16px;height:16px;background:#00F03C;top:12%;right:8%;--x:-10px;--y:14px;--t:7s"></i><i class="dt" style="width:11px;height:11px;background:#0A5CFF;top:27%;right:21%;--x:8px;--y:-14px;--t:9s;--d:-3s"></i><i class="sq" style="top:34%;right:6%;width:34px;height:34px;border-width:2px"></i></div><div class="wrap">
 <h1><span class="t1 mr" style="--i:1">Calcula tu</span><span class="t2 mr" style="--i:2">Factor de inscripción</span></h1>
@@ -798,7 +812,7 @@ input.g:placeholder-shown+.sf{display:none}
 <details class="qa"><summary><span class="no">05</span><span class="q">¿Se redondea el resultado?</span><i class="pm"></i></summary><div class="ans"><p>No. El promedio y el FI no se redondean al entero. Verás decimales solo cuando el resultado los tenga, con un máximo de dos.</p></div></details>
 <details class="qa"><summary><span class="no">06</span><span class="q">¿Es una herramienta oficial?</span><i class="pm"></i></summary><div class="ans"><p>No. Es una calculadora para que te hagas una idea de tu FI. El valor oficial es el que publica la universidad.</p></div></details>
 </div></section>
-<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Esta es una herramienta no oficial. Calculamos tu factor de inscripción con la fórmula que explica la universidad, pero el valor que cuenta es el que publica la universidad.</p></div><div class="fl" id="ffl"><b>Otras herramientas</b><button type="button" data-pick="1">Ponderado de un curso</button></div><div class="fl"><b>Comentarios o sugerencias</b><div class="igs"><a class="ig" href="https://www.instagram.com/matiastf_/" target="_blank" rel="noopener" aria-label="Instagram de @matiastf_"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>@matiastf_</span></a><a class="ig" href="https://www.instagram.com/fabi_mvi/" target="_blank" rel="noopener" aria-label="Instagram de @fabi_mvi"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>@fabi_mvi</span></a></div></div></div></footer>
+<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Esta es una herramienta no oficial. Calculamos tu factor de inscripción con la fórmula que explica la universidad, pero el valor que cuenta es el que publica la universidad.</p></div><div class="fl" id="ffl"><b>Otras herramientas</b><button type="button" data-pick="1">Ponderado de un curso</button></div><div class="fl"><b>Comentarios o sugerencias</b></div></div></footer>
 </div>
 
 <div class="tgw off" id="tgw"><button type="button" class="tg" id="tg" role="switch" aria-checked="false" aria-label="Modo oscuro"><svg class="ti s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><svg class="ti m" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.6 9.6 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z"/></svg><span class="tk"><svg class="s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><svg class="m" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.6 9.6 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z"/></svg></span></button></div>
@@ -816,6 +830,11 @@ const FI_ACTIVO=false;
 const idle=f=>("requestIdleCallback" in window)?requestIdleCallback(f,{timeout:4000}):setTimeout(f,1500);
 const PH_KEY="phc_q6PgfjjfSHRyMd65DY3vcoayYPk5Siv4oX2t3zP6bzxj",PH_REGION="us";
 const PH_HOST=PH_REGION==="eu"?"https://eu.i.posthog.com":"https://us.i.posthog.com";
+/* Trafico interno: abre la pagina una vez con ?interno=1 en cada dispositivo tuyo (?interno=0 lo quita). Tambien se marcan localhost y los previews de Vercel; el sitio real (myponderup.vercel.app) no */
+let INT=false;try{const q=new URLSearchParams(location.search).get("interno");if(q==="1")localStorage.setItem("mp-int","1");else if(q==="0")localStorage.removeItem("mp-int");INT=localStorage.getItem("mp-int")==="1"}catch(_){}
+if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||/^[a-z0-9-]+-[a-z0-9]{9}-[a-z0-9-]+\.vercel\.app$/.test(location.hostname))INT=true;
+/* Etapa: ultima fase alcanzada; se guarda como propiedad global para que el evento de salida ($pageleave) diga donde se fue la persona */
+let ETAPA="inicio";const setEtapa=e=>{ETAPA=e;try{if(phOn)posthog.register({etapa:e})}catch(_){}};
 const phQ=[];let phOn=false,phErr=0;
 const track=(n,p)=>{if(!PH_KEY)return;try{if(phOn)posthog.capture(n,p);else phQ.push([n,p])}catch(_){}};
 (()=>{if(!PH_KEY)return;
@@ -823,13 +842,13 @@ const track=(n,p)=>{if(!PH_KEY)return;try{if(phOn)posthog.capture(n,p);else phQ.
  sc.src=PH_HOST.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js";
  sc.onload=()=>{try{posthog.init(PH_KEY,{api_host:PH_HOST,person_profiles:"identified_only",capture_pageview:true,capture_pageleave:true,autocapture:true,
    capture_heatmaps:true,respect_dnt:true,disable_surveys:true,session_recording:{maskAllInputs:true,maskTextSelector:"#sgm"}});
-   posthog.register({app:"myponderup",pantalla_ancho:window.innerWidth});
+   posthog.register({app:"myponderup",pantalla_ancho:window.innerWidth,interno:INT,etapa:ETAPA});
    phOn=true;phQ.splice(0).forEach(([n,p])=>posthog.capture(n,p))}catch(_){}};
  document.head.appendChild(sc)}catch(_){}};
  /* PostHog se carga cuando la pagina ya termino de cargar y el navegador esta libre; los eventos mientras tanto quedan en cola */
  if(document.readyState==="complete")idle(go);else window.addEventListener("load",()=>idle(go),{once:true});
  window.addEventListener("error",e=>{if(phErr++<5)track("error_js",{mensaje:String(e.message).slice(0,120)})})})();
-const seenFirst=new Set(),seenCombo=new Set(),seenSec=new Set();let calcTm=0;
+const seenFirst=new Set(),seenCombo=new Set(),seenSec=new Set(),seenTyp=new Set(),seenBad=new Set();let calcTm=0,pmT=0;
 const trackCombo=()=>{if(view==="tool"&&cur&&!seenCombo.has(cur)&&$("cb").innerHTML.indexOf("<table")>-1){seenCombo.add(cur);track("combos_vistos",{curso:cur,pendientes:pend().length})}};
 const rnd=x=>Math.floor(x+.5+1e-9),fmt=x=>String(Math.round((x+1e-9)*100)/100);
 const T=100/3,SC=["#0A5CFF","#00F03C","#F000F0","#FFFFFF"],WB=[["#0A5CFF","#fff"],["#00F03C","#061F47"],["#F000F0","#061F47"]];
@@ -912,7 +931,7 @@ function paintBars(){
  document.querySelectorAll("#zb .zs").forEach(e=>{const was=e.classList.contains("pd"),now=e.dataset.ids.split(",").some(isP);e.classList.toggle("pd",now);if(was&&!now){e.classList.remove("pop");void e.offsetWidth;e.classList.add("pop")}})}
 let faqNear=false;
 const chk=()=>{$("mini").classList.toggle("on",view==="tool"&&!sumIn&&!faqIn);$("tgw").classList.toggle("off",(view!=="tool"&&view!=="fi")||faqNear)};
-function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});["welcome","pick","tool","fi"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
+function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi"}[v]||v);["welcome","pick","tool","fi"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
 
 function setCourse(k){
@@ -977,8 +996,9 @@ function update(){
  let cb="";
  if(n){
   const fp=(x,l)=>String(Math.round(x*(l.mx||20)/20*100)/100);
-  const hdr=`<tr>${P.map(l=>`<th>${l.n}</th>`).join("")}<th class="pfc">Promedio final</th></tr>`;
-  const mk=o=>{const v=ev(R,full(o)),pv=S.rf?rnd(v):fmt(v);return `<tr>${P.map(l=>`<td>${fp(o[l.id],l)}</td>`).join("")}<td class="pfc">${pv}</td></tr>`};
+  const ea=s=>String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+  const hdr=`<tr class="ch">${P.map(l=>`<th>${l.n}</th>`).join("")}<th class="pfc">Promedio final</th></tr>`;
+  const mk=o=>{const v=ev(R,full(o)),pv=S.rf?rnd(v):fmt(v);return `<tr>${P.map(l=>`<td data-l="${ea(l.n)}">${fp(o[l.id],l)}</td>`).join("")}<td class="pfc" data-l="Promedio final">${pv}</td></tr>`};
   /* Combinaciones: las evaluaciones van en orden de rendición (las primeras son las más fáciles).
      Cada fila es una escalera que baja: primeras notas más altas, últimas más bajas, y todas llegan a la nota mínima.
      D = diferencia entre la primera y la última nota pendiente (0 = todas parecidas). Para cada D se busca la nota "base" más baja que aprueba. */
@@ -990,7 +1010,7 @@ function update(){
    for(let x=-D/2;x<=20+D/2+1e-9;x+=.5){
     const o={};P.forEach((l,i)=>o[l.id]=sn(Math.max(0,Math.min(20,x+D*(.5-i/(n-1)))),l));
     if(okc(o)){const k=P.map(l=>o[l.id]).join(",");if(!seen.has(k)){seen.add(k);rows.push(mk(o))}break}}}
-  cb=okk?`<p class="msg">Ya aprobaste: aunque saques 0 en lo que falta, llegas a ${S.pm}.</p>`:!rows.length?`<p class="msg bad">Ni con 20 en todo lo que falta llegarías a ${S.pm}.</p>`:`<h2>Combinaciones posibles para aprobar</h2><div class="sc"><table>${hdr}${rows.join("")}</table></div>`;
+  cb=okk?`<p class="msg">Ya aprobaste: aunque saques 0 en lo que falta, llegas a ${S.pm}.</p>`:!rows.length?`<p class="msg bad">Ni con 20 en todo lo que falta llegarías a ${S.pm}.</p>`:`<h2>Combinaciones posibles para aprobar</h2><div class="sc cbt"><table>${hdr}${rows.join("")}</table></div>`;
  }
  $("cb").innerHTML=cb;
  trackCombo();
@@ -999,7 +1019,7 @@ function update(){
 }
 
 const h=e=>{const t=e.target,id=t.dataset.id;
- if(t.classList.contains("g")){S.g[id]=t.value;const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);gi.classList.toggle("bad",f&&(+t.value>(idx[id].mx||20)||+t.value<0));t.style.width=f?(t.value.length+.6)+"ch":""}}
+ if(t.classList.contains("g")){S.g[id]=t.value;if(e.type==="input"&&t.value!==""&&!seenTyp.has(cur)){seenTyp.add(cur);track("nota_escribiendo",{curso:cur})}const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);const bd=f&&(+t.value>(idx[id].mx||20)||+t.value<0);gi.classList.toggle("bad",bd);if(bd){const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}t.style.width=f?(t.value.length+.6)+"ch":""}}
  else if(t.dataset.r)idx[t.dataset.r].r=t.checked?1:0;
  else if(t.id==="rf")S.rf=t.checked;
  else if(t.id==="pm")S.pm=Math.max(0,Math.min(20,+t.value||0));
@@ -1008,17 +1028,16 @@ const h=e=>{const t=e.target,id=t.dataset.id;
 document.addEventListener("input",h);document.addEventListener("change",h);
 /* Analíticas de uso de la calculadora: solo conteos y si aprueba o no, nunca las notas */
 function trackCalc(){clearTimeout(calcTm);calcTm=setTimeout(()=>{if(!S)return;const L=leaves(S.root),n=pend().length;
- track("calculo_actualizado",{curso:cur,total:L.length,ingresadas:L.length-n,pendientes:n,completo:n===0,aprobado:pass(ev(S.root,full({}))),nota_minima:S.pm,redondeo_final:!!S.rf})},1800)}
+ track("calculo_actualizado",{curso:cur,total:L.length,ingresadas:L.length-n,pendientes:n,completo:n===0,aprobado:pass(ev(S.root,full({}))),nota_minima:S.pm,redondeo_final:!!S.rf});if(n===0)setEtapa("completo")},1800)}
 document.addEventListener("change",e=>{const t=e.target;if(!t||!t.classList)return;
  if(t.classList.contains("g")&&t.value!==""){const L=leaves(S.root),n=L.filter(l=>!isP(l.id)).length;
   track("nota_ingresada",{curso:cur,evaluacion:t.dataset.id,ingresadas:n,total:L.length});
-  if(!seenFirst.has(cur)){seenFirst.add(cur);track("primera_nota",{curso:cur,nombre:C[cur].n})}trackCalc()}
+  if(!seenFirst.has(cur)){seenFirst.add(cur);track("primera_nota",{curso:cur,nombre:C[cur].n});setEtapa("con_notas")}trackCalc()}
  else if(t.dataset&&t.dataset.r)track("redondeo_cambiado",{curso:cur,evaluacion:t.dataset.r,activo:t.checked});
  else if(t.id==="rf")track("redondeo_final_cambiado",{curso:cur,activo:t.checked});
  else if(t.id==="pm"){track("nota_minima_cambiada",{curso:cur,valor:S.pm});trackCalc()}});
 document.addEventListener("click",e=>{
  if(!e.target.closest(".cs"))closeList();
- const ig=e.target.closest("a[href*='instagram.com']");if(ig)track("instagram_click",{cuenta:ig.textContent.trim()});
  if(e.target.closest("a[href='#faq']"))track("como_funciona_click");
  const b=e.target.closest("button");if(!b)return;
  if(b.hasAttribute("data-share"))doShare(b.classList.contains("shf")?"pie":"barra");
@@ -1032,7 +1051,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeList()});
 
 $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+GR.map(([t,g])=>`<section class="pg"><h2 class="gt">${t}<i>${inG(g).length}</i></h2><div class="pl">${inG(g).map(x=>{const i=KS.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`}).join("")}</div></section>`).join("");
 const pb=document.querySelector("#sum .pbar");let drag=false,raf=0;
-const setPm=v=>{v=Math.max(0,Math.min(20,Math.round(v)));if(v===S.pm)return;S.pm=v;trackCalc();$("pm").value=v;if(!raf)raf=requestAnimationFrame(()=>{raf=0;update()})};
+const setPm=v=>{v=Math.max(0,Math.min(20,Math.round(v)));if(v===S.pm)return;S.pm=v;trackCalc();clearTimeout(pmT);pmT=setTimeout(()=>track("meta_cambiada",{curso:cur,valor:S.pm,via:"barra"}),1200);$("pm").value=v;if(!raf)raf=requestAnimationFrame(()=>{raf=0;update()})};
 const fromX=x=>{const r=pb.getBoundingClientRect();return r.width?(x-r.left)/r.width*20:S.pm};
 pb.addEventListener("pointerdown",e=>{drag=true;try{pb.setPointerCapture(e.pointerId)}catch(_){}pb.classList.add("drag");setPm(fromX(e.clientX))});
 pb.addEventListener("pointermove",e=>{if(drag)setPm(fromX(e.clientX))});
@@ -1112,17 +1131,17 @@ function load(){try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(!j|
 /* ===== Compartir ===== */
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2600)}
 async function doShare(o){track("compartir_click",{origen:o});
- const url=location.href.split("#")[0],d={title:"My PonderUP",text:"Calcula tu ponderado y mira qué notas necesitas para aprobar.",url};
+ const su=m=>{const u=new URL(location.origin+location.pathname);u.searchParams.set("utm_source","share");u.searchParams.set("utm_medium",m);u.searchParams.set("utm_campaign",o);return u.toString()},url=su("copiar"),d={title:"My PonderUP",text:"Calcula tu ponderado y mira qué notas necesitas para aprobar.",url:su("nativo")};
  if(navigator.share&&window.matchMedia&&matchMedia("(pointer:coarse)").matches){try{await navigator.share(d);track("compartir_ok",{origen:o,metodo:"nativo"});return}catch(e){if(e&&e.name==="AbortError")return}}
  try{await navigator.clipboard.writeText(url);toast("Enlace copiado");track("compartir_ok",{origen:o,metodo:"copiar"})}
  catch(_){const ta=document.createElement("textarea");ta.value=url;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Enlace copiado":url)}}
 
 /* ===== Comentarios o sugerencias (API propia /api/sugerencia) =====
-   El navegador solo ayuda al usuario (trampa oculta _gotcha, tiempo minimo escribiendo, sin enlaces, sin repetidos, 1 por minuto y
+   El navegador solo ayuda al usuario (trampa oculta _gotcha, tiempo minimo escribiendo, sin enlaces, sin repetidos y
    3 al dia). Esas reglas se pueden saltar, asi que la proteccion real esta en el servidor (api/sugerencia.js): origen, captcha,
    limite por IP, tope global, etc. TS_SITEKEY: clave publica de Cloudflare Turnstile ("" = sin captcha). */
-{const f=$("sgf"),m=$("sgm"),b=$("sgb"),st=$("sgs"),LK="mp-sg",MIN_MS=2500,COOL=60e3,MAXDAY=3,TS_SITEKEY="";let busy=false,t0=0,tsId=null,tsTok="",tsOn=false;
- const ERR={espera:"Espera un minuto antes de enviar otro mensaje.",limite_dia:"Ya enviaste varios mensajes hoy. ¡Gracias! Puedes escribir de nuevo mañana.",
+{const f=$("sgf"),m=$("sgm"),b=$("sgb"),st=$("sgs"),LK="mp-sg",MIN_MS=2500,MAXDAY=3,TS_SITEKEY="";let busy=false,t0=0,tsId=null,tsTok="",tsOn=false;
+ const ERR={espera:"Espera unos segundos antes de enviar otro mensaje.",limite_dia:"Ya enviaste varios mensajes hoy. ¡Gracias! Puedes escribir de nuevo mañana.",
   enlace:"Por seguridad no se permiten enlaces en los mensajes.",captcha:"No pudimos verificar que eres una persona. Recarga la página e inténtalo otra vez.",
   cupo:"Hoy ya recibimos muchos mensajes. Inténtalo mañana, ¡gracias!",invalido:"Revisa tu mensaje: debe tener entre 5 y 1000 caracteres."};
  const grow=()=>{m.style.height="auto";m.style.height=Math.min(m.scrollHeight+2,130)+"px"};
@@ -1146,8 +1165,7 @@ async function doShare(o){track("compartir_click",{origen:o});
   if(t.length<5)return block("corto","Escribe un poco más para poder entenderte.");
   if(/(https?:\/\/|www\.)/i.test(t))return block("enlace",ERR.enlace);
   if(!t0||Date.now()-t0<MIN_MS)return block("rapido","Un momento, revisa tu mensaje e inténtalo otra vez.");
-  const H=hist(),last=H[H.length-1];
-  if(last&&Date.now()-last.t<COOL)return block("espera",ERR.espera);
+  const H=hist();
   if(H.length>=MAXDAY)return block("limite_dia",ERR.limite_dia);
   if(H.some(x=>x.h===norm(t)))return block("repetido","Ya recibimos ese mensaje. ¡Gracias!");
   if(TS_SITEKEY&&!tsTok){tsLoad();return block("captcha_espera","Estamos verificando que eres una persona. Espera un momento e inténtalo otra vez.")}
@@ -1158,7 +1176,7 @@ async function doShare(o){track("compartir_click",{origen:o});
    if(r.ok&&j&&j.ok){addH(t);t0=0;m.value="";m.style.height="";say("¡Gracias! Recibimos tu mensaje.","ok");track("sugerencia_enviada",{curso:cur,largo:t.length})}
    else{let code=j&&j.error;if(code&&typeof code==="object")code="firewall";code=String(code||"");
     const sinClave=code==="captcha"&&!TS_SITEKEY;if(sinClave)code="captcha_sin_clave";
-    say(sinClave?"El envío no está disponible por ahora. Inténtalo más tarde.":code==="espera"&&r.status===429?"Hay varios envíos desde tu red en este momento. Espera un minuto e inténtalo otra vez.":ERR[code]||(r.status===429?"Hay muchos envíos en este momento. Inténtalo en unos minutos.":"No se pudo enviar. Inténtalo otra vez."),"bad");track("sugerencia_error",{estado:r.status,motivo:code})}
+    say(sinClave?"El envío no está disponible por ahora. Inténtalo más tarde.":ERR[code]||(r.status===429?"Hay muchos envíos en este momento. Inténtalo en unos minutos.":"No se pudo enviar. Inténtalo otra vez."),"bad");track("sugerencia_error",{estado:r.status,motivo:code})}
    tsReset()}
   catch(_){say("No se pudo enviar. Revisa tu conexión e inténtalo otra vez.","bad");track("sugerencia_error",{estado:"red"});tsReset()}
   busy=false;b.disabled=false;b.textContent="Enviar"})}
