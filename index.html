@@ -450,7 +450,7 @@ input.g:placeholder-shown+.sf{display:none}
  .sc td{padding:9px 5px;font-size:.92rem}
  .sc th.pfc,.sc td.pfc{min-width:64px;padding-left:6px;padding-right:6px}
  .sc td.pfc{border-left:1px solid var(--line)}
- .sc th.pfc span{display:block}
+ .sc th span{display:block}
 }
 .sc th:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.35)}
 .sc td:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2)}
@@ -992,7 +992,14 @@ function update(){
  let cb="";
  if(n){
   const fp=(x,l)=>String(Math.round(x*(l.mx||20)/20*100)/100);
-  const hdr=`<tr>${P.map(l=>`<th>${l.n}</th>`).join("")}<th class="pfc"><span>Promedio</span> <span>final</span></th></tr>`;
+  /* Encabezados en dos filas: si termina en numero, el numero va solo abajo ("Control 1" -> Control / 1, "PC1" -> PC / 1);
+     si no, se reparte el nombre en dos filas lo mas parejas posible para que la columna no se ensanche */
+  const hn=n=>{n=String(n).trim();let a=n,b="";const w=n.split(/\s+/);
+   if(w.length>1&&/^\d+$/.test(w[w.length-1])){a=w.slice(0,-1).join(" ");b=w[w.length-1]}
+   else if(w.length===1){const d=n.match(/^(\D+?)(\d+)$/);if(d){a=d[1];b=d[2]}}
+   else{let best=1e9;for(let k=1;k<w.length;k++){const x=w.slice(0,k).join(" "),y=w.slice(k).join(" "),m=Math.max(x.length,y.length);if(m<=best){best=m;a=x;b=y}}}
+   return `<span>${a}</span>${b?` <span>${b}</span>`:""}`};
+  const hdr=`<tr>${P.map(l=>`<th>${hn(l.n)}</th>`).join("")}<th class="pfc"><span>Promedio</span> <span>final</span></th></tr>`;
   const mk=o=>{const v=ev(R,full(o)),pv=S.rf?rnd(v):fmt(v);return `<tr>${P.map(l=>`<td>${fp(o[l.id],l)}</td>`).join("")}<td class="pfc">${pv}</td></tr>`};
   /* Combinaciones: las evaluaciones van en orden de rendición (las primeras son las más fáciles).
      Cada fila es una escalera que baja: primeras notas más altas, últimas más bajas, y todas llegan a la nota mínima.
