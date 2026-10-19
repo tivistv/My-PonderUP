@@ -1,5 +1,27 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/ig",
+      "destination": "/?utm_source=instagram&utm_medium=bio",
+      "permanent": false
+    },
+    {
+      "source": "/tt",
+      "destination": "/?utm_source=tiktok&utm_medium=bio",
+      "permanent": false
+    },
+    {
+      "source": "/wa",
+      "destination": "/?utm_source=whatsapp",
+      "permanent": false
+    },
+    {
+      "source": "/qr",
+      "destination": "/?utm_source=qr&utm_medium=cartel",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/fonts/(.*)",
