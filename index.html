@@ -226,7 +226,7 @@ h2{font:800 1.2rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-tr
 .nm em{font-style:normal;color:var(--mut);font-size:.8rem;font-weight:500;margin-left:8px}
 .sv{font-variant-numeric:tabular-nums;text-align:right;font-weight:800;color:var(--ink);padding-right:4px}
 .sv.pn{font-weight:500;font-style:italic;color:var(--mut);font-size:.85rem}
-input[type=number]{width:100%;font:600 1rem Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:8px 10px;border:1px solid var(--lines);border-radius:2px;background:var(--fld);color:var(--ink)}
+input[type=number],input.g,#pm{width:100%;font:600 1rem Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:8px 10px;border:1px solid var(--lines);border-radius:2px;background:var(--fld);color:var(--ink)}
 input.g{width:120px;flex:none;padding:8px;-moz-appearance:textfield}
 input.g::-webkit-outer-spin-button,input.g::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .g::placeholder{color:var(--mut);opacity:1;font-style:italic;font-weight:500;font-size:.9rem}
@@ -723,7 +723,7 @@ input.g:placeholder-shown+.sf{display:none}
 <h2 class="it rv" style="--i:3">Ingresa tus notas</h2>
 <p class="nota rv" style="--i:4"><i>i</i><span><b>Nota:</b> <span class="nl">Ingresa tus notas tal como las obtuviste. El sistema ya redondea por defecto las que corresponden y deja las demás sin redondear.<br>Tus notas se quedan en tu dispositivo: no las enviamos ni las guardamos en ningún servidor.</span><span class="ns">Ingresa tus notas tal cual; el sistema ya redondea las que corresponden.<br>Tus notas se quedan en tu dispositivo: no las enviamos.</span></span></p>
 <section id="tree"></section>
-<section id="sum"><div class="sm1"><div><b id="sl1"></b><div class="mut" id="sl2"></div></div><div id="big"></div></div><div class="pbar"><i id="pf"></i><u id="mk" role="slider" tabindex="0" aria-label="Nota mínima para aprobar" aria-valuemin="0" aria-valuemax="20"><b id="mkt"></b></u></div><div class="sm2"><span id="pt"></span><label class="minl">Nota mínima <input type="number" id="pm" aria-label="Nota mínima para aprobar" min="0" max="20" step="any" value="11"></label></div></section>
+<section id="sum"><div class="sm1"><div><b id="sl1"></b><div class="mut" id="sl2"></div></div><div id="big"></div></div><div class="pbar"><i id="pf"></i><u id="mk" role="slider" tabindex="0" aria-label="Nota mínima para aprobar" aria-valuemin="0" aria-valuemax="20"><b id="mkt"></b></u></div><div class="sm2"><span id="pt"></span><label class="minl">Nota mínima <input type="text" inputmode="decimal" autocomplete="off" maxlength="5" id="pm" aria-label="Nota mínima para aprobar" value="11"></label></div></section>
 <p class="tip"><b>TIP:</b> Arrastra la línea o escribe tu nota mínima y la tabla se ajusta.</p>
 <section id="cb"></section>
 </main>
@@ -910,7 +910,7 @@ const pend=()=>leaves(S.root).filter(l=>isP(l.id));
 const full=o=>{const v={};leaves(S.root).forEach(l=>{const m=l.mx||20;v[l.id]=isP(l.id)?(o[l.id]??0):Math.min(m,Math.max(0,+S.g[l.id]))*20/m});return v};
 const ev=(n,v)=>{const x=n.ch?n.ch.reduce((s,c)=>s+ev(c,v)*(+c.w||0)/100,0):v[n.id];return n.r?rnd(x):x};
 const pass=a=>(S.rf?rnd(a):a)>=S.pm-1e-9;
-const inp=c=>{const v=S.g[c.id],f=v!==undefined&&v!=="",bd=f&&(+v>(c.mx||20)||+v<0);return `<label class="gi${f?" fl":""}${bd?" bad":""}"><input class="g" data-id="${c.id}" type="number" inputmode="decimal" min="0" max="${c.mx||20}" step="any" placeholder="Por rendir" aria-label="Nota de ${c.n}" value="${v??""}"${f?` style="width:${String(v).length+.6}ch"`:""}><span class="sf">/${c.mx||20}</span></label>`};
+const inp=c=>{const v=S.g[c.id],f=v!==undefined&&v!=="",bd=f&&(+v>(c.mx||20)||+v<0);return `<label class="gi${f?" fl":""}${bd?" bad":""}"><input class="g" data-id="${c.id}" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="6" placeholder="Por rendir" aria-label="Nota de ${c.n}" value="${v??""}"${f?` style="width:${String(v).length+.6}ch"`:""}><span class="sf">/${c.mx||20}</span></label>`};
 /* Modelo A: cada evaluación muestra su % sobre el total del curso (c.a se calcula en mkState). d:"" oculta el % (partes medidas en puntos). */
 const dv=c=>c.d===""?"":fmt(c.a)+"%";
 const absW=(n,p)=>(n.ch||[]).forEach(c=>{c.a=p*(+c.w||0)/100;absW(c,c.a)});
@@ -1020,11 +1020,14 @@ function update(){
  save();
 }
 
+/* Notas: se puede escribir con coma o con punto, pero siempre se guarda y se muestra con punto */
+const nd=t=>{let v=t.value.replace(/,/g,".").replace(/[^0-9.]/g,"");const i=v.indexOf(".");if(i>=0)v=v.slice(0,i+1)+v.slice(i+1).replace(/\./g,"");
+ if(v!==t.value){const p=t.selectionStart,d=t.value.length-v.length;t.value=v;try{const q=Math.max(0,(p==null?v.length:p)-d);t.setSelectionRange(q,q)}catch(_){}}return v};
 const h=e=>{const t=e.target,id=t.dataset.id;
- if(t.classList.contains("g")){S.g[id]=t.value;if(e.type==="input"&&t.value!==""&&!seenTyp.has(cur)){seenTyp.add(cur);track("nota_escribiendo",{curso:cur})}const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);const bd=f&&(+t.value>(idx[id].mx||20)||+t.value<0);gi.classList.toggle("bad",bd);if(bd){const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}t.style.width=f?(t.value.length+.6)+"ch":""}}
+ if(t.classList.contains("g")){S.g[id]=nd(t);if(e.type==="input"&&t.value!==""&&!seenTyp.has(cur)){seenTyp.add(cur);track("nota_escribiendo",{curso:cur})}const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);const bd=f&&(+t.value>(idx[id].mx||20)||+t.value<0);gi.classList.toggle("bad",bd);if(bd){const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}t.style.width=f?(t.value.length+.6)+"ch":""}}
  else if(t.dataset.r)idx[t.dataset.r].r=t.checked?1:0;
  else if(t.id==="rf")S.rf=t.checked;
- else if(t.id==="pm")S.pm=Math.max(0,Math.min(20,+t.value||0));
+ else if(t.id==="pm")S.pm=Math.max(0,Math.min(20,+nd(t)||0));
  else return;
  update()};
 document.addEventListener("input",h);document.addEventListener("change",h);
@@ -1133,7 +1136,7 @@ function load(){try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(!j|
 /* ===== Compartir ===== */
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2600)}
 async function doShare(o){track("compartir_click",{origen:o});
- const su=m=>{const u=new URL(location.origin+location.pathname);u.searchParams.set("utm_source","share");u.searchParams.set("utm_medium",m);u.searchParams.set("utm_campaign",o);return u.toString()},url=su("copiar"),d={title:"My PonderUP",text:"Calcula tu ponderado y mira qué notas necesitas para aprobar.",url:su("nativo")};
+ const url=location.origin+location.pathname+"?utm_source=share",d={title:"My PonderUP",text:"Calcula tu ponderado y mira qué notas necesitas para aprobar.",url};
  if(navigator.share&&window.matchMedia&&matchMedia("(pointer:coarse)").matches){try{await navigator.share(d);track("compartir_ok",{origen:o,metodo:"nativo"});return}catch(e){if(e&&e.name==="AbortError")return}}
  try{await navigator.clipboard.writeText(url);toast("Enlace copiado");track("compartir_ok",{origen:o,metodo:"copiar"})}
  catch(_){const ta=document.createElement("textarea");ta.value=url;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Enlace copiado":url)}}
