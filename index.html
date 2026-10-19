@@ -91,7 +91,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     a Formspree o Resend; la direccion de Formspree ya NO esta en este archivo (vive en la variable de entorno FORMSPREE_ENDPOINT).
   - Analiticas: PostHog (constantes PH_KEY y PH_REGION al inicio del script). Eventos con track(nombre, datos): pantalla, empezar_click,
     curso_elegido, primera_nota, nota_ingresada, calculo_actualizado, combos_vistos, resumen_visto, faq_abierta, compartir_*, sugerencia_*,
-    tema_cambiado, nota_escribiendo, nota_fuera_de_rango, meta_cambiada, etc. Nunca se envian los valores de las notas. Las grabaciones enmascaran todos los campos.
+    tema_cambiado, nota_escribiendo, nota_fuera_de_rango, meta_cambiada, instagram_click (lugar: resultado|pie), etc. Nunca se envian los valores de las notas. Las grabaciones enmascaran todos los campos.
   - Rendimiento: la fuente Montserrat (variable, solo latin, 38 KB) se sirve desde /fonts/ con preload y una fuente de respaldo con las mismas
     medidas ("Montserrat Fallback") para que el texto no salte al cargar. El logo de bienvenida tiene preload y prioridad alta; los demas logos
     prioridad baja. PostHog y favicon se cargan al final (idle()). vercel.json da cache de 365 dias a /fonts y agrega cabeceras de seguridad.
@@ -393,7 +393,16 @@ input.g:focus{border-style:solid;border-color:var(--ink);box-shadow:0 0 0 3px rg
 .wm a+a{padding-left:18px;border-left:1px solid rgba(255,255,255,.25)}
 .wm:hover{color:rgba(255,255,255,.65)}
 .wm a:hover{color:var(--green)}
-.igs{display:flex;flex-wrap:wrap;gap:4px 18px}
+.igs{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:10px}
+.igc{display:flex;align-items:center;gap:14px;margin:20px 0 4px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);color:var(--ink);text-decoration:none}
+.igc:hover{border-color:var(--ink);border-left-color:var(--green)}
+.igc:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.igc svg{flex:none;width:28px;height:28px}
+.igc .igt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.igc b{font-weight:800;font-size:.98rem;line-height:1.25}
+.igc small{font-weight:700;color:var(--gt);font-size:.9rem}
+a[data-ig][hidden]{display:none!important}
+@media (max-width:600px){.igc{min-height:56px;margin:16px 0 0}}
 
 #sl1{font-size:clamp(1.1rem,4.8vw,1.5rem);font-weight:900;line-height:1.15;letter-spacing:.01em}
 #big{font-size:3.6rem}
@@ -726,6 +735,7 @@ input.g:placeholder-shown+.sf{display:none}
 <section id="sum"><div class="sm1"><div><b id="sl1"></b><div class="mut" id="sl2"></div></div><div id="big"></div></div><div class="pbar"><i id="pf"></i><u id="mk" role="slider" tabindex="0" aria-label="Nota mínima para aprobar" aria-valuemin="0" aria-valuemax="20"><b id="mkt"></b></u></div><div class="sm2"><span id="pt"></span><label class="minl">Nota mínima <input type="text" inputmode="decimal" autocomplete="off" maxlength="5" id="pm" aria-label="Nota mínima para aprobar" value="11"></label></div></section>
 <p class="tip"><b>TIP:</b> Arrastra la línea o escribe tu nota mínima y la tabla se ajusta.</p>
 <section id="cb"></section>
+<a class="igc" data-ig="resultado" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span class="igt"><b>¿Te sirvió? Síguenos en Instagram</b><small class="igu">@myponderup</small></span></a>
 </main>
 <section class="faq" id="faq"><div class="wrap">
 <h2>Cómo funciona</h2>
@@ -734,7 +744,7 @@ input.g:placeholder-shown+.sf{display:none}
 <details class="qa"><summary><span class="no">03</span><span class="q">¿Qué significa "Por rendir"?</span><i class="pm"></i></summary><div class="ans"><p>Es una evaluación que aún no has dado. Si la dejas en blanco, cuenta como 0 en "Mi promedio hasta ahora" y la tabla te dice qué necesitas sacar en ella. Si escribes un 0, cuenta como una nota ya rendida.</p></div></details>
 <details class="qa"><summary><span class="no">04</span><span class="q">¿Es una herramienta oficial?</span><i class="pm"></i></summary><div class="ans"><p>No. Es una calculadora para planificar tus notas. El resultado oficial es el que publica la universidad.</p></div></details>
 </div></section>
-<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Esta es una herramienta no oficial. Usamos los pesos y reglas de los reglamentos de cada curso, pero si notas alguna diferencia, lo que valida tu profesor o la universidad es lo que cuenta.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form></div></div></footer>
+<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Esta es una herramienta no oficial. Usamos los pesos y reglas de los reglamentos de cada curso, pero si notas alguna diferencia, lo que valida tu profesor o la universidad es lo que cuenta.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form><div class="igs"><a class="ig" data-ig="pie" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>También en Instagram · <b class="igu">@myponderup</b></span></a></div></div></div></footer>
 </div>
 
 
@@ -831,6 +841,9 @@ let INT=false;try{const q=new URLSearchParams(location.search).get("interno");if
 if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||/^[a-z0-9-]+-[a-z0-9]{9}-[a-z0-9-]+\.vercel\.app$/.test(location.hostname))INT=true;
 /* Etapa: ultima fase alcanzada; se guarda como propiedad global para que el evento de salida ($pageleave) diga donde se fue la persona */
 let ETAPA="inicio";const setEtapa=e=>{ETAPA=e;try{if(phOn)posthog.register({etapa:e})}catch(_){}};
+/* Instagram: usuario de la cuenta (sin @). Se cambia solo aqui; si lo dejas vacio, los enlaces se ocultan */
+const IG_USER="myponderup";
+{const iu=()=>document.querySelectorAll("a[data-ig]").forEach(a=>{if(!IG_USER){a.hidden=true;return}a.href="https://www.instagram.com/"+IG_USER+"/";a.setAttribute("aria-label","Instagram de @"+IG_USER);a.querySelectorAll(".igu").forEach(x=>x.textContent="@"+IG_USER)});if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",iu);else iu()}
 const phQ=[];let phOn=false,phErr=0;
 const track=(n,p)=>{if(!PH_KEY)return;try{if(phOn)posthog.capture(n,p);else phQ.push([n,p])}catch(_){}};
 (()=>{if(!PH_KEY)return;
@@ -1044,6 +1057,7 @@ document.addEventListener("change",e=>{const t=e.target;if(!t||!t.classList)retu
 document.addEventListener("click",e=>{
  if(!e.target.closest(".cs"))closeList();
  if(e.target.closest("a[href='#faq']"))track("como_funciona_click");
+ {const ig=e.target.closest("a[data-ig]");if(ig)track("instagram_click",{lugar:ig.dataset.ig})}
  const b=e.target.closest("button");if(!b)return;
  if(b.hasAttribute("data-share"))doShare(b.classList.contains("shf")?"pie":"barra");
  else if(b.id==="go"){track("empezar_click");showView("pick")}
