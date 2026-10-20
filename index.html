@@ -85,6 +85,11 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   - Los % que se ven en cada evaluacion son sobre el TOTAL del curso (modelo A) y se calculan solos a partir de w (c.a).
     d:"" en un nodo oculta su % (partes medidas en puntos, como los laboratorios de Introduccion a la Ingenieria).
   - Todos los cursos redondean parcial, final y promedio final al entero (el .5 sube).
+  - Grupos del menu de cursos (constante GR): Nivelacion (pre distinto de ""), Cursos y "Cursos Sellos UP". Un curso va a Sellos UP con gp:2 en su
+    entrada de C (Liderazgo y Filosofia). Sin gp, el grupo sale de pre (pre:"" = Cursos).
+  - nz:1 en un curso apaga la barra de zoom de la primera seccion (se usa en Filosofia, donde las unidades no son "trabajos").
+  - La barra de pesos (WB) tiene 4 colores: un curso admite hasta 4 evaluaciones principales (Liderazgo usa las 4).
+  - Contabilidad Financiera Intermedia: Controles de Lectura (9%) y Participacion (3%) son una sola nota cada uno (no se indico cuantos controles hay).
   - Combinaciones para aprobar: filas en escalera (primeras evaluaciones mas altas, ultimas mas bajas) con diferencia D = 0, 3, 6, 9, 12.
   - Compartir: boton en la barra superior y en el pie (menu de compartir en celular, copiar enlace en computadora).
   - Sugerencias: formulario en el pie que envia JSON con fetch a /api/sugerencia (funcion de Vercel, ver punto 9). La funcion lo valida y lo reenvia
@@ -863,7 +868,7 @@ const track=(n,p)=>{if(!PH_KEY)return;try{if(phOn)posthog.capture(n,p);else phQ.
 const seenFirst=new Set(),seenCombo=new Set(),seenSec=new Set(),seenTyp=new Set(),seenBad=new Set();let calcTm=0,pmT=0;
 const trackCombo=()=>{if(view==="tool"&&cur&&!seenCombo.has(cur)&&$("cb").innerHTML.indexOf("<table")>-1){seenCombo.add(cur);track("combos_vistos",{curso:cur,pendientes:pend().length})}};
 const rnd=x=>Math.floor(x+.5+1e-9),fmt=x=>String(Math.round((x+1e-9)*100)/100);
-const T=100/3,SC=["#0A5CFF","#00F03C","#F000F0","#FFFFFF"],WB=[["#0A5CFF","#fff"],["#00F03C","#061F47"],["#F000F0","#061F47"]];
+const T=100/3,SC=["#0A5CFF","#00F03C","#F000F0","#FFFFFF"],WB=[["#0A5CFF","#fff"],["#00F03C","#061F47"],["#F000F0","#061F47"],["#FFC400","#061F47"]];
 const C={
 mat:{n:"Matemáticas",rf:1,i:"La Nota de Trabajo (50%) sale de PC1 a PC4, que valen 10%, 10%, 15% y 15% del curso. El examen parcial pesa 20% y el final 30%. Las prácticas no se redondean; la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:50,r:1,ch:[{id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:30},{id:"pc4",n:"PC4",w:30}]},
@@ -915,10 +920,25 @@ eco1:{n:"Economía General I",pre:"",rf:1,i:"Trabajos pesa 40% y está formado p
 der1:{n:"Introducción al Derecho",pre:"",rf:1,i:"No hay examen parcial ni final: el curso se compone de Controles de Lectura (30%), Prácticas Calificadas (40%) y Evaluación Continua (30%). Los 3 controles valen lo mismo (10% del curso cada uno), las 4 prácticas calificadas también (10% cada una) y las 3 actividades calificadas de la Evaluación Continua también (10% cada una). El promedio final se redondea al entero (el .5 sube).",root:{ch:[
  {id:"cl",n:"Controles de Lectura",w:30,ch:[{id:"c1",n:"Control 1",s:"C1",w:T},{id:"c2",n:"Control 2",s:"C2",w:T},{id:"c3",n:"Control 3",s:"C3",w:T}]},
  {id:"pc",n:"Prácticas Calificadas",w:40,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
- {id:"ec",n:"Evaluación Continua",w:30,ch:[{id:"a1",n:"Actividad 1",s:"A1",w:T},{id:"a2",n:"Actividad 2",s:"A2",w:T},{id:"a3",n:"Actividad 3",s:"A3",w:T}]}]}}
+ {id:"ec",n:"Evaluación Continua",w:30,ch:[{id:"a1",n:"Actividad 1",s:"A1",w:T},{id:"a2",n:"Actividad 2",s:"A2",w:T},{id:"a3",n:"Actividad 3",s:"A3",w:T}]}]}},
+cfi:{n:"Contabilidad Financiera Intermedia",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con Prácticas Calificadas (28%, cinco prácticas que valen lo mismo: 5.6% cada una), Controles de Lectura (9%) y Participación en Clase (3%). El examen parcial y el final pesan 30% cada uno. Controles de Lectura y Participación se ingresan como una sola nota cada uno. El parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Trabajos",w:40,ch:[
+  {id:"pc",n:"Prácticas Calificadas",w:70,ch:[{id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:20},{id:"pc4",n:"PC4",w:20},{id:"pc5",n:"PC5",w:20}]},
+  {id:"cl",n:"Controles de Lectura",s:"CL",w:22.5,b:1},
+  {id:"ap",n:"Participación en Clase",s:"P",w:7.5,b:1}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+lid:{n:"Liderazgo",pre:"",gp:2,rf:1,i:"No hay examen parcial ni final. El curso se compone de Análisis de Casos (20%), Trabajo de Reflexión Personal (20%), Participación (30%) y Proyecto Final (30%). El promedio final se redondea al entero (el .5 sube).",root:{ch:[
+ {id:"ac",n:"Análisis de Casos",w:20},
+ {id:"tr",n:"Trabajo de Reflexión Personal",w:20},
+ {id:"pa",n:"Participación",w:30},
+ {id:"pf",n:"Proyecto Final",w:30}]}},
+fil:{n:"Filosofía",pre:"",gp:2,nz:1,rf:1,i:"No hay examen parcial ni final. El curso tiene 3 unidades: la Unidad 1 pesa 25% (PC1 15% y Nota de Trabajo 10%), la Unidad 2 pesa 35% (PC2 25% y Nota de Trabajo 10%) y la Unidad 3 pesa 40% (PC3 30% y Nota de Trabajo 10%). Los porcentajes que ves en cada evaluación son sobre el total del curso. El promedio final se redondea al entero (el .5 sube).",root:{ch:[
+ {id:"u1",n:"Unidad 1",w:25,ch:[{id:"pc1",n:"PC1",w:60},{id:"nt1",n:"Nota de Trabajo 1",s:"NT1",w:40}]},
+ {id:"u2",n:"Unidad 2",w:35,ch:[{id:"pc2",n:"PC2",w:2500/35},{id:"nt2",n:"Nota de Trabajo 2",s:"NT2",w:1000/35}]},
+ {id:"u3",n:"Unidad 3",w:40,ch:[{id:"pc3",n:"PC3",w:75},{id:"nt3",n:"Nota de Trabajo 3",s:"NT3",w:25}]}]}}
 };
-const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false;
-const GR=[["Nivelación",0],["Cursos",1]],gof=x=>C[x].pre===""?1:0,inG=g=>KS.filter(x=>gof(x)===g);
+const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","lid","fil"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false;
+const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g);
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
 const isP=id=>{const g=S.g[id];return g===undefined||g===""||isNaN(+g)};
@@ -959,7 +979,7 @@ function setCourse(k){
  const G=S.root.ch;
  $("wbar").innerHTML=G.map((g,i)=>`<span data-i="${i}" style="flex:${g.w};--wb:${WB[i][0]};--wc:${WB[i][1]}">${fmt(g.w)}%</span>`).join("");
  $("lgd").innerHTML=G.map((g,i)=>`<span style="--wb:${WB[i][0]}">${g.n}</span>`).join("");
- const zi=G.findIndex(g=>g.ch);
+ const zi=C[k].nz?-1:G.findIndex(g=>g.ch);
  if(zi>=0){const g=G[zi],L=sl(g),SH=[100,78,56];
   const lg="";
   $("zm").style.cssText=`--wb:${WB[zi][0]};--wc:${WB[zi][1]}`;
@@ -1067,7 +1087,7 @@ document.addEventListener("click",e=>{
  else if(b.id==="home"){track("volver_inicio");closeList();showView("welcome")}
  else if(b.id==="cbtn"){const o=$("clist").hidden;if(o)track("menu_cursos_abierto",{curso:cur});$("clist").hidden=!o;b.setAttribute("aria-expanded",String(o))}
  else if(b.dataset.fi){closeList();showView("fi")}
- else if(b.dataset.c){track("curso_elegido",{curso:b.dataset.c,nombre:C[b.dataset.c].n,grupo:gof(b.dataset.c)?"curso":"nivelacion",origen:b.dataset.p?"pantalla_elegir":b.dataset.f?"pie":"menu"});setCourse(b.dataset.c);if(b.dataset.p)showView("tool");else if(b.dataset.f)window.scrollTo({top:0})}
+ else if(b.dataset.c){track("curso_elegido",{curso:b.dataset.c,nombre:C[b.dataset.c].n,grupo:["nivelacion","curso","sello_up"][gof(b.dataset.c)],origen:b.dataset.p?"pantalla_elegir":b.dataset.f?"pie":"menu"});setCourse(b.dataset.c);if(b.dataset.p)showView("tool");else if(b.dataset.f)window.scrollTo({top:0})}
  else if(b.id==="rs"){track("curso_restablecido",{curso:cur});ST[cur]=null;setCourse(cur)}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeList()});
 
