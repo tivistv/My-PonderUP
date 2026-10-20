@@ -123,6 +123,13 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   Sin Upstash los contadores viven en la memoria de cada instancia de la funcion: sirven de freno, pero no son estrictos.
   Para activar Turnstile: poner la clave del sitio en TS_SITEKEY (bloque "Comentarios o sugerencias" del JavaScript) y TURNSTILE_SECRET en Vercel.
   Logos: alojados en /img/ (WebP). La vista previa del enlace usa /img/og.png (1200x630) con URL absoluta en og:image y og:url.
+
+10) AGREGA TU CURSO (boton arriba a la derecha en "Elige tu curso", pantalla #v-up)
+  El alumno envia el silabo o reglamento de un curso que falta. Maximo 3 archivos, 3 MB en total, solo PDF, Word (.docx), PNG y JPG
+  (se excluyen Excel y .doc antiguo porque pueden llevar macros). El navegador revisa extension, tipo y firma del archivo; el servidor
+  (api/subir-curso.js) lo repite, rechaza PDFs con JavaScript/Launch y .docx con macros, y envia los archivos por correo con Resend a
+  myponderup@gmail.com. Los archivos nunca se publican en la web. Variables de entorno: RESEND_API_KEY (obligatoria), CONTACT_TO (def. myponderup@gmail.com),
+  RESEND_FROM (def. onboarding@resend.dev), ALLOWED_ORIGINS | SITE_URL, UP_GLOBAL_DAILY_CAP (def. 30), UP_IP_DAILY_MAX (def. 5).
 =====================================================================
 -->
 <meta charset="utf-8">
@@ -704,6 +711,95 @@ input.g:placeholder-shown+.sf{display:none}
 .sgv{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 #toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:60;max-width:calc(100vw - 32px);overflow-wrap:anywhere;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:var(--navy);color:#fff;border-left:4px solid var(--green);border-radius:2px;padding:12px 16px;font:600 .85rem/1.3 Montserrat,"Montserrat Fallback",Arial,sans-serif;box-shadow:0 10px 26px rgba(0,0,0,.35);transition:opacity .25s,transform .25s}
 #toast.on{opacity:1;transform:translate(-50%,0)}
+/* ===== Agrega tu curso (botón en "Elige tu curso" + pantalla de envío de archivos) ===== */
+#v-pick .wc{padding-top:84px}
+.addc{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:16px;z-index:3;display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.08);color:#fff;border:2px solid var(--green);border-radius:2px;padding:9px 14px 9px 10px;font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.addc i{display:grid;place-items:center;flex:none;width:20px;height:20px;background:var(--green);color:var(--navy);font:900 1.05rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal}
+.addc:hover,.addc:focus-visible{background:var(--green);color:var(--navy)}
+.addc:hover i,.addc:focus-visible i{background:var(--navy);color:var(--green)}
+
+/* Pantalla "Agrega tu curso": mismo fondo con brillos que inicio y "Elige tu curso" */
+.upv{display:block;overflow:hidden;overflow:clip;align-items:initial}
+.upv .bar{position:relative;background:transparent;z-index:2}
+.upw{padding-top:30px;padding-bottom:72px}
+.upin{max-width:760px}
+.upv .gt{margin-bottom:18px}
+.upv .wt{margin:0 0 16px}
+.upv .wt .t1{font-size:clamp(1.3rem,5.4vw,2rem);margin-bottom:4px}
+.upv .wt .t2{font-size:clamp(3rem,13.5vw,5.4rem);color:var(--green)}
+.upi{margin:0 0 22px;max-width:56ch;font-size:clamp(.95rem,2.6vw,1.05rem);line-height:1.6;font-weight:500;color:rgba(255,255,255,.88)}
+.upst{list-style:none;margin:0 0 26px;padding:0;display:grid;gap:10px;grid-template-columns:repeat(3,1fr)}
+.upst li{display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.07);border-bottom:3px solid var(--c,#00F03C);font-size:.8rem;line-height:1.3;font-weight:600;color:rgba(255,255,255,.9)}
+.upst li:nth-child(1){--c:#0A5CFF}.upst li:nth-child(2){--c:#00F03C}.upst li:nth-child(3){--c:#F000F0}
+.upst li i{flex:none;display:grid;place-items:center;width:28px;height:28px;background:var(--c);color:var(--navy);font:900 .95rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal}
+.upst li:nth-child(1) i{color:#fff}
+.upst b{font-weight:800;text-transform:uppercase;letter-spacing:.03em;font-size:.72rem;display:block;color:#fff}
+.upf{position:relative;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green);padding:26px 24px 24px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.upstrip{position:absolute;left:-6px;right:-1px;top:-5px;display:flex;height:4px}
+.upstrip i{flex:1}
+.upstrip i:nth-child(1){background:#0A5CFF}.upstrip i:nth-child(2){background:#00F03C}.upstrip i:nth-child(3){background:#F000F0}.upstrip i:nth-child(4){background:#fff}
+.upg2{display:grid;gap:0 18px;grid-template-columns:1fr 1fr}
+.upf .upl{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 8px;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+.upf .upl em{font-style:normal;font-weight:600;letter-spacing:.04em;text-transform:none;font-size:.72rem;color:rgba(255,255,255,.6)}
+.upfd{margin-bottom:20px}
+.upf input[type=text],.upf input[type=email],.upf textarea{display:block;width:100%;background:rgba(6,31,71,.55);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:2px;padding:14px;font:600 1rem/1.35 Montserrat,"Montserrat Fallback",Arial,sans-serif;transition:border-color .2s,background .2s,box-shadow .2s}
+.upf textarea{min-height:88px;resize:vertical;font-weight:500}
+.upf input::placeholder,.upf textarea::placeholder{color:rgba(255,255,255,.45);font-weight:500}
+.upf input:hover,.upf textarea:hover{border-color:rgba(255,255,255,.5)}
+.upf input:focus,.upf textarea:focus{outline:0;border-color:var(--green);background:rgba(6,31,71,.8);box-shadow:0 0 0 3px rgba(0,240,60,.22)}
+.upc{font:800 .68rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;color:rgba(255,255,255,.7)}
+.upd{display:flex;align-items:center;gap:16px;padding:20px 18px;border:2px dashed rgba(0,240,60,.65);background:rgba(0,240,60,.06);cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+.upd:hover,.upd.dg,.upd:focus-within{background:rgba(0,240,60,.14);border-color:var(--green)}
+.upd.dg{transform:scale(1.01)}
+.upd.off{opacity:.5;cursor:not-allowed}
+.upd .ico{flex:none;display:grid;place-items:center;width:52px;height:52px;background:var(--green);color:var(--navy)}
+.upd .tx{display:flex;flex-direction:column;gap:5px;min-width:0}
+.upd .tx b{font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;line-height:1.15}
+.upd .tx small{font-size:.8rem;font-weight:500;line-height:1.4;color:rgba(255,255,255,.75)}
+.upd .fm{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.upd .fm span{font-size:.64rem;font-weight:800;letter-spacing:.08em;padding:4px 8px;border:1px solid rgba(255,255,255,.35);color:#fff}
+.upd input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.upm{display:flex;align-items:center;gap:12px;margin-top:12px;font-size:.76rem;font-weight:600;color:rgba(255,255,255,.75)}
+.upm .tr{flex:1;height:6px;background:rgba(255,255,255,.14);overflow:hidden}
+.upm .tr span{display:block;height:100%;width:0;background:var(--green);transition:width .3s,background .3s}
+.upm .tr span.hi{background:#F000F0}
+.upl2{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.upl2:empty{display:none}
+.upl2 li{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.09);border-left:4px solid var(--c,#00F03C);padding:10px 8px 10px 12px;animation:up .35s both}
+.upl2 li[data-t=pdf]{--c:#00F03C}.upl2 li[data-t=docx]{--c:#0A5CFF}.upl2 li[data-t=png],.upl2 li[data-t=jpg],.upl2 li[data-t=jpeg]{--c:#F000F0}
+.upl2 .fx{flex:none;min-width:46px;text-align:center;font-size:.64rem;font-weight:800;letter-spacing:.06em;background:var(--c);color:var(--navy);padding:6px 6px}
+.upl2 li[data-t=docx] .fx{color:#fff}
+.upl2 .fi{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.upl2 .fn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.9rem;font-weight:700}
+.upl2 .fs{font-size:.72rem;font-weight:500;color:rgba(255,255,255,.65)}
+.upl2 button{flex:none;display:grid;place-items:center;background:none;border:0;color:rgba(255,255,255,.8);width:36px;height:36px;cursor:pointer;border-radius:2px;transition:background .2s,color .2s}
+.upl2 button:hover,.upl2 button:focus-visible{background:rgba(255,122,122,.22);color:#ff7a7a}
+.upn{display:flex;gap:12px;align-items:flex-start;margin:18px 0 0;padding:12px 14px;background:rgba(0,240,60,.09);border-left:4px solid var(--green);font-size:.8rem;line-height:1.5;font-weight:500;color:rgba(255,255,255,.88)}
+.upn svg{flex:none;margin-top:1px;color:var(--green)}
+.upv .upb{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:22px;padding:19px 18px;font-size:.95rem}
+.upv .upb:disabled{opacity:.6;cursor:wait}
+.upv .beam{display:none}
+.ups{min-height:1.4em;margin-top:14px;font-size:.88rem;font-weight:700;line-height:1.4}
+.ups.ok{color:var(--green)}.ups.bad{color:#ff7a7a}
+.upok{text-align:left;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green);padding:34px 24px;animation:up .5s both}
+.upok .ck2{display:grid;place-items:center;width:64px;height:64px;background:var(--green);color:var(--navy);margin-bottom:18px}
+.upok h2{margin:0 0 10px;font-size:clamp(1.5rem,6vw,2.2rem);font-weight:900;text-transform:uppercase;line-height:1.02;color:#fff}
+.upok h2 span{color:var(--green)}
+.upok p{margin:0 0 22px;max-width:48ch;font-size:1rem;line-height:1.6;color:rgba(255,255,255,.85)}
+.upok .acts{display:flex;flex-wrap:wrap;gap:10px}
+.upok .acts .btn{margin-top:0}
+.upok .acts .sec{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.4)}
+.upok .acts .sec:hover{border-color:var(--green);color:var(--green);box-shadow:none}
+@media (max-width:700px){
+ .upst{grid-template-columns:1fr}
+ .upg2{grid-template-columns:1fr}
+ .upf{padding:22px 16px 20px}
+ .upd{padding:16px 14px;gap:12px}
+ .upd .ico{width:44px;height:44px}
+ .upok .acts .btn{width:100%}
+}
+@media (pointer:coarse){.upf input[type=text],.upf input[type=email],.upf textarea{font-size:16px}}
+
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -720,10 +816,42 @@ input.g:placeholder-shown+.sf{display:none}
 
 
 
-<div id="v-pick" class="wel" hidden><div class="wrap wc">
+<div id="v-pick" class="wel" hidden><button type="button" class="addc" id="addc"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><div class="wrap wc">
 <h1 class="wt eq"><span class="t1 mr" style="--i:0">Elige tu</span><span class="t2 mr" style="--i:1">curso</span></h1>
 <div class="pgs" id="plist"></div>
 </div>
+</div>
+
+<div id="v-up" class="wel upv" hidden>
+<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="uphome" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb" id="upback"><span>← Volver a cursos</span></button></div></div></div>
+<div class="wrap wc upw"><div class="upin">
+<div class="gt rv" style="--i:0">Ayúdanos a crecer</div>
+<h1 class="wt"><span class="t1 mr" style="--i:1">Agrega tu</span><span class="t2 mr" style="--i:2">curso</span></h1>
+<p class="upi rv" style="--i:3">¿No encuentras tu curso? Envíanos su sílabo o reglamento (donde salen los pesos de las notas) y lo agregamos a My PonderUP.</p>
+<ol class="upst rv" style="--i:4"><li><i>1</i><span><b>Escribe</b>el nombre del curso</span></li><li><i>2</i><span><b>Adjunta</b>el sílabo o reglamento</span></li><li><i>3</i><span><b>Listo</b>revisamos y agregamos</span></li></ol>
+<form class="upf rv" id="upf" style="--i:5" novalidate autocomplete="off">
+<div class="upstrip" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="upg2">
+<div class="upfd"><label class="upl" for="upc">Nombre del curso</label><input type="text" id="upc" maxlength="80" required placeholder="Ej.: Estadística I"></div>
+<div class="upfd"><label class="upl" for="upe">Tu correo <em>(opcional)</em></label><input type="email" id="upe" maxlength="120" placeholder="tucorreo@ejemplo.com" inputmode="email"></div>
+</div>
+<div class="upfd"><label class="upl" for="upm">Comentario <em>(opcional)</em></label><textarea id="upm" maxlength="500" rows="3" placeholder="Indica cuántas PC's o controles de lectura hay y los pesos (%). También puedes agregar carrera, profesor o ciclo."></textarea></div>
+<div class="upl"><span>Archivos</span><span class="upc" id="upc2">0 / 3</span></div>
+<label class="upd" id="upd" for="upi"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg></span><span class="tx"><b>Elige o arrastra tus archivos</b><small>Hasta 3 archivos, 3 MB en total</small><span class="fm"><span>PDF</span><span>WORD</span><span>PNG</span><span>JPG</span></span></span><input type="file" id="upi" multiple accept=".pdf,.docx,.png,.jpg,.jpeg,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg"></label>
+<div class="upm"><div class="tr"><span id="upbar"></span></div><span id="upmt">0 KB de 3 MB</span></div>
+<ul class="upl2" id="upl2"></ul>
+<p class="upn"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Revisamos cada archivo antes de enviarlo y solo aceptamos estos formatos, para mantener la página segura.</span></p>
+<input class="sgh" type="text" id="upg" tabindex="-1" autocomplete="off" aria-hidden="true">
+<button type="submit" class="btn xl upb" id="upb">Enviar curso</button>
+<div class="ups" id="ups" role="status" aria-live="polite"></div>
+</form>
+<div class="upok" id="upok" hidden>
+<div class="ck2" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+<h2>¡Recibimos <span>tu curso!</span></h2>
+<p>Gracias por ayudarnos a completar My PonderUP. Revisaremos tus archivos y agregaremos el curso lo antes posible.</p>
+<div class="acts"><button type="button" class="btn" id="upagain">Enviar otro curso</button><button type="button" class="btn sec" id="upgo">Volver a cursos</button></div>
+</div>
+</div></div>
 </div>
 
 <div id="v-tool" hidden>
@@ -963,7 +1091,7 @@ function paintBars(){
  document.querySelectorAll("#zb .zs").forEach(e=>{const was=e.classList.contains("pd"),now=e.dataset.ids.split(",").some(isP);e.classList.toggle("pd",now);if(was&&!now){e.classList.remove("pop");void e.offsetWidth;e.classList.add("pop")}})}
 let faqNear=false;
 const chk=()=>{$("mini").classList.toggle("on",view==="tool"&&!sumIn&&!faqIn);$("tgw").classList.toggle("off",(view!=="tool"&&view!=="fi")||faqNear)};
-function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi"}[v]||v);["welcome","pick","tool","fi"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
+function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
 
 function setCourse(k){
@@ -1084,6 +1212,9 @@ document.addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
  if(b.hasAttribute("data-share"))doShare(b.classList.contains("shf")?"pie":"barra");
  else if(b.id==="go"){track("empezar_click");showView("pick")}
+ else if(b.id==="addc"){track("subir_curso_abierto");closeList();showView("up")}
+ else if(b.id==="upback"){showView("pick")}
+ else if(b.id==="uphome"){closeList();showView("welcome")}
  else if(b.id==="home"){track("volver_inicio");closeList();showView("welcome")}
  else if(b.id==="cbtn"){const o=$("clist").hidden;if(o)track("menu_cursos_abierto",{curso:cur});$("clist").hidden=!o;b.setAttribute("aria-expanded",String(o))}
  else if(b.dataset.fi){closeList();showView("fi")}
@@ -1222,6 +1353,68 @@ async function doShare(o){track("compartir_click",{origen:o});
    tsReset()}
   catch(_){say("No se pudo enviar. Revisa tu conexión e inténtalo otra vez.","bad");track("sugerencia_error",{estado:"red"});tsReset()}
   busy=false;b.disabled=false;b.textContent="Enviar"})}
+
+/* ===== Agrega tu curso (envío de archivos a /api/subir-curso) =====
+   Solo se aceptan PDF, Word (.docx), PNG y JPG: máximo 3 archivos y 3 MB en total. Aquí se revisa extensión, tipo y los primeros
+   bytes del archivo (para que un .exe renombrado a .pdf no pase). Eso es solo comodidad: la revisión real se repite en el servidor
+   (api/subir-curso.js), que además es quien envía los archivos por correo. Los archivos nunca se publican en la web. */
+{const f=$("upf"),ok=$("upok"),E=x=>String(x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])),inp=$("upi"),dz=$("upd"),ul=$("upl2"),st=$("ups"),sb=$("upb"),cu=$("upc"),LK="mp-up",MAXF=3,MAXT=3*1024*1024,MIN_MS=3000,MAXDAY=3;
+ const EXT={pdf:{m:["application/pdf"],s:[[0x25,0x50,0x44,0x46]]},docx:{m:["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],s:[[0x50,0x4B,0x03,0x04]]},
+  png:{m:["image/png"],s:[[0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A]]},jpg:{m:["image/jpeg"],s:[[0xFF,0xD8,0xFF]]},jpeg:{m:["image/jpeg"],s:[[0xFF,0xD8,0xFF]]}};
+ let files=[],busy=false,t0=0;
+ const say=(t,k)=>{st.textContent=t;st.className="ups"+(k?" "+k:"")};
+ const ext=n=>{const m=/\.([a-z0-9]+)$/i.exec(n||"");return m?m[1].toLowerCase():""};
+ const sz=b=>b<1048576?Math.max(1,Math.round(b/1024))+" KB":(b/1048576).toFixed(1)+" MB";
+ const total=()=>files.reduce((a,x)=>a+x.size,0);
+ const hist=()=>{try{const a=JSON.parse(localStorage.getItem(LK)||"[]");return Array.isArray(a)?a.filter(x=>typeof x==="number"&&Date.now()-x<864e5):[]}catch(_){return[]}};
+ const addH=()=>{try{const a=hist();a.push(Date.now());localStorage.setItem(LK,JSON.stringify(a))}catch(_){}};
+ const sigOk=async file=>{const e=ext(file.name),d=EXT[e];if(!d)return false;
+  try{const u=new Uint8Array(await file.slice(0,8).arrayBuffer());return d.s.some(s=>s.every((v,i)=>u[i]===v))}catch(_){return false}};
+ const render=()=>{ul.innerHTML=files.map((x,i)=>`<li data-t="${E(ext(x.name))}"><span class="fx">${E(ext(x.name).toUpperCase())}</span><span class="fi"><span class="fn">${E(x.name)}</span><span class="fs">${sz(x.size)}</span></span><button type="button" data-rm="${i}" aria-label="Quitar ${E(x.name)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></li>`).join("");
+  dz.classList.toggle("off",files.length>=MAXF);const t=total(),p=Math.min(100,t/MAXT*100);
+  $("upbar").style.width=p+"%";$("upbar").classList.toggle("hi",p>85);$("upc2").textContent=files.length+" / "+MAXF;$("upmt").textContent=(t?sz(t):"0 KB")+" de 3 MB"};
+ const add=async list=>{say("");if(!t0)t0=Date.now();
+  for(const file of list){
+   if(files.length>=MAXF){say("Máximo "+MAXF+" archivos.","bad");break}
+   const e=ext(file.name);
+   if(!EXT[e]){say("«"+file.name+"» no se puede subir. Solo PDF, Word (.docx), PNG o JPG.","bad");continue}
+   if(file.type&&!EXT[e].m.includes(file.type)){say("«"+file.name+"» no parece ser un archivo "+e.toUpperCase()+" válido.","bad");continue}
+   if(!file.size){say("«"+file.name+"» está vacío.","bad");continue}
+   if(total()+file.size>MAXT){say("Los archivos juntos no pueden pasar de 3 MB.","bad");continue}
+   if(!(await sigOk(file))){say("«"+file.name+"» no parece ser un archivo "+e.toUpperCase()+" válido.","bad");continue}
+   if(files.some(x=>x.name===file.name&&x.size===file.size)){say("«"+file.name+"» ya está en la lista.","bad");continue}
+   files.push(file)}
+  render()};
+ const b64=file=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]||"");r.onerror=()=>no(r.error);r.readAsDataURL(file)});
+ inp.addEventListener("change",()=>{add([...inp.files]);inp.value=""});
+ ["dragenter","dragover"].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.add("dg")}));
+ ["dragleave","drop"].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.remove("dg")}));
+ dz.addEventListener("drop",e=>{if(e.dataTransfer&&e.dataTransfer.files)add([...e.dataTransfer.files])});
+ ul.addEventListener("click",e=>{const b=e.target.closest("button[data-rm]");if(!b)return;files.splice(+b.dataset.rm,1);say("");render()});
+ cu.addEventListener("focus",()=>{if(!t0)t0=Date.now()});
+ $("upagain").addEventListener("click",()=>{ok.hidden=true;f.hidden=false;say("");t0=0;cu.focus()});
+ $("upgo").addEventListener("click",()=>{ok.hidden=true;f.hidden=false;showView("pick")});
+ f.addEventListener("submit",async e=>{e.preventDefault();if(busy)return;
+  const curso=cu.value.trim().replace(/\s+/g," "),msg=$("upm").value.trim(),mail=$("upe").value.trim();
+  if($("upg").value){files=[];render();f.hidden=true;ok.hidden=false;return}
+  if(curso.length<3){say("Escribe el nombre del curso.","bad");cu.focus();return}
+  if(/(https?:\/\/|www\.)/i.test(curso+" "+msg)){say("Por seguridad no se permiten enlaces.","bad");return}
+  if(mail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){say("Revisa tu correo: parece que no está bien escrito.","bad");$("upe").focus();return}
+  if(!files.length){say("Adjunta al menos un archivo (sílabo o reglamento del curso).","bad");return}
+  if(!t0||Date.now()-t0<MIN_MS){say("Un momento, revisa los datos e inténtalo otra vez.","bad");return}
+  if(hist().length>=MAXDAY){say("Ya enviaste varios cursos hoy. ¡Gracias! Puedes enviar más mañana.","bad");return}
+  busy=true;sb.disabled=true;sb.textContent="Enviando…";say("");
+  try{const archivos=[];for(const x of files)archivos.push({nombre:x.name,tipo:x.type,b64:await b64(x)});
+   const r=await fetch("/api/subir-curso",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({curso,mensaje:msg,email:mail,_gotcha:$("upg").value,seg:Math.round((Date.now()-t0)/1000),archivos}),signal:window.AbortSignal&&AbortSignal.timeout?AbortSignal.timeout(45000):undefined});
+   let j=null;try{j=await r.json()}catch(_){}
+   if(r.ok&&j&&j.ok){addH();files=[];render();f.reset();t0=0;say("");f.hidden=true;ok.hidden=false;window.scrollTo({top:0,behavior:"smooth"});track("curso_enviado",{archivos:archivos.length})}
+   else{let c=j&&j.error;if(c&&typeof c==="object")c="firewall";c=String(c||"");
+    const M={invalido:"Revisa los datos: falta el nombre del curso o algún dato no es válido.",archivos:"Revisa los archivos: máximo 3 y 3 MB en total.",tipo:"Alguno de los archivos no es un PDF, Word (.docx), PNG o JPG válido.",
+     tamano:"Los archivos juntos pasan de 3 MB.",enlace:"Por seguridad no se permiten enlaces.",espera:"Espera unos segundos antes de enviar otro curso.",limite_dia:"Ya enviaste varios cursos hoy. Inténtalo mañana, ¡gracias!",
+     cupo:"Hoy ya recibimos muchos envíos. Inténtalo mañana, ¡gracias!",servidor:"El envío no está disponible por ahora. Inténtalo más tarde."};
+    say(M[c]||(r.status===413?M.tamano:r.status===429?"Hay muchos envíos en este momento. Inténtalo en unos minutos.":"No se pudo enviar. Inténtalo otra vez."),"bad");track("curso_error",{estado:r.status,motivo:c})}}
+  catch(_){say("No se pudo enviar. Revisa tu conexión e inténtalo otra vez.","bad");track("curso_error",{estado:"red"})}
+  busy=false;sb.disabled=false;sb.textContent="Enviar curso"})}
 
 /* ===== Factor de inscripción ===== */
 const PLN={"adm":{"n":"Administración","c":[["I","Fundamentos de las Ciencias Empresariales|4|141038|4|0;Lenguaje I|4|120001|4|0;Matemáticas I|5|138649|4|2;Economía General I|5|132641|4|2"],["II","Lenguaje II|4|120006|4|0;Fundamentos de Contabilidad|4|160092|3|2;Economía General II|5|130642|4|2;Matemáticas para los Negocios|4|130230|3|2"],["III","Contabilidad Financiera Intermedia|5|160171|4|2;Derecho Civil y Comercial|3|180266|2|2;Estadística I|4|130224|4|1"],["IV","Diseño Organizacional y Estrategia|4|142081|4|0;Analítica de Datos para los Negocios|3|142277|0|6;Marketing Estratégico|4|1MN035|4|0;Fundamentos de Finanzas|4|1F0112|3|2;Derecho Laboral y Tributario|3|180268|2|2"],["V","Métodos Cuantitativos para la Gestión en las Organizaciones|4|142096|3|2;Investigación de Mercados|4|1MN020|4|0;Contabilidad para la Toma de Decisiones|5|160025|4|2;Gestión del Cambio y Transformación Cultural|4|142094|4|0;Análisis Multivariado para los Negocios|4|141036|4|1"],["VI","Innovación y Gestión en Negocios Digitales|3|142091|2|2;Finanzas Corporativas I|5|1F0120|4|2;Gestión de Personas|4|144741|4|0;Investigación Académica|3|150140|2|2;Gestión de Operaciones en las Organizaciones|4|142084|3|2"],["VII","Sistemas de Información y Análisis de Datos|3|142273|2|2;Evaluación Financiera de las Organizaciones|5|160172|4|2;Creación de Valor y Toma de Decisiones|3|142077|3|0;Gestión del Comercio Internacional|4|1MN015|4|0;Gestión de la Cadena de Suministros|4|141041|4|0"],["VIII","Business Agility|3|142280|2|2;Gestión de la Sostenibilidad Social y Ambiental en las Empresas|4|142085|4|0;Gestión Internacional de Empresas|4|1MN016|4|0"],["IX","Ética|4|120133|4|0;Dirección Estratégica|4|149078|4|0;Investigación Aplicada a los Negocios|3|141042|2|2"],["X","Proyección Social|4|150013|4|0;Proyecto Empresarial|5|142100|2|6"]]},"con":{"n":"Contabilidad","c":[["I","Fundamentos de las Ciencias Empresariales|4|141038|4|0;Lenguaje I|4|120001|4|0;Matemáticas I|5|138649|4|2;Economía General I|5|132641|4|2"],["II","Economía General II|5|130642|4|2;Lenguaje II|4|120006|4|0;Matemáticas para los Negocios|4|130230|3|2;Derecho Civil y Comercial|3|180266|2|2;Fundamentos de Contabilidad|4|160092|3|2"],["III","Estadística I|4|130224|4|1;Contabilidad Financiera Intermedia|5|160171|4|2;Derecho Laboral y Tributario|3|180268|2|2"],["IV","Contabilidad Financiera Aplicada|4|160169|3|2;Diseño Organizacional y Estrategia|4|142081|4|0;Fundamentos de Marketing|4|1MN018|4|0;Analítica de Datos para los Negocios|3|142277|0|6"],["V","Fundamentos de Finanzas|4|1F0112|3|2;Gestión del Cambio y Transformación Cultural|4|142094|4|0;Contabilidad de Costos|4|167060|3|2;Análisis Multivariado para los Negocios|4|141036|4|1;Métodos Cuantitativos para la Gestión en las Organizaciones|4|142096|3|2"],["VI","Finanzas Corporativas I|5|1F0120|4|2;Investigación Académica|3|150140|2|2;Normas Contables Internacionales|4|160099|3|2;Gestión de Operaciones en las Organizaciones|4|142084|3|2;Contabilidad de Gestión|4|160088|3|2"],["VII","SAP Hana para la Gestión de la Información|4|160197|3|2;Auditoría|4|163059|3|2;Sistemas de Información y Análisis de Datos|3|142273|2|2;Evaluación Financiera de las Organizaciones|5|160172|4|2;Contabilidad y Finanzas Avanzadas|4|160090|3|2"],["VIII","Tributación Aplicada I|4|160094|3|2;Control Interno y Gestión del Riesgo|4|160091|3|2;Gestión y Costos Estratégicos|4|160174|4|0;Dirección Estratégica|4|149078|4|0"],["IX","Tributación Aplicada II|4|160096|3|2;Proyección Social|4|150013|4|0;Gestión de la Información y Métricas de Sostenibilidad Empresarial|4|160173|4|0;Ética|4|120133|4|0"],["X","Investigación para Contadores|5|160175|2|6"]]},"der":{"n":"Derecho","c":[["I","Lenguaje I|4|120001|4|0;Matemáticas I|5|138649|4|2;Fundamentos de las Ciencias Empresariales|4|141038|4|0;Introducción al Derecho|5|180277|5|0"],["II","Lenguaje II|4|120006|4|0;Economía General I|5|132641|4|2;Fundamentos de Contabilidad|4|160092|3|2;Derecho Constitucional General|5|180086|5|0;Personas del Derecho Civil|4|180066|3|2"],["III","Economía General II|5|130642|4|2;Investigación Académica|3|150140|3|0;Acto Jurídico|4|185099|3|2;Derechos Reales|4|180017|4|0"],["IV","Ética|4|120133|4|0;Obligaciones|4|180278|4|0;Derecho Procesal Constitucional|4|180315|4|0;Teoría General del Proceso|4|180282|4|0"],["V","Contabilidad Financiera Intermedia|5|160171|4|2;Contratos|4|180265|4|0;Derecho Procesal Civil|5|180321|5|0"],["VI","Sistemas Financieros|4|1F0124|4|0;Derecho Penal|5|180327|5|0;Derecho Administrativo I|4|187019|4|0;Responsabilidad Extracontractual|3|180099|3|0;Contratos Especiales|3|180333|3|0"],["VII","Derecho Administrativo II|4|189097|4|0;Derecho Internacional Público|4|180070|4|0;Derecho Laboral I|4|180088|4|0;Instituciones de Derecho Mercantil|4|180276|4|0;Derecho Penal Económico|2|181008|2|0"],["VIII","Derecho Tributario I|4|180339|3|2;Sociedades|4|180350|3|2;Derecho Procesal Penal|4|180358|4|0;Análisis Económico del Derecho|3|182047|3|0;Derecho Internacional Privado|3|182128|3|0"],["IX","Derecho de Familia y Sucesiones|4|188027|4|0;Economía y Estadística Aplicada al Derecho|4|130466|4|0;Arbitraje|4|186045|4|0;Derecho Tributario II|4|181000|3|2;Derecho Laboral II|3|180089|3|0;Destrezas Legales I|3|188111|3|0"],["X","Libre Competencia|4|180332|4|0;Políticas Públicas|3|180253|3|0;Destrezas Legales II|3|188112|3|0;Derecho Ambiental|3|180093|3|0"],["XI","Innovación Legal y Tecnología|3|180274|3|0;Proyección Social|4|150013|4|0;Banca y Mercado de Valores|4|185036|4|0;Responsabilidad del Abogado|3|180279|3|0"],["XII","Instrumentos de Financiación y Garantías|4|180328|4|0;Derecho del Comercio Internacional|3|180094|3|0;Seminario de Tesis|3|180280|3|0"]]},"eco":{"n":"Economía","c":[["I","Economía General I|5|132641|4|2;Fundamentos de Contabilidad|4|160092|3|2;Lenguaje I|4|120001|4|0;Matemáticas I|5|138649|4|2"],["II","Economía General II|5|130642|4|2;Lenguaje II|4|120006|4|0;Matemáticas II|5|131650|4|2"],["III","Estadística I|4|130224|4|1;Investigación Académica|3|150140|2|2;Matemáticas III|5|130233|4|2;Microeconomía I|5|138201|4|2"],["IV","Estadística II|4|130225|4|1;Macroeconomía I|5|134203|4|2;Matemáticas IV|5|130229|4|2;Microeconomía II|5|134427|4|2"],["V","Estadística Aplicada|4|130223|3|2;Evaluación Privada de Proyectos|4|133016|3|2;Macroeconomía II|5|132204|4|2;Teoría del Comercio Internacional|4|130656|3|2"],["VI","Econometría I|5|130424|4|2;Economía Financiera I|4|1F0228|3|2;Macroeconomía III|5|130648|4|2;Gestión de los Recursos Naturales|4|135645|4|0"],["VII","Econometría II|5|138425|4|2;Economía y Derecho|4|186108|4|0;Historia del Pensamiento Económico|4|135015|4|0;Macroeconomía Internacional|4|130227|3|2"],["VIII","Política Económica|4|132655|4|0;Organización Industrial|4|130232|4|1"],["IX","Proyección Social|4|150013|4|0;Ética|4|120133|4|0;Investigación Económica I|2|131566|2|0"],["X","Investigación Económica II|2|130567|2|0"]],"x":[["Electivos","Análisis Económico de la Competencia|3|130454|3|0;Análisis Político Relevante para la Perspectiva Económica|2|130289|2|0;Economía Peruana|2|130462|2|0;Economic Growth and Development in L.A.|3|130112|3|0;Entorno Económico|2|130461|2|0;Fundamentos y Prácticas para una Gestión Pública Efectiva|3|130464|3|0;Herramientas para el Diagnóstico y Análisis de Políticas Sociales|3|130369|3|0;Herramientas para Evaluación de Rentabilidad y Desempeño|3|130457|3|0;Machine Learning para Economistas|3|130465|2|2;Political Economy Seminar|3|130115|3|0;Sem. Economía y Financiamiento en Salud|2|130422|2|0;Sem. de Economía y Gestión de Programas Sociales|2|130372|2|0"]]},"fin":{"n":"Finanzas","c":[["I","Economía General I|5|132641|4|2;Fundamentos de Contabilidad|4|160092|3|2;Lenguaje I|4|120001|4|0;Matemáticas I|5|138649|4|2"],["II","Economía General II|5|130642|4|2;Lenguaje II|4|120006|4|0;Matemáticas II|5|131650|4|2"],["III","Estadística I|4|130224|4|1;Investigación Académica|3|150140|2|2;Matemáticas III|5|130233|4|2;Microeconomía I|5|138201|4|2;Sistemas Financieros|4|1F0124|4|0"],["IV","Estadística II|4|130225|4|1;Fundamentos de Finanzas|4|1F0112|3|2;Macroeconomía Financiera|5|1F0114|4|2;Microeconomía Financiera|5|1F0069|4|2"],["V","Estadística Aplicada|4|130223|3|2;Finanzas Corporativas I|5|1F0120|4|2;Análisis Financiero|4|1F0162|3|2;Finanzas Sostenibles|4|1F0324|4|0"],["VI","Econometría I|5|130424|4|2;Instrumentos Derivados|4|1F0113|3|2;Renta Fija|4|1F0115|3|2;Renta Variable|4|1F0116|3|2"],["VII","Derecho de la Empresa|4|180122|4|0;Finanzas Cuantitativas|5|1F0111|4|2;Finanzas Corporativas II|4|1F0110|3|2"],["VIII","Análisis y Gestión de Riesgos|5|1F0107|4|2;Negociación Financiera|4|1F0230|4|0;Riesgo Crediticio|4|1F0117|4|0"],["IX","Certificaciones Internacionales|2|1F0108|2|0;Ética|4|120133|4|0;Proyección Social|4|150013|4|0"],["X","Investigación Financiera|2|1F0060|2|0"]],"x":[["Electivos","Finanzas y Abundancia|4|1F0275|4|0;Mercado de Capitales|4|1F0013|4|0;Sem. de Administración de Riesgo en Banca|2|1F0021|2|0;Sem. de Evaluación y Financiamiento de Proyectos|2|1F0023|2|0;Sem. de Financial Modeling|2|1F0280|2|0;Sem. de Finanzas para el Emprendimiento|2|1F0018|2|0;Sem. de Private Equity - Nexus Group|2|1F0128|2|0;Sem. de Private Equity - Enfoca|2|1F0166|2|0;Sem. de Project Finance|2|1F0241|2|0;Sem. de Valorización de Entidades Financieras|2|1F0320|2|0;Sem. de Value Investing|2|1F0281|2|0;Sem. M&A Case Studies|2|1F0227|2|0;Sem. Valorización de Empresas|2|1F0027|2|0"]]},"hd":{"n":"Humanidades Digitales","c":[["I","Lenguaje I|4|120001|4|0;Matemáticas I|5|138649|4|2;Economía General I|5|132641|4|2;Introducción a las Humanidades Digitales|4|120244|4|0;Lectura Crítica de la Prensa Digital y en las Redes Sociales|4|120252|4|0"],["II","Lenguaje II|4|120006|4|0;Economía General II|5|130642|4|2;Cultura, Visualidad y Política|4|120259|4|0"],["III","Investigación Académica|3|150140|2|2;Estadística I|4|130224|4|1;Comunicación Digital|4|120270|4|0;Marketing Estratégico|4|1MN035|4|0;Herramientas de Programación|4|170335|3|2"],["IV","Matemáticas Discretas para la Computación|4|170333|4|0;Análisis Cuantitativo en las Ciencias Humanas|4|150283|3|2;Arquitectura del Sistema de Información|4|170119|3|2;Curaduría Digital de Contenidos Culturales|4|120245|4|0;Taller de Humanidades Digitales 1|4|120265|2|4"],["V","Fundamentos de Analítica|4|170336|4|0;Fundamentos de Contabilidad|4|160092|3|2;Análisis de Datos Geográficos|4|170439|3|2;Design Thinking and Technological Innovation|4|170329|3|2"],["VI","Literatura y Videojuegos|4|120246|4|0;Introducción al Análisis de Texto|4|170467|3|2;Ciencia, Tecnología y Sociedad|4|120264|4|0;Procesamiento de Datos Multimedia|4|170433|3|2"],["VII","Análisis de Datos Multimedia|4|170476|3|2;Dinámicas Espaciales y Territoriales del Perú|4|150294|3|2"],["VIII","Ingeniería de Datos|4|170179|3|2;Machine Learning para Negocios y Humanidades|4|170499|3|2;Taller de Humanidades Digitales 2|4|150199|2|4"],["IX","Ética|4|120133|4|0;Proyección Social|4|150013|4|0;Taller de Humanidades Digitales 3|4|170491|2|4"],["X","Trabajo Final de Humanidades Digitales|4|120257|4|0;Gobierno Electrónico|4|170458|3|2;Ética en la Era Digital|4|120241|4|0"]],"x":[["Bloques de diseño y experiencia del usuario","Historia Crítica del Diseño|4|170441|3|2;Teoría de los Sentidos|4|170450|3|2;Semiótica y Teoría del Diseño|4|170462|3|2;Diseño Gráfico Digital|4|170432|3|2;Comportamiento del Consumidor|4|1MN017|4|0;Experiencia del Usuario|4|170446|2|2;Tecnología y Medios de Comunicación|4|170346|2|2;Urbanismo y Espacios Sociales|4|170466|3|2"]]},"ii":{"n":"Ingeniería de la Información","c":[["I","Introducción a la Ingeniería|4|170211|3|2;Matemáticas I|5|138649|4|2;Economía General I|5|132641|4|2;Lenguaje I|4|120001|4|0"],["II","Herramientas de Programación|4|170335|3|2;Fundamentos de Contabilidad|4|160092|3|2;Matemáticas II|5|131650|4|2;Economía General II|5|130642|4|2;Lenguaje II|4|120006|4|0"],["III","Algoritmos y Estructura de Datos|4|170065|3|2;Contabilidad Financiera Intermedia|5|160171|4|2;Investigación Académica|3|150140|2|2;Estadística I|4|130224|4|1"],["IV","Estadística II|4|130225|4|1;Ingeniería de Procesos|4|170135|4|1;Matemáticas Discretas para la Computación|4|170333|4|0;Arquitectura del Sistema de Información|4|170119|3|2;Marketing Estratégico|4|1MN035|4|0"],["V","Fundamentos de Analítica|4|170336|4|0;Programación Avanzada para la Ciencia de Datos|4|170107|3|2;Álgebra Lineal Aplicada|4|170324|3|2;Ingeniería de Datos|4|170179|4|3;Fundamentos de Finanzas|4|1F0112|3|2"],["VI","Física|5|170137|4|2;Data Mining|4|170327|3|2;Machine Learning|4|170338|4|0;Gestión del Capital Humano|3|142097|2|2"],["VII","Analítica de la Web|4|170043|3|2;Inteligencia Computacional|4|170339|4|0;Desarrollo de Soluciones Empresariales|4|170212|4|1;Estrategia|4|142083|4|0"],["VIII","Tecnología para el Desarrollo Sostenible|3|170346|3|1;Computación de Alto Desempeño y Cloud Computing|4|170353|3|2;Deep Learning|4|170328|3|2;Infraestructura Tecnológica|4|170331|4|1"],["IX","Big Data Analytics|4|170216|4|0;Business Intelligence|3|170342|3|1;Trabajo Final de Ingeniería de la Información I|4|170348|4|0"],["X","Trabajo Final de Ingeniería de la Información II|4|170349|4|0;Proyección Social|4|150013|4|0;Ética|4|120133|4|0"]]},"ie":{"n":"Ingeniería Empresarial","c":[["I","Introducción a la Ingeniería|4|170211|3|2;Matemáticas I|5|138649|4|2;Economía General I|5|132641|4|2;Lenguaje I|4|120001|4|0"],["II","Tecnología y Negocios Digitales|4|170350|3|2;Fundamentos de Contabilidad|4|160092|3|2;Matemáticas II|5|131650|4|2;Economía General II|5|130642|4|2;Lenguaje II|4|120006|4|0"],["III","Herramientas de Programación|4|170335|3|2;Contabilidad Financiera Intermedia|5|160171|4|2;Investigación Académica|3|150140|2|2;Estadística I|4|130224|4|1"],["IV","Estadística II|4|130225|4|1;Ingeniería de Procesos|4|170135|4|1;Design Thinking and Technological Innovation|4|170329|3|2;Arquitectura del Sistema de Información|4|170119|3|2;Marketing Estratégico|4|1MN035|4|0"],["V","Fundamentos de Analítica|4|170336|4|0;Investigación de Operaciones|4|170352|4|1;Métodos de Investigación Cuantitativa|4|170351|3|2;Ingeniería de Datos|4|170179|3|2;Fundamentos de Finanzas|4|1F0112|3|2"],["VI","Física|5|170137|4|2;Procesos de Suministro|4|170337|3|2;Gestión de Proyectos|4|170345|4|0;Gestión del Capital Humano|3|142097|2|2"],["VII","Procesos de Producción|4|170340|3|2;Metodologías Ágiles|4|170344|4|0;Desarrollo de Soluciones Empresariales|4|170212|4|1;Estrategia|4|142083|4|0"],["VIII","Tecnología para el Desarrollo Sostenible|3|170346|3|1;Procesos de Distribución|4|170341|3|2;Transformación Digital y Gestión del Cambio|4|170347|3|2;Infraestructura Tecnológica|4|170331|4|1;Formulación y Evaluación de Proyectos|4|179062|4|0"],["IX","Gerencia de Ingeniería de Valor|3|170343|2|2;Emprendimiento Tecnológico|4|170330|4|0"],["X","Trabajo Final de Ingeniería Empresarial|4|170097|4|0;Proyección Social|4|150013|4|0;Ética|4|120133|4|0"]],"x":[["Concentración: Analítica de negocios","Machine Learning para la Toma de Decisiones|4|170319|4|1;Analítica Aplicada a los Negocios|4|170325|4|0;Tópicos Avanzados de Analítica Aplicada|4|170371|4|0;Tópicos Avanzados de Analítica II|3|170373|3|1;Tópicos Avanzados de Analítica III|3|170374|2|2"],["Concentración: Gestión de los sistemas de información","SAP Hana para Integración de Procesos|3|170312|2|2;Seminario de Ingeniería sobre Sistemas de Información o Tecnología|2|170365|2|0;Tópicos Avanzados sobre Sistemas de Información o Tecnología|3|170366|3|1;Nuevas Tecnologías y Sistemas de Información|3|170367|2|2"],["Concentración: Finanzas corporativas","Finanzas Corporativas I|5|1F0120|4|2;Análisis Financiero|4|1F0162|3|2;Gestión Financiera|4|1F0351|4|0;Seminario de Ethics in Finance|2|1F0373|2|0;Seminario de Evaluación y Financiamiento de Proyectos|2|1F0023|2|0;Seminario M&A Case Studies|2|1F0227|2|0;Seminario de Private Equity - Nexus Group|2|1F0128|2|0;Seminario de Private Equity - Enfoca|2|1F0166|2|0;Seminario de Valorización de Empresas|2|1F0027|2|0;Seminario de Fintech|2|1F0202|2|0;Seminario de Venture Capital|2|1F0127|2|0;Certificaciones Internacionales|2|1F0108|2|0"]]},"iid":{"n":"Ingeniería en Innovación y Diseño","c":[["I","Introducción a la Ingeniería|4|170211|3|2;Matemáticas I|5|138649|4|2;Economía General I|5|132641|4|2;Lenguaje I|4|120001|4|0"],["II","Tecnología y Negocios Digitales|4|170350|3|2;Fundamentos de Contabilidad|4|160092|3|2;Matemáticas II|5|131650|4|2;Economía General II|5|130642|4|2;Lenguaje II|4|120006|4|0"],["III","Herramientas de Programación|4|170335|3|2;Contabilidad Financiera Intermedia|5|160171|4|2;Investigación Académica|3|150140|2|2;Estadística I|4|130224|4|1"],["IV","Estadística II|4|130225|4|1;Ingeniería de Procesos|4|170135|4|1;Design Thinking and Technological Innovation|4|170329|3|2;Arquitectura del Sistema de Información|4|170119|3|2;Marketing Estratégico|4|1MN035|4|0"],["V","Fundamentos de Analítica|4|170336|4|0;Fundamentos de Finanzas|4|1F0112|3|2;Comportamiento del Consumidor|4|1MN017|4|0;Historia Crítica del Diseño|4|170441|3|2;Tecnología de los Materiales|4|170444|3|1"],["VI","Física|5|170137|4|2;Gestión del Capital Humano|3|142097|2|2;Experiencia del Usuario|4|170446|2|2;Teoría de los Sentidos|4|170450|3|2"],["VII","Estrategia|4|142083|4|0;Tecnología y Medios de Comunicación|4|170456|2|2;Semiótica y Teoría del Diseño|4|170462|3|2;Técnicas de Innovación y Experimentación I|4|170465|3|2"],["VIII","Tecnología para el Desarrollo Sostenible|3|170346|3|1;Urbanismo y Espacios Sociales|4|170466|3|2;Diseño Gráfico Digital|4|170432|3|2;Técnicas de Innovación y Experimentación II|4|170471|3|2"],["IX","Curso Integrador de Experiencia del Usuario|4|170480|3|2;Diseño de Herramientas Digitales|3|170482|3|1;Técnicas de Innovación y Experimentación III|4|170487|3|2"],["X","Trabajo Final de Innovación y Diseño|4|170490|4|0;Proyección Social|4|150013|4|0;Ética|4|120133|4|0"]]},"mkt":{"n":"Marketing","c":[["I","Lenguaje I|4|120001|4|0;Matemáticas I|5|138649|4|2;Economía General I|5|132641|4|2;Fundamentos de las Ciencias Empresariales|4|141038|4|0"],["II","Lenguaje II|4|120006|4|0;Fundamentos de Contabilidad|4|160092|3|2;Estadística I|4|130224|4|1;Fundamentos de Marketing|4|1MN018|4|0"],["III","Economía General II|5|130642|4|2;Diseño Organizacional y Estrategia|4|142081|4|0;Comportamiento del Consumidor|4|1MN017|4|0;Analítica de Datos para los Negocios|3|142277|0|6;Marketing Sostenible|3|1MN381|3|0;Contabilidad Financiera Intermedia|5|160171|4|2"],["IV","Ética|4|120133|4|0;Gestión de Productos|3|1MN372|2|2;Análisis Multivariado para los Negocios|4|141036|4|1;Métodos Cuantitativos para la Gestión en las Organizaciones|4|142096|3|2"],["V","Fundamentos de Finanzas|4|1F0112|3|2;Estrategias de Branding|3|1MN027|2|2;Pricing|3|1MN385|2|2;Sistemas de Información y Análisis de Datos|3|142273|2|2;Investigación de Mercados|4|1MN020|4|0"],["VI","Finanzas Corporativas I|5|1F0120|4|2;Investigación Académica|3|150140|2|2;Estrategias de Comunicación y Promoción|4|1MN368|4|0;Canales de Distribución|4|1MN367|4|0;Investigación de Mercados Aplicada|3|1MN022|2|2;Innovación y Gestión en Negocios Digitales|3|142091|2|2"],["VII","Marketing Digital y Redes Sociales|4|1MN029|4|0;Trade Marketing|3|1MN075|2|2;Marketing Relacional y CRM|3|1MN380|2|2;Business Agility|3|142280|2|2"],["VIII","Métricas y Analítica de Marketing|4|1MN382|4|0;Gestión Comercial|3|1MN371|2|2;Estrategia|4|142083|4|0;Marketing B2B|3|1MN379|3|0;Marketing de Servicios|3|1MN086|3|0"],["IX","Proyección Social|4|150013|4|0;International Marketing|3|1MN049|3|0;Investigación en Marketing I|3|1MN377|2|2"],["X","Plan de Marketing|4|1MN384|4|0;Investigación en Marketing II|4|1MN378|4|0"]]},"nin":{"n":"Negocios Internacionales","c":[["I","Matemáticas I|5|138649|4|2;Lenguaje I|4|120001|4|0;Fundamentos de las Ciencias Empresariales|4|141038|4|0;Fundamentos de Contabilidad|4|160092|2|3;Economía General I|5|132641|4|2"],["II","Matemáticas para los Negocios|4|130230|3|2;Lenguaje II|4|120006|4|0;Economía General II|5|130642|4|2;Contabilidad Financiera Intermedia|5|160171|4|2"],["III","Estadística I|4|130224|4|1;Diseño Organizacional y Estrategia|4|142081|4|0;Contabilidad para la Toma de Decisiones|5|160025|4|2"],["IV","Teoría del Comercio Internacional y Procesos de Integración|4|1MN400|3|2;Fundamentos de Finanzas|4|1F0112|3|2;Marketing Estratégico|4|1MN035|4|0;Analítica de Datos para los Negocios|3|142277|0|6"],["V","Análisis Multivariado para los Negocios|4|141036|3|2;Finanzas Corporativas I|5|1F0120|4|2;Investigación de Mercados|4|1MN020|4|0;Investigación Académica|3|150140|2|2;Fundamentos Económicos y Organizacionales para los Negocios|4|1MN370|4|0"],["VI","Sistemas de Información y Análisis de Datos|3|142273|2|2;International Finance|4|1F0326|3|2;Gestión Sostenible de la Oferta Exportable|4|1MN003|4|0;Innovación y Gestión en Negocios Digitales|3|142091|2|2;Administración del Comercio Internacional|4|1MN366|3|2"],["VII","Logística Internacional|4|1MN005|4|0;Dirección Internacional de Empresas|4|1MN006|4|0;Derecho para los Negocios Internacionales|4|180092|4|0;International Affairs|4|1MN007|4|0"],["VIII","Dirección Estratégica|4|149078|4|0;Gestión de Mercados Globales|4|1MN008|4|0;Cross Cultural & International Management|4|1MN009|4|0;Negociaciones Comerciales Internacionales|4|1MN401|3|2"],["IX","Proyección Social|4|150013|4|0;Investigación Aplicada en Negocios Internacionales|4|1MN376|3|2;Estrategias de Internacionalización|4|1MN402|3|2;International Human Resources Management|4|1MN375|4|0"],["X","Ética|4|120133|4|0;International Business Plan|5|1MN374|4|2"]]},"pfe":{"n":"Política, Filosofía y Economía","c":[["I","Economía General I|5|132641|4|2;Fundamentos de Contabilidad|4|160092|3|2;Introducción a la Política, Filosofía y Economía|4|120260|4|0;Lenguaje I|4|120001|4|0;Matemáticas I|5|138649|4|2"],["II","Antropología Filosófica|4|120253|4|0;Lenguaje II|4|120006|4|0;Poder e Instituciones|4|150277|4|0"],["III","Economía General II|5|130642|4|2;Investigación Académica|3|150140|2|2;Matemáticas II|5|131650|4|2;Política Comparada|4|150289|4|0"],["IV","Ciudadanía y Democratización|4|150295|4|0;Estadística I|4|130224|4|1;Filosofía Política|4|120273|4|0;Introducción al Derecho|5|180277|5|0;Microeconomía I|5|138201|4|2"],["V","Econometría Aplicada|5|130538|4|2;Economía Política Internacional|4|150350|4|0;Macroeconomía de Corto Plazo|5|130559|4|2"],["VI","Fundamentos Filosóficos de los Derechos Humanos|4|120254|4|0;Gestión de los Recursos Naturales|4|135645|4|0;Microeconomía Aplicada|5|130609|4|2"],["VII","Diseño, Evaluación y Gestión de Proyectos|5|130545|4|2;Teoría del Comercio Internacional|4|130656|3|2;Métodos Mixtos de Investigación para las Ciencias Sociales|4|150285|4|0"],["VIII","Crecimiento e Instituciones|5|130541|4|2;Debates en Filosofía|4|120261|4|0;Debates sobre Política y Desarrollo|4|150278|4|0;Fundamentos Filosóficos de la Economía|4|120274|4|0"],["IX","Ética|4|120133|4|0;Historia del Pensamiento Económico|4|135015|4|0;Proyección Social|4|150013|4|0"],["X","Seminario de Investigación Aplicada en Política, Filosofía y Economía|2|130562|2|0"]]}};
