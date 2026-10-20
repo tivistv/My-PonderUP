@@ -1048,7 +1048,7 @@ function update(){
    for(let x=-D/2;x<=20+D/2+1e-9;x+=.5){
     const o={};P.forEach((l,i)=>o[l.id]=sn(Math.max(0,Math.min(20,x+D*(.5-i/(n-1)))),l));
     if(okc(o)){const k=P.map(l=>o[l.id]).join(",");if(!seen.has(k)){seen.add(k);rows.push(mk(o))}break}}}
-  cb=okk?`<p class="msg">Ya aprobaste: aunque saques 0 en lo que falta, llegas a ${S.pm}.</p>`:!rows.length?`<p class="msg bad">Ni con 20 en todo lo que falta llegarías a ${S.pm}.</p>`:`<h2>Combinaciones posibles para aprobar</h2><div class="sc"><table>${hdr}${rows.join("")}</table></div>`;
+  cb=okk?`<p class="msg">Ya aprobaste: aunque saques 0 en lo que falta, llegas a ${S.pm}.</p>`:!rows.length?`<p class="msg bad">La nota mínima de ${S.pm} ya no es alcanzable.</p>`:`<h2>Combinaciones posibles para aprobar</h2><div class="sc"><table>${hdr}${rows.join("")}</table></div>`;
  }
  $("cb").innerHTML=cb;
  trackCombo();
