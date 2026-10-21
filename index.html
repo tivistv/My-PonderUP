@@ -712,7 +712,7 @@ input.g:placeholder-shown+.sf{display:none}
 #toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:60;max-width:calc(100vw - 32px);overflow-wrap:anywhere;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:var(--navy);color:#fff;border-left:4px solid var(--green);border-radius:2px;padding:12px 16px;font:600 .85rem/1.3 Montserrat,"Montserrat Fallback",Arial,sans-serif;box-shadow:0 10px 26px rgba(0,0,0,.35);transition:opacity .25s,transform .25s}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 /* ===== Agrega tu curso (botón en "Elige tu curso" + pantalla de envío de archivos) ===== */
-#v-pick .wc{padding-top:84px}
+@media (min-width:701px){#v-pick .wc{padding-top:84px}}
 .addc{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:16px;z-index:3;display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.08);color:#fff;border:2px solid var(--green);border-radius:2px;padding:9px 14px 9px 10px;font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,transform .2s}
 .addc i{display:grid;place-items:center;flex:none;width:20px;height:20px;background:var(--green);color:var(--navy);font:900 1.05rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal}
 .addc:hover,.addc:focus-visible{background:var(--green);color:var(--navy)}
@@ -721,6 +721,7 @@ input.g:placeholder-shown+.sf{display:none}
 /* Pantalla "Agrega tu curso": mismo fondo con brillos que inicio y "Elige tu curso" */
 .upv{display:block;overflow:hidden;overflow:clip;align-items:initial}
 .upv .bar{position:relative;background:transparent;z-index:2}
+.upv .bar .hr{position:absolute;right:16px;top:calc(50% + 2px);transform:translateY(-50%);margin:0}
 .upw{padding-top:34px;padding-bottom:90px}
 .upin{position:relative;z-index:1;max-width:800px}
 .updeco{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
@@ -806,6 +807,34 @@ input.g:placeholder-shown+.sf{display:none}
 }
 @media (pointer:coarse){.upf input[type=text],.upf input[type=email],.upf textarea{font-size:16px}}
 
+/* Móvil: "Agrega tu curso" va al final de la lista (en PC sigue arriba a la derecha) */
+.addb{display:none}
+@media (max-width:700px){
+ .addc{display:none}
+ .addb{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:760px;margin-top:34px;padding:20px 18px 18px;background:rgba(6,31,71,.88);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green)}
+ .addb-k{font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--green)}
+ .addb b{font-size:1.35rem;font-weight:900;text-transform:uppercase;line-height:1.05;color:#fff}
+ .addb-t{font-size:.92rem;line-height:1.5;font-weight:500;color:rgba(255,255,255,.85);margin-bottom:10px}
+ .addb .addb-b{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 14px;font-size:.9rem}
+ .addb-b span{font-size:1.2rem;line-height:1;font-weight:900}
+ /* pantalla de envío en celular: más compacta */
+ .upst{grid-template-columns:repeat(3,1fr);gap:8px}
+ .upst li{flex-direction:column;align-items:flex-start;gap:10px;padding:12px 10px}
+ .upst li i{width:30px;height:30px}
+ .upst li span{font-size:.74rem;line-height:1.3}
+ .upst b{font-size:.72rem}
+ .upf textarea{min-height:120px}
+ .upd .fm{gap:5px}
+ .upd .fm span{font-size:.64rem;padding:4px 7px}
+ .upd .tx b{font-size:1rem}
+ .upn{font-size:.82rem}
+}
+@media (max-width:380px){
+ .upv .bar .hr .shb{padding:10px 9px;font-size:.62rem}
+ .upv .bar .hd1 .logo{font-size:.78rem}
+ .upf textarea{min-height:140px}
+ .upd .tx b{font-size:.92rem}
+}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -825,6 +854,7 @@ input.g:placeholder-shown+.sf{display:none}
 <div id="v-pick" class="wel" hidden><button type="button" class="addc" id="addc"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><div class="wrap wc">
 <h1 class="wt eq"><span class="t1 mr" style="--i:0">Elige tu</span><span class="t2 mr" style="--i:1">curso</span></h1>
 <div class="pgs" id="plist"></div>
+<div class="addb" id="addb"><span class="addb-k">¿Falta tu curso?</span><b>Agrégalo tú mismo</b><span class="addb-t">Envíanos el sílabo o reglamento y lo sumamos a My PonderUP.</span><button type="button" class="btn addb-b" id="addc2"><span aria-hidden="true">+</span> Agrega tu curso</button></div>
 </div>
 </div>
 
@@ -1219,7 +1249,7 @@ document.addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
  if(b.hasAttribute("data-share"))doShare(b.classList.contains("shf")?"pie":"barra");
  else if(b.id==="go"){track("empezar_click");showView("pick")}
- else if(b.id==="addc"){track("subir_curso_abierto");closeList();showView("up")}
+ else if(b.id==="addc"||b.id==="addc2"){track("subir_curso_abierto");closeList();showView("up")}
  else if(b.id==="upback"){showView("pick")}
  else if(b.id==="uphome"){closeList();showView("welcome")}
  else if(b.id==="home"){track("volver_inicio");closeList();showView("welcome")}
