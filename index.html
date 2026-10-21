@@ -721,43 +721,49 @@ input.g:placeholder-shown+.sf{display:none}
 /* Pantalla "Agrega tu curso": mismo fondo con brillos que inicio y "Elige tu curso" */
 .upv{display:block;overflow:hidden;overflow:clip;align-items:initial}
 .upv .bar{position:relative;background:transparent;z-index:2}
-.upw{padding-top:30px;padding-bottom:72px}
-.upin{max-width:760px}
-.upv .gt{margin-bottom:18px}
+.upw{padding-top:34px;padding-bottom:90px}
+.upin{position:relative;z-index:1;max-width:800px}
+.updeco{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.updeco .sq{opacity:.45}
+.updeco .sq.b{border-color:#0A5CFF;width:38px;height:38px;animation-duration:30s;animation-direction:reverse}
+.updeco .sq.g{border-color:#00F03C;width:26px;height:26px;animation-duration:18s}
+.upv .gt{margin-bottom:20px;font-size:.8rem}
 .upv .wt{margin:0 0 16px}
-.upv .wt .t1{font-size:clamp(1.3rem,5.4vw,2rem);margin-bottom:4px}
+.upv .wt .t1{font-size:clamp(1.5rem,6vw,2.4rem);margin-bottom:4px}
 .upv .wt .t2{font-size:clamp(3rem,13.5vw,5.4rem);color:var(--green)}
-.upi{margin:0 0 22px;max-width:56ch;font-size:clamp(.95rem,2.6vw,1.05rem);line-height:1.6;font-weight:500;color:rgba(255,255,255,.88)}
+.upi{margin:0 0 26px;max-width:58ch;font-size:clamp(1rem,2.8vw,1.15rem);line-height:1.6;font-weight:500;color:rgba(255,255,255,.88)}
 .upst{list-style:none;margin:0 0 26px;padding:0;display:grid;gap:10px;grid-template-columns:repeat(3,1fr)}
-.upst li{display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.07);border-bottom:3px solid var(--c,#00F03C);font-size:.8rem;line-height:1.3;font-weight:600;color:rgba(255,255,255,.9)}
+.upst li{display:flex;align-items:center;gap:12px;padding:15px 16px;background:rgba(255,255,255,.08);border-bottom:3px solid var(--c,#00F03C);transition:transform .2s,background .2s;font-size:.88rem;line-height:1.3;font-weight:600;color:rgba(255,255,255,.9)}
+.upst li:hover{transform:translateY(-3px);background:rgba(255,255,255,.13)}
 .upst li:nth-child(1){--c:#0A5CFF}.upst li:nth-child(2){--c:#00F03C}.upst li:nth-child(3){--c:#F000F0}
-.upst li i{flex:none;display:grid;place-items:center;width:28px;height:28px;background:var(--c);color:var(--navy);font:900 .95rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal}
+.upst li i{flex:none;display:grid;place-items:center;width:34px;height:34px;background:var(--c);color:var(--navy);font:900 1.1rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal}
 .upst li:nth-child(1) i{color:#fff}
 .upst b{font-weight:800;text-transform:uppercase;letter-spacing:.03em;font-size:.88rem;display:block;color:#fff}
-.upf{position:relative;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green);padding:26px 24px 24px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.upf{position:relative;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green);padding:32px 30px 30px;box-shadow:0 24px 60px rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .upstrip{position:absolute;left:-6px;right:-1px;top:-5px;display:flex;height:4px}
 .upstrip i{flex:1}
 .upstrip i:nth-child(1){background:#0A5CFF}.upstrip i:nth-child(2){background:#00F03C}.upstrip i:nth-child(3){background:#F000F0}.upstrip i:nth-child(4){background:#fff}
 .upg2{display:grid;gap:0 18px;grid-template-columns:1fr 1fr}
-.upf .upl{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 8px;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+.upf .upl{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 9px;font-size:.78rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff}
 .upf .upl em{font-style:normal;font-weight:600;letter-spacing:.04em;text-transform:none;font-size:.72rem;color:rgba(255,255,255,.6)}
-.upfd{margin-bottom:20px}
-.upf input[type=text],.upf input[type=email],.upf textarea{display:block;width:100%;background:rgba(6,31,71,.55);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:2px;padding:14px;font:600 1rem/1.35 Montserrat,"Montserrat Fallback",Arial,sans-serif;transition:border-color .2s,background .2s,box-shadow .2s}
+.upfd{margin-bottom:24px}
+.upf input[type=text],.upf input[type=email],.upf textarea{display:block;width:100%;background:rgba(6,31,71,.55);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:2px;padding:16px;font:600 1.05rem/1.35 Montserrat,"Montserrat Fallback",Arial,sans-serif;transition:border-color .2s,background .2s,box-shadow .2s}
 .upf textarea{min-height:88px;resize:vertical;font-weight:500}
 .upf input::placeholder,.upf textarea::placeholder{color:rgba(255,255,255,.45);font-weight:500}
 .upf input:hover,.upf textarea:hover{border-color:rgba(255,255,255,.5)}
 .upf input:focus,.upf textarea:focus{outline:0;border-color:var(--green);background:rgba(6,31,71,.8);box-shadow:0 0 0 3px rgba(0,240,60,.22)}
 .upc{font:800 .68rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;color:rgba(255,255,255,.7)}
-.upd{display:flex;align-items:center;gap:16px;padding:20px 18px;border:2px dashed rgba(0,240,60,.65);background:rgba(0,240,60,.06);cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+.upd{display:flex;align-items:center;gap:18px;padding:26px 22px;border:2px dashed rgba(0,240,60,.65);background:rgba(0,240,60,.06);cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
 .upd:hover,.upd.dg,.upd:focus-within{background:rgba(0,240,60,.14);border-color:var(--green)}
 .upd.dg{transform:scale(1.01)}
 .upd.off{opacity:.5;cursor:not-allowed}
-.upd .ico{flex:none;display:grid;place-items:center;width:52px;height:52px;background:var(--green);color:var(--navy)}
+.upd .ico{flex:none;display:grid;place-items:center;width:64px;height:64px;background:var(--green);color:var(--navy);transition:transform .25s}
+.upd:hover .ico,.upd.dg .ico{transform:translateY(-4px) rotate(-4deg)}
 .upd .tx{display:flex;flex-direction:column;gap:5px;min-width:0}
-.upd .tx b{font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;line-height:1.15}
-.upd .tx small{font-size:.8rem;font-weight:500;line-height:1.4;color:rgba(255,255,255,.75)}
+.upd .tx b{font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;line-height:1.15}
+.upd .tx small{font-size:.86rem;font-weight:500;line-height:1.4;color:rgba(255,255,255,.75)}
 .upd .fm{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
-.upd .fm span{font-size:.64rem;font-weight:800;letter-spacing:.08em;padding:4px 8px;border:1px solid rgba(255,255,255,.35);color:#fff}
+.upd .fm span{font-size:.7rem;font-weight:800;letter-spacing:.08em;padding:5px 10px;border:1px solid rgba(255,255,255,.35);color:#fff}
 .upd input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
 .upm{display:flex;align-items:center;gap:12px;margin-top:12px;font-size:.76rem;font-weight:600;color:rgba(255,255,255,.75)}
 .upm .tr{flex:1;height:6px;background:rgba(255,255,255,.14);overflow:hidden}
@@ -774,9 +780,9 @@ input.g:placeholder-shown+.sf{display:none}
 .upl2 .fs{font-size:.72rem;font-weight:500;color:rgba(255,255,255,.65)}
 .upl2 button{flex:none;display:grid;place-items:center;background:none;border:0;color:rgba(255,255,255,.8);width:36px;height:36px;cursor:pointer;border-radius:2px;transition:background .2s,color .2s}
 .upl2 button:hover,.upl2 button:focus-visible{background:rgba(255,122,122,.22);color:#ff7a7a}
-.upn{display:flex;gap:12px;align-items:flex-start;margin:18px 0 0;padding:12px 14px;background:rgba(0,240,60,.09);border-left:4px solid var(--green);font-size:.8rem;line-height:1.5;font-weight:500;color:rgba(255,255,255,.88)}
+.upn{display:flex;gap:12px;align-items:flex-start;margin:22px 0 0;padding:14px 16px;background:rgba(0,240,60,.09);border-left:4px solid var(--green);font-size:.86rem;line-height:1.5;font-weight:500;color:rgba(255,255,255,.88)}
 .upn svg{flex:none;margin-top:1px;color:var(--green)}
-.upv .upb{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:22px;padding:19px 18px;font-size:.95rem}
+.upv .upb{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:22px;padding:22px 18px;font-size:1.05rem}
 .upv .upb:disabled{opacity:.6;cursor:wait}
 .upv .beam{display:none}
 .ups{min-height:1.4em;margin-top:14px;font-size:.88rem;font-weight:700;line-height:1.4}
@@ -793,9 +799,9 @@ input.g:placeholder-shown+.sf{display:none}
 @media (max-width:700px){
  .upst{grid-template-columns:1fr}
  .upg2{grid-template-columns:1fr}
- .upf{padding:22px 16px 20px}
+ .upf{padding:24px 16px 22px}
+ .upd .ico{width:48px;height:48px}
  .upd{padding:16px 14px;gap:12px}
- .upd .ico{width:44px;height:44px}
  .upok .acts .btn{width:100%}
 }
 @media (pointer:coarse){.upf input[type=text],.upf input[type=email],.upf textarea{font-size:16px}}
@@ -823,6 +829,7 @@ input.g:placeholder-shown+.sf{display:none}
 </div>
 
 <div id="v-up" class="wel upv" hidden>
+<div class="updeco" aria-hidden="true"><i class="sq" style="left:4%;top:24%"></i><i class="sq b" style="right:7%;top:38%"></i><i class="sq g" style="left:9%;top:72%"></i><i class="sp" style="left:88%;top:16%;--s:18px;--d:.4s"></i><i class="sp" style="left:93%;top:62%;--s:14px;--d:1.3s"></i><i class="sp" style="left:3%;top:50%;--s:16px;--d:2s"></i><i class="sp" style="left:80%;top:88%;--s:20px;--d:.9s"></i></div>
 <div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="uphome" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb" id="upback"><span>← Volver a cursos</span></button></div></div></div>
 <div class="wrap wc upw"><div class="upin">
 <div class="gt rv" style="--i:0">Ayúdanos a crecer</div>
