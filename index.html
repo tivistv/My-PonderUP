@@ -835,6 +835,29 @@ input.g:placeholder-shown+.sf{display:none}
  .upf textarea{min-height:140px}
  .upd .tx b{font-size:.92rem}
 }
+/* Buscador de cursos */
+.bqx{position:relative}
+.bqs{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.bqm{position:absolute;left:14px;top:50%;margin-top:-9px;width:18px;height:18px;color:rgba(255,255,255,.7);pointer-events:none}
+.bqi{display:block;width:100%;height:48px;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.32);border-radius:2px;padding:0 46px 0 42px;font:600 .95rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;transition:border-color .2s,background .2s;-webkit-appearance:none;appearance:none}
+.bqi::placeholder{color:rgba(255,255,255,.55);font-weight:500}
+.bqi:focus{outline:0;border-color:var(--green);background:rgba(255,255,255,.12)}
+.bqi::-webkit-search-cancel-button,.bqi::-webkit-search-decoration{-webkit-appearance:none;display:none}
+.bqk{display:none;position:absolute;right:5px;top:50%;margin-top:-18px;width:36px;height:36px;place-items:center;background:none;border:0;border-radius:2px;color:#fff;font:700 1.4rem/1 Arial,sans-serif;cursor:pointer}
+.bqk.bqv,#clist .bqk.bqv{display:grid}
+#clist .bqk{display:none;position:absolute;left:auto;right:5px;top:50%;margin-top:-18px;width:36px;height:36px;padding:0;gap:0;border:0;border-top:0;align-items:center;justify-content:center;flex-direction:row;text-transform:none;background:none;color:#fff;font:700 1.4rem/1 Arial,sans-serif}
+#clist .bqk:hover{background:rgba(255,255,255,.14)}
+.bqk:hover,.bqk:focus-visible{background:rgba(255,255,255,.14)}
+.bqw{max-width:760px;margin-top:22px}
+.bqw+.pgs{margin-top:16px}
+.csb{position:sticky;top:0;z-index:3;background:var(--navy);padding:10px 12px}
+.csb .bqi{height:44px;font-size:.88rem}
+.sno{padding:20px 14px;font-size:.9rem;font-weight:600;color:rgba(255,255,255,.75)}
+p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
+.bqh{display:none!important}
+#plist.bqd .rv{animation:none}
+@media (pointer:coarse){.bqi,.csb .bqi{font-size:16px}}
+@media (max-width:480px){.bqw{margin-top:18px}}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -1136,7 +1159,7 @@ function setCourse(k){
  idx={};walk(S.root,c=>idx[c.id]=c);
  $("cval").textContent=(C[k].pre??"Nivelación en ")+C[k].n;
  $("cbtn").style.setProperty("--s",SC[KS.indexOf(k)%4]);
- $("clist").innerHTML=GR.map(([t,g])=>`<div class="gh">${t}</div>`+inG(g).map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"");
+ $("clist").innerHTML=BQ(0)+GR.map(([t,g])=>`<div class="gh">${t}</div>`+inG(g).map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"");
  closeList();
  $("ctitle").textContent=(C[k].pre??"Nivelación en ")+C[k].n;
  {const t=$("ctitle");t.classList.remove("mr");void t.offsetWidth;t.classList.add("mr")}
@@ -1390,6 +1413,67 @@ async function doShare(o){track("compartir_click",{origen:o});
    tsReset()}
   catch(_){say("No se pudo enviar. Revisa tu conexión e inténtalo otra vez.","bad");track("sugerencia_error",{estado:"red"});tsReset()}
   busy=false;b.disabled=false;b.textContent="Enviar"})}
+
+/* ===== Buscador de cursos =====
+   Filtra los botones que ya existen (los de "Elige tu curso" y los del desplegable de cursos); no duplica la lista de cursos.
+   Ignora mayúsculas y tildes, busca por partes del nombre y ordena: primero lo que empieza con lo escrito, luego el resto. */
+const bqN=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim();
+const bqS=(n,q,t)=>{if(n.startsWith(q))return 0;const w=n.split(" ");if(w.some(x=>x.startsWith(q)))return 1;if(t.length>1&&t.every(x=>w.some(y=>y.startsWith(x))))return 2;if(n.includes(q))return 3;return t.every(x=>n.includes(x))?4:-1};
+function BQ(k){return `<div class="${k?"bqw":"csb"}"><div class="bqx"><label class="bqs" for="${k?"bqp":"bqc"}">Buscar curso</label><svg class="bqm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="${k?"bqp":"bqc"}" class="bqi" placeholder="Buscar curso..." aria-label="Buscar curso" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search" maxlength="60"><button type="button" class="bqk" aria-label="Borrar búsqueda">×</button></div></div>`+(k?"":`<div class="sno" hidden role="status">No se encontraron cursos.</div>`)}
+function bqD(root,raw,msg){
+ const q=bqN(raw),t=q.split(" ").filter(Boolean),pick=root.id==="plist";let tot=0;
+ const lab=b=>{const x=b.dataset.c;return x?bqN((C[x].pre??"Nivelación en ")+C[x].n):bqN(b.textContent)};
+ const nom=b=>{const x=b.dataset.c;return x?bqN(C[x].n):bqN(b.textContent)};
+ root.querySelectorAll("button[data-c],button[data-fi]").forEach((b,i)=>{
+  if(b.dataset.o==null)b.dataset.o=i;
+  let s=0;if(q){s=bqS(nom(b),q,t);if(s<0){s=bqS(lab(b),q,t);if(s>=0)s+=5}}
+  b._s=s});
+ const gs=pick?[...root.querySelectorAll(".pg")].map(h=>({h,box:h.querySelector(".pl"),bs:[...h.querySelectorAll(".pl button")]}))
+  :[...root.querySelectorAll(".gh")].map(h=>{const bs=[];let n=h.nextElementSibling;while(n&&!n.classList.contains("gh")){if(n.matches("button"))bs.push(n);n=n.nextElementSibling}return{h,bs}});
+ gs.forEach(g=>{
+  const o=g.bs.slice().sort((a,b)=>(a._s<0?99:a._s)-(b._s<0?99:b._s)||a.dataset.o-b.dataset.o);
+  if(pick)o.forEach(b=>g.box.append(b));else{let r=g.h;o.forEach(b=>{r.after(b);r=b})}
+  let c=0;g.bs.forEach(b=>{const ok=b._s>=0;b.classList.toggle("bqh",!ok);if(ok)c++});
+  g.h.classList.toggle("bqh",!c);tot+=c;
+  if(pick){const n=g.h.querySelector(".gt i");if(n)n.textContent=c}});
+ if(msg)msg.hidden=!(q&&!tot);
+ if(!pick)root.scrollTop=0}
+/* Transición suave: lo que queda se desliza a su nuevo lugar, lo nuevo aparece con fundido y el desplegable cambia de altura poco a poco */
+function bqA(root,raw,msg){
+ const pick=root.id==="plist",rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+ if(rm){bqD(root,raw,msg);return}
+ const els=()=>[...root.querySelectorAll(pick?".gt,button":".gh,button[data-c],button[data-fi],.sno")].concat(pick?[...document.querySelectorAll("#addb,#bqpn")]:[]);
+ const was=new Map(),h0=pick?0:root.offsetHeight;
+ els().forEach(e=>{if(e.offsetParent!==null)was.set(e,e.getBoundingClientRect())});
+ bqD(root,raw,msg);
+ const all=els();all.forEach(e=>{e.style.transition="none";e.style.transform="";e.style.opacity=""});
+ const mv=[];
+ all.forEach(e=>{if(e.offsetParent===null)return;const o=was.get(e),n=e.getBoundingClientRect();
+  if(o){const dx=o.left-n.left,dy=o.top-n.top;if(Math.abs(dx)+Math.abs(dy)>1)mv.push([e,"translate("+dx+"px,"+dy+"px)",0])}
+  else mv.push([e,"translateY(10px)",1])});
+ mv.forEach(([e,t,f])=>{e.style.transform=t;if(f)e.style.opacity="0"});
+ const h1=pick?0:root.offsetHeight,gh=!pick&&h0&&h1&&h0!==h1;
+ if(gh){root.style.height=h0+"px";root.style.overflow="hidden"}
+ void root.offsetWidth;
+ const T="transform .3s cubic-bezier(.2,.7,.2,1),opacity .3s ease";
+ mv.forEach(([e])=>{e.style.transition=T;e.style.transform="";e.style.opacity=""});
+ if(gh){root.style.transition="height .3s cubic-bezier(.2,.7,.2,1)";root.style.height=h1+"px"}
+ clearTimeout(root._bt);
+ root._bt=setTimeout(()=>{all.forEach(e=>{e.style.transition="";e.style.transform="";e.style.opacity=""});root.style.transition="";root.style.height="";root.style.overflow=""},340)}
+function bqU(i){
+ const pick=i.id==="bqp",root=pick?$("plist"):i.closest("#clist");if(!root)return;
+ i.parentNode.querySelector(".bqk").classList.toggle("bqv",!!i.value);
+ if(pick)root.classList.add("bqd");
+ bqA(root,i.value,pick?$("bqpn"):root.querySelector(".sno"))}
+$("plist").insertAdjacentHTML("beforebegin",BQ(1));
+$("plist").insertAdjacentHTML("afterend",`<p class="sno" id="bqpn" hidden role="status">No se encontraron cursos.</p>`);
+document.addEventListener("input",e=>{const i=e.target.closest&&e.target.closest(".bqi");if(i)bqU(i)});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("bqi")){e.preventDefault();e.target.blur()}});
+document.addEventListener("click",e=>{
+ const k=e.target.closest(".bqk");
+ if(k){const i=k.parentNode.querySelector(".bqi");i.value="";bqU(i);i.focus();return}
+ if(e.target.closest("#plist button[data-p]")){const i=$("bqp");if(i&&i.value){i.value="";bqU(i)}}});
+$("cbtn").addEventListener("click",()=>setTimeout(()=>{const l=$("clist");if(!l.hidden&&matchMedia("(pointer:fine)").matches){const i=l.querySelector(".bqi");if(i)i.focus({preventScroll:true})}},0));
 
 /* ===== Agrega tu curso (envío de archivos a /api/subir-curso) =====
    Solo se aceptan PDF, Word (.docx), PNG y JPG: máximo 3 archivos y 3 MB en total. Aquí se revisa extensión, tipo y los primeros
