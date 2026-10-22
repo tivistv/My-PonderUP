@@ -871,6 +871,31 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
  .bkc{top:calc(12px + env(safe-area-inset-top,0px));left:12px;gap:6px;padding:8px 10px 8px 8px;font-size:.64rem}
  .bkc svg{width:16px;height:16px}
 }
+
+/* ===== Ajustes: tabla en celular, botón Agrega tu curso grande en todas las pantallas, centrado y contraste ===== */
+/* Tabla de combinaciones: sin "rebote" en los extremos (evita que las columnas fijas se separen y dejen espacio en blanco) */
+.sc{overscroll-behavior-x:none;overscroll-behavior:none;-webkit-overflow-scrolling:auto;background:var(--card)}
+.sc th,.sc td{vertical-align:middle;text-align:center}
+/* "Agrega tu curso": el bloque grande de abajo se usa en celular y en PC; el botón pequeño de arriba se oculta */
+.addc{display:none!important}
+.addb{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:760px;margin-top:34px;padding:22px 22px 20px;background:rgba(6,31,71,.88);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green)}
+.addb-k{font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--green)}
+.addb b{font-size:clamp(1.35rem,3.2vw,1.7rem);font-weight:900;text-transform:uppercase;line-height:1.05;color:#fff}
+.addb-t{font-size:.95rem;line-height:1.5;font-weight:500;color:rgba(255,255,255,.85);margin-bottom:10px}
+.addb .addb-b{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px 16px;font-size:.95rem}
+.addb-b span{font-size:1.3rem;line-height:1;font-weight:900}
+/* "Elige tu curso": capa oscura suave para que las letras contrasten mejor con el fondo */
+#v-pick::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 90% 70% at 30% 45%,rgba(2,10,30,.5),rgba(2,10,30,.18) 75%),linear-gradient(180deg,rgba(2,10,30,.18),rgba(2,10,30,.4))}
+#v-pick .gt,#v-pick .pl button,#v-pick .wt{text-shadow:0 1px 10px rgba(2,10,30,.45)}
+#v-pick .pl button{background:rgba(255,255,255,.1)}
+
+/* PC: el bloque grande "Agrega tu curso" va arriba a la derecha y se queda a la vista al bajar */
+@media (min-width:1100px){
+ .addb{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:20px;width:300px;max-width:none;margin:0;z-index:5;padding:18px 18px 16px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
+ .addb b{font-size:1.25rem}
+ .addb-t{font-size:.88rem}
+ .addb .addb-b{padding:15px 14px;font-size:.88rem}
+}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
