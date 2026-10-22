@@ -897,6 +897,13 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
  .addb-t{font-size:.88rem}
  .addb .addb-b{padding:15px 14px;font-size:.88rem}
 }
+
+/* Tabla de combinaciones en celular: el rebote al llegar al borde vuelve a funcionar y cada fila "se estira" con su propio color (sin huecos blancos) */
+.sc{overscroll-behavior:auto;overscroll-behavior-x:auto}
+.sc th:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.35),300px 0 0 0 var(--green)}
+.sc td:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 20%,var(--card))}
+.sc th:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.35),-300px 0 0 0 var(--navy)}
+.sc td:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 var(--card)}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
