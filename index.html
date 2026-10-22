@@ -1081,8 +1081,8 @@ inf:{n:"Informática",rf:1,i:"La Nota de Trabajo (35%) mezcla PC1 (12.25%), PC2 
  {id:"nt",n:"Nota de Trabajo",w:35,r:1,ch:[{id:"pc1",n:"PC1",w:35},{id:"pc2",n:"PC2",w:45},
   {id:"co",n:"Promedio de Controles",w:20,ch:[{id:"c1",n:"Control 1",s:"C1",w:T},{id:"c2",n:"Control 2",s:"C2",w:T},{id:"c3",n:"Control 3",s:"C3",w:T}]}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
-con:{n:"Fundamentos de Contabilidad",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con Prácticas Calificadas (28%), Controles de Lectura (10%) y Participación (2%). El parcial y el final pesan 30% cada uno. El parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
- {id:"tr",n:"Trabajos",w:40,ch:[
+con:{n:"Fundamentos de Contabilidad",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con Prácticas Calificadas (28%), Controles de Lectura (10%) y Participación (2%). El parcial y el final pesan 30% cada uno. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Trabajos",w:40,r:1,ch:[
   {id:"pc",n:"Prácticas Calificadas",w:70,ch:[{id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:20},{id:"pc4",n:"PC4",w:20},{id:"pc5",n:"PC5",w:20}]},
   {id:"cl",n:"Controles de Lectura",w:25,ch:[{id:"cl1",n:"CL1",w:50},{id:"cl2",n:"CL2",w:50}]},
   {id:"ap",n:"Participación",s:"P",w:5,b:1}]},
@@ -1105,29 +1105,72 @@ int:{n:"Introducción a la Ingeniería",pre:"",rf:1,i:"La Nota de Trabajo (45%) 
    {id:"l4",n:"Laboratorio 4",s:"L4",z:1,w:20,ch:[{id:"di",n:"Dinosaurio",mx:10,w:50,d:""},{id:"fp",n:"Fase Prototipar",mx:10,w:50,d:""}]},
    {id:"pf",n:"Presentación Final",s:"PF",w:20,b:1}]}]},
  {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
-mat1:{n:"Matemáticas I",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con 2 controles (2% cada uno, 4% en total) y 4 prácticas calificadas (9% cada una, 36% en total). El examen parcial y el final pesan 30% cada uno. El parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
- {id:"tr",n:"Trabajos",w:40,ch:[
+mat1:{n:"Matemáticas I",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con 2 controles (2% cada uno, 4% en total) y 4 prácticas calificadas (9% cada una, 36% en total). El examen parcial y el final pesan 30% cada uno. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Trabajos",w:40,r:1,ch:[
   {id:"ct",n:"Controles",w:10,ch:[{id:"c1",n:"Primer Control",s:"C1",w:50},{id:"c2",n:"Segundo Control",s:"C2",w:50}]},
   {id:"pc",n:"Prácticas Calificadas",w:90,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
-len1:{n:"Lenguaje I",pre:"",rf:1,i:"Trabajos pesa 35% y está formado por 3 prácticas calificadas que valen lo mismo (11.67% cada una). El examen parcial pesa 30% y el final 35%. El reglamento no indica pesos distintos para las prácticas, por eso se asume que pesan igual. El parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
- {id:"tr",n:"Trabajos",w:35,ch:[
+len1:{n:"Lenguaje I",pre:"",rf:1,i:"Trabajos pesa 35% y está formado por 3 prácticas calificadas que valen lo mismo (11.67% cada una). El examen parcial pesa 30% y el final 35%. El reglamento no indica pesos distintos para las prácticas, por eso se asume que pesan igual. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Trabajos",w:35,r:1,ch:[
   {id:"pc",n:"Prácticas Calificadas",w:100,ch:[{id:"pc1",n:"PC1",w:T},{id:"pc2",n:"PC2",w:T},{id:"pc3",n:"PC3",w:T}]}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
-eco1:{n:"Economía General I",pre:"",rf:1,i:"Trabajos pesa 40% y está formado por 4 prácticas calificadas de 10% cada una. El examen parcial y el final pesan 30% cada uno. El reglamento no indica pesos distintos para las prácticas, por eso se asume que pesan igual. El parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
- {id:"tr",n:"Trabajos",w:40,ch:[
+eco1:{n:"Economía General I",pre:"",rf:1,i:"Trabajos pesa 40% y está formado por 4 prácticas calificadas de 10% cada una. El examen parcial y el final pesan 30% cada uno. El reglamento no indica pesos distintos para las prácticas, por eso se asume que pesan igual. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Trabajos",w:40,r:1,ch:[
   {id:"pc",n:"Prácticas Calificadas",w:100,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
 der1:{n:"Introducción al Derecho",pre:"",rf:1,i:"No hay examen parcial ni final: el curso se compone de Controles de Lectura (30%), Prácticas Calificadas (40%) y Evaluación Continua (30%). Los 3 controles valen lo mismo (10% del curso cada uno), las 4 prácticas calificadas también (10% cada una) y las 3 actividades calificadas de la Evaluación Continua también (10% cada una). El promedio final se redondea al entero (el .5 sube).",root:{ch:[
  {id:"cl",n:"Controles de Lectura",w:30,ch:[{id:"c1",n:"Control 1",s:"C1",w:T},{id:"c2",n:"Control 2",s:"C2",w:T},{id:"c3",n:"Control 3",s:"C3",w:T}]},
  {id:"pc",n:"Prácticas Calificadas",w:40,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
  {id:"ec",n:"Evaluación Continua",w:30,ch:[{id:"a1",n:"Actividad 1",s:"A1",w:T},{id:"a2",n:"Actividad 2",s:"A2",w:T},{id:"a3",n:"Actividad 3",s:"A3",w:T}]}]}},
-cfi:{n:"Contabilidad Financiera Intermedia",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con Prácticas Calificadas (28%, cinco prácticas que valen lo mismo: 5.6% cada una), Controles de Lectura (9%) y Participación en Clase (3%). El examen parcial y el final pesan 30% cada uno. Controles de Lectura y Participación se ingresan como una sola nota cada uno. El parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
- {id:"tr",n:"Trabajos",w:40,ch:[
+cfi:{n:"Contabilidad Financiera Intermedia",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con Prácticas Calificadas (28%, cinco prácticas que valen lo mismo: 5.6% cada una), Controles de Lectura (9%) y Participación en Clase (3%). El examen parcial y el final pesan 30% cada uno. Controles de Lectura y Participación se ingresan como una sola nota cada uno. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Trabajos",w:40,r:1,ch:[
   {id:"pc",n:"Prácticas Calificadas",w:70,ch:[{id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:20},{id:"pc4",n:"PC4",w:20},{id:"pc5",n:"PC5",w:20}]},
   {id:"cl",n:"Controles de Lectura",s:"CL",w:22.5,b:1},
   {id:"ap",n:"Participación en Clase",s:"P",w:7.5,b:1}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+mat3:{n:"Matemáticas III",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio de 4 prácticas calificadas que valen lo mismo (10% del curso cada una). El examen parcial y el final pesan 30% cada uno. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+mac1:{n:"Macroeconomía I",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio de 4 prácticas calificadas que valen lo mismo (10% del curso cada una). El examen parcial y el final pesan 30% cada uno. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+hee:{n:"Historia Económica y Empresarial",pre:"",gp:2,rf:1,i:"El curso no tiene parcial ni final. El proyecto de investigación se entrega en 4 partes (5%, 10%, 20% y 25% del curso) y las actividades en clase calificables pesan 40%. El promedio final se redondea al entero (el .5 sube).",root:{ch:[
+ {id:"e1",n:"Primera entrega del proyecto de investigación",s:"Entrega 1",w:5},
+ {id:"e2",n:"Segunda entrega del proyecto de investigación",s:"Entrega 2",w:10},
+ {id:"e3",n:"Tercera entrega del proyecto de investigación",s:"Entrega 3",w:20},
+ {id:"e4",n:"Cuarta entrega del proyecto de investigación",s:"Entrega 4",w:25},
+ {id:"ac",n:"Actividades en clase calificables",s:"Actividades",w:40}]}},
+inv:{n:"Investigación Académica",pre:"",gp:2,rf:1,i:"El curso se evalúa con 3 entregas: la Entrega 1 pesa 30%, la Entrega 2 30% y la Entrega 3 40%. El promedio final se redondea al entero (el .5 sube).",root:{ch:[
+ {id:"e1",n:"Entrega 1",s:"E1",w:30},{id:"e2",n:"Entrega 2",s:"E2",w:30},{id:"e3",n:"Entrega 3",s:"E3",w:40}]}},
+est1:{n:"Estadística I",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio de 4 prácticas calificadas que valen lo mismo (10% del curso cada una). El examen parcial y el final pesan 30% cada uno. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+ctd:{n:"Contabilidad para la Toma de Decisiones",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% (Evaluaciones Parciales 20% y Controles de Lectura 20% del curso). La Actividad Examen Final pesa 60% (Participación Efectiva 10%, Trabajo Integral Grupal 25% y Evaluación Integral 25% del curso). Las evaluaciones parciales y los controles de lectura se ingresan cada uno como una sola nota. La Nota de Trabajo, la Actividad Examen Final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[{id:"ep",n:"Evaluaciones Parciales",s:"E. Parciales",w:50},{id:"cl",n:"Controles de Lectura",s:"Controles",w:50}]},
+ {id:"fi",n:"Actividad Examen Final",s:"Examen Final",w:60,r:1,ch:[{id:"pe",n:"Participación Efectiva",s:"Participación",w:100*10/60},{id:"tg",n:"Trabajo Integral Grupal",s:"Trabajo Grupal",w:100*25/60},{id:"ei",n:"Evaluación Integral",s:"Ev. Integral",w:100*25/60}]}]}},
+dcg:{n:"Derecho Constitucional General",pre:"",rf:1,i:"Controles de Lectura (promedio) pesan 20%, Prácticas Calificadas (promedio) 20%, Participación 15%, Presentación Final (ensayo o video) 20% y Examen Final 25%. El examen final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"cl",n:"Controles de Lectura (promedio)",s:"Controles",w:20},
+ {id:"pc",n:"Prácticas Calificadas (promedio)",s:"Prácticas",w:20},
+ {id:"pa",n:"Participación",s:"P",w:15},
+ {id:"pf",n:"Presentación Final (Ensayo/Video)",s:"Present. Final",w:20},
+ {id:"fi",n:"Examen Final",w:25,r:1}]}},
+gct:{n:"Gestión del Cambio y Transformación Cultural",pre:"",rf:1,i:"La Nota de Trabajo pesa 45%, el Examen Parcial 20% y el Examen Final 35%. Dentro de cada una, los porcentajes que ves son sobre esa parte. En el Parcial, el avance del trabajo es grupal y el examen oral es individual. En el Final, el trabajo y el examen oral son grupales y la exposición es individual. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:45,r:1,ch:[
+  {id:"c1",n:"Control 1",s:"C1",w:20},
+  {id:"io",n:"Informes Orales",s:"Informes",w:25},
+  {id:"ex",n:"Exposición de temas de clase",s:"Exposición",w:15},
+  {id:"ig",n:"Promedio de informes grupales, dinámicas y casos",s:"Informes grupales",w:20},
+  {id:"pp",n:"Promedio de participación en clase y asistencia",s:"Participación",w:20}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1,ch:[
+  {id:"av",n:"Avance del trabajo (presentación empresas y marco teórico) · Grupal",s:"Avance",w:20},
+  {id:"eo",n:"Examen oral: 2 preguntas de aplicación · Individual",s:"Oral",w:80}]},
+ {id:"fi",n:"Examen Final",w:35,r:1,ch:[
+  {id:"tr",n:"Trabajo de investigación aplicativo · Grupal",s:"Trabajo",w:40},
+  {id:"ep",n:"Exposición y 1 pregunta sobre el trabajo · Individual",s:"Exposición",w:10},
+  {id:"eo",n:"Examen oral: 2 preguntas de aplicación · Grupal",s:"Oral",w:50}]}]}},
+psc:{n:"Pensamiento Social Contemporáneo",pre:"",gp:2,rf:1,i:"Las Notas de Trabajos pesan 50%, el Examen Parcial 20% y el Examen Final 30%. Las Notas de Trabajos se ingresan como una sola nota. La nota de trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Notas de Trabajos",s:"Trabajos",w:50,r:1},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
 lid:{n:"Liderazgo",pre:"",gp:2,rf:1,i:"No hay examen parcial ni final. El curso se compone de Análisis de Casos (20%), Trabajo de Reflexión Personal (20%), Participación (30%) y Proyecto Final (30%). El promedio final se redondea al entero (el .5 sube).",root:{ch:[
  {id:"ac",n:"Análisis de Casos",w:20},
  {id:"tr",n:"Trabajo de Reflexión Personal",w:20},
@@ -1138,7 +1181,7 @@ fil:{n:"Filosofía",pre:"",gp:2,nz:1,rf:1,i:"No hay examen parcial ni final. El 
  {id:"u2",n:"Unidad 2",w:35,ch:[{id:"pc2",n:"PC2",w:2500/35},{id:"nt2",n:"Nota de Trabajo 2",s:"NT2",w:1000/35}]},
  {id:"u3",n:"Unidad 3",w:40,ch:[{id:"pc3",n:"PC3",w:75},{id:"nt3",n:"Nota de Trabajo 3",s:"NT3",w:25}]}]}}
 };
-const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","lid","fil"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false;
+const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false;
 const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g);
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
