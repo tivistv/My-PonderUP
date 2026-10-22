@@ -124,7 +124,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   Para activar Turnstile: poner la clave del sitio en TS_SITEKEY (bloque "Comentarios o sugerencias" del JavaScript) y TURNSTILE_SECRET en Vercel.
   Logos: alojados en /img/ (WebP). La vista previa del enlace usa /img/og.png (1200x630) con URL absoluta en og:image y og:url.
 
-10) AGREGA TU CURSO (boton arriba a la derecha en "Elige tu curso", pantalla #v-up)
+10) AGREGA TU CURSO (boton arriba a la derecha en "Elige tu curso", tambien en celular; a la izquierda esta el boton "Atras" (#pickback) que vuelve a la bienvenida. Pantalla de envio: #v-up)
   El alumno envia el silabo o reglamento de un curso que falta. Maximo 3 archivos, 3 MB en total, solo PDF, Word (.docx), PNG y JPG
   (se excluyen Excel y .doc antiguo porque pueden llevar macros). El navegador revisa extension, tipo y firma del archivo; el servidor
   (api/subir-curso.js) lo repite, rechaza PDFs con JavaScript/Launch y .docx con macros, y envia los archivos por correo con Resend a
@@ -858,6 +858,20 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 #plist.bqd .rv{animation:none}
 @media (pointer:coarse){.bqi,.csb .bqi{font-size:16px}}
 @media (max-width:480px){.bqw{margin-top:18px}}
+
+/* ===== "Elige tu curso": botón Atrás (izquierda) y Agrega tu curso (derecha), arriba también en celular ===== */
+.bkc{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));left:16px;z-index:3;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#fff;border:2px solid rgba(255,255,255,.55);border-radius:2px;padding:9px 14px 9px 10px;font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .2s}
+.bkc svg{width:18px;height:18px;flex:none;transition:transform .2s}
+.bkc:hover,.bkc:focus-visible{background:#fff;color:var(--navy);border-color:#fff}
+.bkc:hover svg,.bkc:focus-visible svg{transform:translateX(-3px)}
+@media (max-width:700px){
+ #v-pick .wc{padding-top:calc(72px + env(safe-area-inset-top,0px))}
+ .addc{display:inline-flex;top:calc(12px + env(safe-area-inset-top,0px));right:12px;gap:7px;padding:8px 10px 8px 8px;font-size:.64rem}
+ .addc i{width:18px;height:18px;font-size:1rem}
+ .bkc{top:calc(12px + env(safe-area-inset-top,0px));left:12px;gap:6px;padding:8px 10px 8px 8px;font-size:.64rem}
+ .bkc svg{width:16px;height:16px}
+ .addb{display:none}
+}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -874,7 +888,7 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 
 
 
-<div id="v-pick" class="wel" hidden><button type="button" class="addc" id="addc"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><div class="wrap wc">
+<div id="v-pick" class="wel" hidden><button type="button" class="bkc" id="pickback" aria-label="Volver al inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg><span>Atrás</span></button><button type="button" class="addc" id="addc"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><div class="wrap wc">
 <h1 class="wt eq"><span class="t1 mr" style="--i:0">Elige tu</span><span class="t2 mr" style="--i:1">curso</span></h1>
 <div class="pgs" id="plist"></div>
 <div class="addb" id="addb"><span class="addb-k">¿Falta tu curso?</span><b>Agrégalo tú mismo</b><span class="addb-t">Envíanos el sílabo o reglamento y lo sumamos a My PonderUP.</span><button type="button" class="btn addb-b" id="addc2"><span aria-hidden="true">+</span> Agrega tu curso</button></div>
@@ -1274,6 +1288,7 @@ document.addEventListener("click",e=>{
  else if(b.id==="go"){track("empezar_click");showView("pick")}
  else if(b.id==="addc"||b.id==="addc2"){track("subir_curso_abierto");closeList();showView("up")}
  else if(b.id==="upback"){showView("pick")}
+ else if(b.id==="pickback"){track("volver_inicio");closeList();showView("welcome")}
  else if(b.id==="uphome"){closeList();showView("welcome")}
  else if(b.id==="home"){track("volver_inicio");closeList();showView("welcome")}
  else if(b.id==="cbtn"){const o=$("clist").hidden;if(o)track("menu_cursos_abierto",{curso:cur});$("clist").hidden=!o;b.setAttribute("aria-expanded",String(o))}
