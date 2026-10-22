@@ -88,7 +88,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   - Grupos del menu de cursos (constante GR): Nivelacion (pre distinto de ""), Cursos y "Cursos Sellos UP". Un curso va a Sellos UP con gp:2 en su
     entrada de C (Liderazgo y Filosofia). Sin gp, el grupo sale de pre (pre:"" = Cursos).
   - nz:1 en un curso apaga la barra de zoom de la primera seccion (se usa en Filosofia, donde las unidades no son "trabajos").
-  - La barra de pesos (WB) tiene 4 colores: un curso admite hasta 4 evaluaciones principales (Liderazgo usa las 4).
+  - La barra de pesos (WB) tiene 5 colores: un curso admite hasta 5 evaluaciones principales (Derecho Constitucional General e Historia Economica y Empresarial usan 5). Si un curso trae mas, wbc() repite colores en vez de romper la pagina. IMPORTANTE: si setCourse() lanza un error, el titulo cambia pero el resto de la pagina se queda con el curso anterior.
   - Contabilidad Financiera Intermedia: Controles de Lectura (9%) y Participacion (3%) son una sola nota cada uno (no se indico cuantos controles hay).
   - Combinaciones para aprobar: filas en escalera (primeras evaluaciones mas altas, ultimas mas bajas) con diferencia D = 0, 3, 6, 9, 12.
   - Compartir: boton en la barra superior y en el pie (menu de compartir en celular, copiar enlace en computadora).
@@ -1069,7 +1069,7 @@ const track=(n,p)=>{if(!PH_KEY)return;try{if(phOn)posthog.capture(n,p);else phQ.
 const seenFirst=new Set(),seenCombo=new Set(),seenSec=new Set(),seenTyp=new Set(),seenBad=new Set();let calcTm=0,pmT=0;
 const trackCombo=()=>{if(view==="tool"&&cur&&!seenCombo.has(cur)&&$("cb").innerHTML.indexOf("<table")>-1){seenCombo.add(cur);track("combos_vistos",{curso:cur,pendientes:pend().length})}};
 const rnd=x=>Math.floor(x+.5+1e-9),fmt=x=>String(Math.round((x+1e-9)*100)/100);
-const T=100/3,SC=["#0A5CFF","#00F03C","#F000F0","#FFFFFF"],WB=[["#0A5CFF","#fff"],["#00F03C","#061F47"],["#F000F0","#061F47"],["#FFC400","#061F47"]];
+const T=100/3,SC=["#0A5CFF","#00F03C","#F000F0","#FFFFFF"],WB=[["#0A5CFF","#fff"],["#00F03C","#061F47"],["#F000F0","#061F47"],["#FFC400","#061F47"],["#00D1FF","#061F47"]],wbc=i=>WB[i%WB.length];
 const C={
 mat:{n:"Matemáticas",rf:1,i:"La Nota de Trabajo (50%) sale de PC1 a PC4, que valen 10%, 10%, 15% y 15% del curso. El examen parcial pesa 20% y el final 30%. Las prácticas no se redondean; la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:50,r:1,ch:[{id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:30},{id:"pc4",n:"PC4",w:30}]},
@@ -1221,12 +1221,12 @@ function setCourse(k){
  {const t=$("ctitle");t.classList.remove("mr");void t.offsetWidth;t.classList.add("mr")}
  $("fl").innerHTML=GR.map(([t,g],j)=>`<b${j?' class="sp2"':""}>${t}</b>`+inG(g).map(x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
  const G=S.root.ch;
- $("wbar").innerHTML=G.map((g,i)=>`<span data-i="${i}" style="flex:${g.w};--wb:${WB[i][0]};--wc:${WB[i][1]}">${fmt(g.w)}%</span>`).join("");
- $("lgd").innerHTML=G.map((g,i)=>`<span style="--wb:${WB[i][0]}">${g.n}</span>`).join("");
+ $("wbar").innerHTML=G.map((g,i)=>`<span data-i="${i}" style="flex:${g.w};--wb:${wbc(i)[0]};--wc:${wbc(i)[1]}">${fmt(g.w)}%</span>`).join("");
+ $("lgd").innerHTML=G.map((g,i)=>`<span style="--wb:${wbc(i)[0]}">${g.n}</span>`).join("");
  const zi=C[k].nz?-1:G.findIndex(g=>g.ch);
  if(zi>=0){const g=G[zi],L=sl(g),SH=[100,78,56];
   const lg="";
-  $("zm").style.cssText=`--wb:${WB[zi][0]};--wc:${WB[zi][1]}`;
+  $("zm").style.cssText=`--wb:${wbc(zi)[0]};--wc:${wbc(zi)[1]}`;
   $("zm").innerHTML=`<div class="zb" id="zb">${L.map(x=>`<span class="zs" data-id="${x.id}" data-ids="${x.L?x.L.map(l=>l.id).join(","):x.id}" title="${x.n}" style="flex:${x.w};--sh:${SH[x.k%3]}%">${x.s}</span>`).join("")}</div>${lg}`}
  else $("zm").innerHTML="";
  let h="";
