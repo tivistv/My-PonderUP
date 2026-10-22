@@ -1212,9 +1212,15 @@ lid:{n:"Liderazgo",pre:"",gp:2,rf:1,i:"No hay examen parcial ni final. El curso 
 fil:{n:"Filosofía",pre:"",gp:2,nz:1,rf:1,i:"No hay examen parcial ni final. El curso tiene 3 unidades: la Unidad 1 pesa 25% (PC1 15% y Nota de Trabajo 10%), la Unidad 2 pesa 35% (PC2 25% y Nota de Trabajo 10%) y la Unidad 3 pesa 40% (PC3 30% y Nota de Trabajo 10%). Los porcentajes que ves en cada evaluación son sobre el total del curso. El promedio final se redondea al entero (el .5 sube).",root:{ch:[
  {id:"u1",n:"Unidad 1",w:25,ch:[{id:"pc1",n:"PC1",w:60},{id:"nt1",n:"Nota de Trabajo 1",s:"NT1",w:40}]},
  {id:"u2",n:"Unidad 2",w:35,ch:[{id:"pc2",n:"PC2",w:2500/35},{id:"nt2",n:"Nota de Trabajo 2",s:"NT2",w:1000/35}]},
- {id:"u3",n:"Unidad 3",w:40,ch:[{id:"pc3",n:"PC3",w:75},{id:"nt3",n:"Nota de Trabajo 3",s:"NT3",w:25}]}]}}
+ {id:"u3",n:"Unidad 3",w:40,ch:[{id:"pc3",n:"PC3",w:75},{id:"nt3",n:"Nota de Trabajo 3",s:"NT3",w:25}]}]}},
+rce:{n:"Religiones, Culturas y Economía",pre:"",gp:2,rf:1,i:"Trabajos pesa 50% y se arma con Controles (20%, dos controles que valen lo mismo: 10% cada uno), Trabajos Colaborativos (20%) y Asistencia y Participación (10%). El Examen Parcial pesa 20% y el Examen Final 30%. Trabajos Colaborativos y Asistencia y Participación se ingresan como una sola nota cada uno. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Trabajos",w:50,r:1,ch:[
+  {id:"ct",n:"Controles",w:40,ch:[{id:"c1",n:"Control 1",s:"C1",w:50},{id:"c2",n:"Control 2",s:"C2",w:50}]},
+  {id:"tc",n:"Trabajos Colaborativos",s:"Colaborativos",w:40,b:1},
+  {id:"ap",n:"Asistencia y Participación",s:"Asist. y Part.",w:20,b:1}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
 };
-const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false;
+const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false;
 const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g);
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
