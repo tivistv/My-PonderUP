@@ -444,16 +444,15 @@ a[data-ig][hidden]{display:none!important}
 .igw{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:16px;color:rgba(255,255,255,.8);font-weight:700;font-size:.95rem;text-decoration:none;white-space:nowrap;transition:color .2s}
 .igw:hover{color:var(--green)}
 @media (max-width:600px){.igc{min-height:56px;margin:16px 0 0}}
-/* Celular: texto corto y tarjeta mas llamativa (fondo azul, icono verde, flecha) */
+/* Celular: texto corto y tarjeta mas llamativa (icono verde grande, letra gruesa, flecha) */
 .igk{display:none}
 @media (max-width:600px){
  .igf{display:none}.igk{display:inline}
- .igc{min-height:68px;gap:14px;padding:14px 16px 14px 14px;background:var(--navy);border:0;border-left:6px solid var(--green);color:#fff;box-shadow:0 6px 18px rgba(6,31,71,.28)}
- .igc:hover{border:0;border-left:6px solid var(--green)}
+ .igc{min-height:68px;gap:14px;padding:14px 16px 14px 14px;box-shadow:0 6px 18px rgba(6,31,71,.14)}
  .igc svg{width:44px;height:44px;padding:9px;box-sizing:border-box;background:var(--green);color:var(--navy)}
  .igc b{font-size:1.15rem;font-weight:900}
- .igc small{color:var(--green);font-size:.95rem}
- .igc::after{content:"›";flex:none;margin-left:auto;color:var(--green);font-size:2rem;font-weight:700;line-height:1}
+ .igc small{font-size:.95rem}
+ .igc::after{content:"›";flex:none;margin-left:auto;color:var(--gt);font-size:2rem;font-weight:700;line-height:1}
 }
 
 #sl1{font-size:clamp(1.1rem,4.8vw,1.5rem);font-weight:900;line-height:1.15;letter-spacing:.01em}
@@ -1415,10 +1414,10 @@ function paintBars(){
   e.style.setProperty("--f",f+"%");const b=document.querySelector(`.blk[data-b="${i}"]`);if(b){b.style.setProperty("--f",f+"%");const c=b.querySelector(".cnt");if(c){const L=leaves(g),n=L.filter(l=>!isP(l.id)).length;c.textContent=n+" de "+L.length;c.classList.toggle("full",n===L.length)}}});
  document.querySelectorAll("input.g").forEach(i=>{const r=i.closest(".row,.bh");if(r)r.classList.toggle("dn",!isP(i.dataset.id))});
  document.querySelectorAll("#zb .zs").forEach(e=>{const was=e.classList.contains("pd"),now=e.dataset.ids.split(",").some(isP);e.classList.toggle("pd",now);if(was&&!now){e.classList.remove("pop");void e.offsetWidth;e.classList.add("pop")}})}
-let faqNear=false,bodyIn=false,fiBodyIn=false;
-/* bodyIn / fiBodyIn: el contenido claro/oscuro (debajo del encabezado azul) ya ocupa buena parte de la pantalla. Arriba del todo no se ve el cambio de tema, asi que ahi no van ni la barra "Mi promedio hasta ahora" ni el interruptor. */
+let faqNear=false,bodyIn=false,fiBodyIn=false,bodySee=false,fiBodySee=false;
+/* bodyIn / fiBodyIn: el contenido claro/oscuro ya ocupa buena parte de la pantalla (para la barra "Mi promedio hasta ahora"). bodySee / fiBodySee: se ve aunque sea un poco de ese contenido; el interruptor solo se oculta cuando el azul tapa toda la pantalla. */
 const chk=()=>{const mOn=view==="tool"&&bodyIn&&!sumIn&&!faqIn,fm=$("fimini"),
- tOn=!faqNear&&(view==="tool"?bodyIn:view==="fi"?fiBodyIn:false);
+ tOn=view==="tool"?bodySee:view==="fi"?fiBodySee:false;
  $("mini").classList.toggle("on",mOn);
  $("tgw").classList.toggle("off",!tOn);
  $("tgw").classList.toggle("low",!(mOn||(fm&&fm.classList.contains("on"))))};
@@ -1714,8 +1713,9 @@ document.querySelectorAll(".qa").forEach(d=>{
  if(mq&&mq.addEventListener)mq.addEventListener("change",()=>{if(!saved)apply()})}
 const fo=new IntersectionObserver(es=>es.forEach(e=>{if(e.target.id==="faq"){faqNear=e.isIntersecting;chk()}}),{rootMargin:"0px 0px 170px 0px"});fo.observe($("faq"));
 /* Zona donde se nota el cambio claro/oscuro: el contenido ya entro en el 60% superior de la pantalla */
-{const bo=new IntersectionObserver(es=>es.forEach(e=>{if(e.target.closest("#v-fi"))fiBodyIn=e.isIntersecting;else bodyIn=e.isIntersecting;chk()}),{rootMargin:"0px 0px -40% 0px"});
- document.querySelectorAll("#v-tool main.body,#v-fi main.body").forEach(m=>bo.observe(m))}
+{const mk=mg=>new IntersectionObserver(es=>es.forEach(e=>{const f=!!e.target.closest("#v-fi");if(mg)f?fiBodyIn=e.isIntersecting:bodyIn=e.isIntersecting;else f?fiBodySee=e.isIntersecting:bodySee=e.isIntersecting;chk()}),{rootMargin:mg?"0px 0px -40% 0px":"0px"}),
+ bo=mk(true),bs=mk(false);
+ document.querySelectorAll("#v-tool main.body,#v-fi main.body").forEach(m=>{bo.observe(m);bs.observe(m)})}
 
 /* ===== Guardado automático (localStorage): notas, nota mínima y redondeos de cada curso ===== */
 const LSK="mp-progress";
