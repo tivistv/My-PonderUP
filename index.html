@@ -1001,7 +1001,7 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 #simt{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:12px 16px;background:transparent;border:0;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 #simt b{display:block;font-weight:800;font-size:1rem;text-transform:uppercase;letter-spacing:.02em}
 #simt small{display:block;font-weight:500;font-size:.8rem;color:var(--mut)}
-.smc{flex:none;width:10px;height:10px;margin:-4px 4px 0 0;border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(45deg);transition:transform .25s}
+.smc{flex:none;width:10px;height:10px;margin:-4px 4px 0 0;border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(45deg);transition:transform .4s cubic-bezier(.2,.7,.2,1),margin-top .4s cubic-bezier(.2,.7,.2,1)}
 #simt[aria-expanded="true"] .smc{transform:rotate(-135deg);margin-top:4px}
 #simb{padding:0 16px 16px}
 .simi{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;font-size:.85rem;color:var(--mut)}
@@ -1465,11 +1465,21 @@ function setCourse(k){
 /* ===== Simulador "¿Y si saco...?": prueba notas en lo pendiente sin tocar las reales ===== */
 function simR(){
  const P=pend(),W=$("sim");W.hidden=!P.length;if(!P.length)return;
- $("simt").setAttribute("aria-expanded",String(simOpen));$("simb").hidden=!simOpen;if(!simOpen)return;
+ $("simt").setAttribute("aria-expanded",String(simOpen));if(!simOpen){simShow(false);return}
  const ol=outlook(),sv=S.sim||(S.sim={}),def=ol.nec!==null?ol.nec:(ol.k==="no"?20:S.pm);
  $("simr").innerHTML=P.map(l=>{const mx=l.mx||20,v=sv[l.id]!==undefined?Math.min(mx,sv[l.id]):Math.min(mx,Math.ceil(def*mx/20*2-1e-6)/2);sv[l.id]=v;
   return `<div class="srow"><span>${l.n}${dv(l)?`<em>${dv(l)}</em>`:""}</span><div class="sc2"><input type="range" min="0" max="${mx}" step="0.5" value="${v}" data-sid="${l.id}" aria-label="Nota simulada de ${l.n}"><output>${fmt(v)}</output><button type="button" class="btn sm" data-use="${l.id}" title="Usar como nota real">Usar</button></div></div>`}).join("");
- simU()}
+ simU();simShow(true)}
+/* Abrir y cerrar "¿Y si saco...?" con una animacion suave de altura y opacidad */
+let simT=0;
+function simShow(o){const b=$("simb");if(o===(b.dataset.s==="open")&&!(o&&b.hidden))return;
+ clearTimeout(simT);b.dataset.s=o?"open":"closed";
+ const from=b.hidden?0:b.offsetHeight,E="cubic-bezier(.2,.7,.2,1)";
+ b.hidden=false;b.style.overflow="hidden";b.style.transition="none";b.style.height=from+"px";b.style.opacity=o?(from?"1":"0"):"1";
+ void b.offsetHeight;
+ b.style.transition="height .45s "+E+",opacity .35s ease";
+ b.style.height=(o?b.scrollHeight:0)+"px";b.style.opacity=o?"1":"0";
+ simT=setTimeout(()=>{b.style.transition=b.style.height=b.style.overflow=b.style.opacity="";if(!o)b.hidden=true},470)}
 function simU(){
  const P=pend(),sv=S.sim||{},u={};P.forEach(l=>u[l.id]=(sv[l.id]||0)*20/(l.mx||20));
  const v=ev(S.root,full(u)),ok=pass(v),g=Math.abs(S.rf?rnd(v)-S.pm:v-S.pm),near=g<.005;
