@@ -1771,7 +1771,7 @@ const SITE_HOST="myponderup.vercel.app";
  /* Datos de la imagen: solo resultado; las notas solo si la persona lo activa */
  const snap=notes=>{const o=outlook(),f=v=>S.rf?String(rnd(v)):fmt(v),L=leaves(S.root);
   return{curso:(C[cur].pre??"Nivelación en ")+C[cur].n,n:o.n,vd:vtxt(o,true),num:f(o.lo),lo:f(o.lo),hi:f(o.hi),lov:o.lo,hiv:o.hi,pm:S.pm,hechas:L.length-o.n,total:L.length,
-   rows:notes?S.root.ch.map(g=>{const pd=g.ch?leaves(g).some(l=>isP(l.id)):isP(g.id);return{n:g.n,v:pd?"—":(g.ch?fmt(ev(g,full({}))):fmt(Math.min(+S.g[g.id],g.mx||20)))+(g.ch||!g.mx?"":" / "+g.mx)}}):null}};
+   rows:notes?L.map(l=>({n:l.n,v:isP(l.id)?"—":fmt(Math.min(+S.g[l.id],l.mx||20))+(l.mx?" / "+l.mx:"")})):null}};
  function paint(c,W,d,lg){
   const X=84,CW=W-2*X,WH="#fff",MU="rgba(255,255,255,.74)",col=d.vd.c==="y"?"#00F03C":d.vd.c==="n"?"#ff7a7a":"#FFC400";let y=0;
   c.textBaseline="alphabetic";c.textAlign="left";
@@ -1779,9 +1779,9 @@ const SITE_HOST="myponderup.vercel.app";
   c.font=F(600,34);c.fillStyle=MU;c.fillText("Mi ponderado de",X,y+28);y+=28+18;
   let fs=72,L;c.font=F(800,fs);L=wrap(c,d.curso,CW);if(L.length>2){fs=54;c.font=F(800,fs);L=wrap(c,d.curso,CW)}
   c.fillStyle=WH;L.forEach(t=>{c.fillText(t,X,y+fs*.9);y+=fs*1.12});y+=40;
-  c.font=F(900,100);const hs=Math.min(360,Math.floor(CW/c.measureText(d.num).width*100));
+  c.font=F(900,100);const hs=Math.min(d.rows?240:360,Math.floor(CW/c.measureText(d.num).width*100));
   c.font=F(900,hs);c.fillStyle=d.vd.c==="m"?WH:col;c.fillText(d.num,X-6,y+hs*.74);y+=hs*.74+44;
-  c.font=F(600,32);c.fillStyle=MU;wrap(c,d.n?"Mi promedio hasta ahora (lo que falta cuenta 0)":"Mi promedio final",CW).forEach(t=>{c.fillText(t,X,y+28);y+=42});y+=30;
+  c.font=F(600,32);c.fillStyle=MU;wrap(c,d.n?"Mi promedio hasta ahora":"Mi promedio final",CW).forEach(t=>{c.fillText(t,X,y+28);y+=42});y+=30;
   let cs=40,tx=d.vd.t.toUpperCase();c.font=F(800,cs);while(c.measureText(tx).width>CW-64&&cs>24){cs-=2;c.font=F(800,cs)}
   const cw=c.measureText(tx).width+64,chh=cs+40;c.fillStyle=col;c.fillRect(X,y,cw,chh);c.fillStyle="#061F47";c.fillText(tx,X+32,y+chh/2+cs*.35);y+=chh+30;
   if(d.vd.m){c.font=F(600,40);c.fillStyle=WH;wrap(c,d.vd.m,CW).forEach(t=>{c.fillText(t,X,y+40);y+=54});y+=24}
@@ -1790,13 +1790,12 @@ const SITE_HOST="myponderup.vercel.app";
   c.fillStyle=col;c.fillRect(X,y,fx(d.lov),bh);
   c.fillStyle=WH;c.fillRect(px-3,y-12,6,bh+24);
   c.font=F(700,28);c.textAlign="center";c.fillText("mín. "+d.pm,Math.min(X+CW-60,Math.max(X+60,px)),y-24);c.textAlign="left";
-  y+=bh+12+22;c.font=F(600,32);c.fillStyle=MU;c.fillText(d.n?`Llevo ${d.lo} y la meta es ${d.pm}`:`Terminé con ${d.lo} (meta ${d.pm})`,X,y+30);y+=30+22;
-  c.font=F(600,30);c.fillText(`Evaluaciones rendidas: ${d.hechas} de ${d.total}`,X,y+28);y+=28;
-  if(d.rows){y+=36;const pad=30,rh=66,ph=pad*2+46+d.rows.length*rh;c.fillStyle="rgba(255,255,255,.07)";c.fillRect(X,y,CW,ph);
+  y+=bh+12;
+  if(d.rows){y+=36;const n=d.rows.length,cols=n>6?2:1,per=Math.ceil(n/cols),pad=30,rh=cols>1?56:66,gp=36,cw2=(CW-2*pad-(cols-1)*gp)/cols,ph=pad*2+46+per*rh;c.fillStyle="rgba(255,255,255,.07)";c.fillRect(X,y,CW,ph);
    c.font=F(700,28);c.fillStyle=MU;c.fillText("Mis notas",X+pad,y+pad+26);
-   d.rows.forEach((r,i)=>{const ry=y+pad+46+i*rh;if(i){c.fillStyle="rgba(255,255,255,.14)";c.fillRect(X+pad,ry,CW-2*pad,2)}
-    c.textAlign="left";c.font=F(700,34);c.fillStyle=WH;c.fillText(clip(c,r.n,CW-2*pad-250),X+pad,ry+rh/2+12);
-    c.textAlign="right";c.font=F(800,38);c.fillText(r.v,X+CW-pad,ry+rh/2+13);c.textAlign="left"});y+=ph}
+   d.rows.forEach((r,i)=>{const cc=Math.floor(i/per),ri=i%per,rx=X+pad+cc*(cw2+gp),ry=y+pad+46+ri*rh;if(ri){c.fillStyle="rgba(255,255,255,.14)";c.fillRect(rx,ry,cw2,2)}
+    c.textAlign="left";c.font=F(700,cols>1?28:34);c.fillStyle=WH;c.fillText(clip(c,r.n,cw2-(cols>1?150:250)),rx,ry+rh/2+11);
+    c.textAlign="right";c.font=F(800,cols>1?30:38);c.fillText(r.v,rx+cw2,ry+rh/2+12);c.textAlign="left"});y+=ph}
   return y}
  /* Dibuja la imagen completa. k = escala (1 normal; si el telefono no aguanta, se reintenta mas chica) */
  function draw(d,k,lg){
