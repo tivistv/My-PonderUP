@@ -130,12 +130,29 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   (api/subir-curso.js) lo repite, rechaza PDFs con JavaScript/Launch y .docx con macros, y envia los archivos por correo con Resend a
   myponderup@gmail.com. Los archivos nunca se publican en la web. Variables de entorno: RESEND_API_KEY (obligatoria), CONTACT_TO (def. myponderup@gmail.com),
   RESEND_FROM (def. onboarding@resend.dev), ALLOWED_ORIGINS | SITE_URL, UP_GLOBAL_DAILY_CAP (def. 30), UP_IP_DAILY_MAX (def. 5).
+  Tambien aparece DENTRO del curso (pantalla #v-tool): boton en la barra superior (data-add="barra"; solo icono + en celular), entrada fija al final del
+  desplegable de cursos (data-add="lista", .caddw) y enlace en el pie (data-add="pie").
+  Todos usan el atributo data-add. Al salir de la pantalla de envio, leaveUp() vuelve al curso (misma posicion de scroll) si se vino de uno, o a la lista de cursos si no.
+
+11) NOVEDADES (ronda 3)
+  - Analitica por tu dominio: PostHog se carga desde /_u/ (reglas "rewrites" en vercel.json, ver vercel-rewrites-posthog.json) para que los bloqueadores no la
+    confundan con publicidad. Orden: /_u/ -> PostHog directo -> "modo ligero" (POST pequeno con track()). Siempre se respeta "No rastrear" (DNT).
+  - Pie del curso: Comentarios/sugerencias debajo de "Compartir pagina", "Agrega tu curso" entre los comentarios e Instagram, y listas de cursos con "Ver mas" (3 visibles; Nivelacion no lleva).
+  - Modo claro/oscuro: solo el interruptor sol/luna (sin boton Auto ni horario). Sin eleccion guardada sigue al sistema.
+  - Se quito la barra Anterior/Siguiente/Listo del iPhone. Enter / Siguiente sigue funcionando en teclados que lo traen.
+  - Aviso de aprobado con 4 estados (funciones outlook() y vtxt()): ya aprobaste | aun puedes aprobar (promedio necesario en lo pendiente) |
+    ya no se puede llegar a la minima | aprobado/desaprobado solo cuando no queda nada por rendir.
+    Evento estado_aprobacion (una vez por curso y estado) y propiedad estado en calculo_actualizado. Nunca se envian las notas.
+  - Compartir mi resultado (#rib, modal #rim): imagen PNG hecha con canvas en el navegador, formatos Historia 9:16 y Publicacion 4:5, notas ocultas por defecto
+    (casilla #rin). En celular usa el menu de compartir con archivo; en PC descarga o copia. Lleva SITE_HOST al pie. Eventos resultado_imagen_abierta y resultado_compartido.
+  - Simulador "¿Y si saco...?" (#sim, funciones simR() y simU()): deslizadores por evaluacion pendiente; "Usar" copia el valor a la casilla real.
 =====================================================================
 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>My PonderUP</title>
-<script>document.documentElement.classList.add("js")</script>
+<script>document.documentElement.classList.add("js");/* tema antes de pintar: la eleccion guardada, o si no hay, el del sistema */
+(function(){try{var d=document.documentElement,v=localStorage.getItem("mp-theme"),m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches;d.dataset.theme=(v==="dark"||v==="light")?v:(m?"dark":"light")}catch(e){}})()</script>
 <meta name="description" content="Calcula tu ponderado y mira qué notas necesitas para aprobar.">
 <meta name="theme-color" content="#061F47">
 <meta name="author" content="@matiastf_ y @fabi_mvi">
@@ -249,7 +266,7 @@ input.g::-webkit-outer-spin-button,input.g::-webkit-inner-spin-button{-webkit-ap
 #big{font:900 3.2rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-variant-numeric:tabular-nums;transition:color .3s}
 #big.gn{color:var(--gt)}#big.rd{color:var(--rt)}
 .pbar{position:relative;height:12px;background:var(--line);margin:12px 0 10px}
-#pf{position:absolute;left:0;top:0;bottom:0;transition:width .35s ease,background .3s}
+#pf{position:absolute;left:0;top:0;bottom:0;transition:background .3s}
 #mk{position:absolute;top:-5px;bottom:-5px;width:3px;margin-left:-1px;background:var(--ink)}
 .sm2{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:.88rem;color:var(--mut)}
 .minl{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--ink);text-transform:uppercase;font-size:.8rem;letter-spacing:.02em}
@@ -259,7 +276,7 @@ input.g::-webkit-outer-spin-button,input.g::-webkit-inner-spin-button{-webkit-ap
 .tag.y{background:var(--green);color:var(--navy)}.tag.n{background:#ff7a7a;color:var(--navy)}
 .sc{overflow-x:auto;background:var(--card);border:1px solid var(--line)}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-th{background:var(--navy);color:#fff;text-transform:uppercase;font-size:.72rem;letter-spacing:.03em;font-weight:700;padding:10px 8px;white-space:nowrap}
+th{background:var(--thbg,var(--navy));color:#fff;text-transform:uppercase;font-size:.72rem;letter-spacing:.03em;font-weight:700;padding:10px 8px;white-space:nowrap}
 td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:center;font-weight:600;color:var(--ink)}
 th.pfc{background:var(--green);color:var(--navy)}
 td.pfc{background:rgba(0,240,60,.2);font-weight:800}
@@ -388,6 +405,15 @@ footer{border-top:1px solid rgba(255,255,255,.2);padding:28px 0 128px;font-size:
 #pf,#mpf{overflow:hidden}
 #pf::after,#mpf::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.55) 50%,transparent 80%);transform:translateX(-100%);animation:shine 3.8s ease-in-out infinite}
 @keyframes shine{0%,55%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+/* Barra #pf: agua. Solo existe mientras el nivel se mueve (clase .pf-agua); en reposo se quita y la barra queda como siempre. */
+#pf.pf-agua{width:100%!important;will-change:clip-path}
+#pf.pf-agua::after{right:auto;width:var(--vw,100%)}
+#pf.pf-agua::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:var(--wa,0);
+ background:
+  linear-gradient(90deg,transparent calc(var(--vw,100%) - 10px),rgba(255,255,255,.34) calc(var(--vw,100%) - 2px),rgba(255,255,255,.1) var(--vw,100%)),
+  linear-gradient(100deg,transparent,rgba(255,255,255,.22) 50%,transparent) var(--wx,0px) 0/46px 100% repeat-x,
+  linear-gradient(80deg,transparent,rgba(255,255,255,.14) 50%,transparent) calc(var(--wx,0px) * -.6) 0/73px 100% repeat-x,
+  linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0) 46%,rgba(0,0,0,.2))}
 .js .sr{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*90ms)}
 .js .sr.in{opacity:1;transform:none}
 .btn{position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
@@ -902,8 +928,121 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 .sc{overscroll-behavior:auto;overscroll-behavior-x:auto}
 .sc th:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.35),300px 0 0 0 var(--green)}
 .sc td:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 20%,var(--card))}
-.sc th:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.35),-300px 0 0 0 var(--navy)}
+.sc th:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.35),-300px 0 0 0 var(--thbg,var(--navy))}
 .sc td:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 var(--card)}
+
+/* ===== "Agrega tu curso" tambien dentro del curso (barra, desplegable, tarjeta final y pie) ===== */
+.bar .shb.adb{background:transparent;color:var(--green);border-color:var(--green);padding:0 14px 0 8px}
+.bar .shb.adb:hover,.bar .shb.adb:focus-visible{background:var(--green);color:var(--navy);filter:none}
+.shb.adb i{display:grid;place-items:center;flex:none;width:22px;height:22px;background:var(--green);color:var(--navy);font:900 1.1rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal;transition:background .2s,color .2s}
+.shb.adb:hover i,.shb.adb:focus-visible i{background:var(--navy);color:var(--green)}
+.caddw{position:sticky;bottom:0;z-index:2;padding:12px;background:var(--navy);border-top:1px solid rgba(255,255,255,.2)}
+#clist .caddw button{flex-direction:row;align-items:center;justify-content:center;gap:10px;width:100%;border:2px solid var(--green);border-radius:2px;color:var(--green);padding:12px 14px;font-size:.82rem;letter-spacing:.04em}
+#clist .caddw button:hover,#clist .caddw button:focus-visible{background:var(--green);color:var(--navy)}
+#clist .caddw button span{font-size:1.25rem;line-height:1;font-weight:900}
+@media (max-width:640px){
+ .bar .shb.adb{padding:0;width:40px}
+ .shb.adb span{display:none}
+ .shb.adb i{background:transparent;color:var(--green);width:auto;height:auto;font-size:1.6rem;font-weight:800}
+ .bar .shb.adb:hover i,.bar .shb.adb:focus-visible i{background:transparent;color:var(--navy)}
+ #v-tool .lg-h{max-width:calc(100vw - 222px)}
+}
+@media (max-width:400px){
+ #v-tool .bar .shb[data-share]{padding:0;width:40px}
+ #v-tool .bar .shb[data-share] span{display:none}
+ #v-tool .lg-h{max-width:calc(100vw - 150px)}
+}
+@media (pointer:coarse){#v-tool .hr .shb{height:44px;min-width:44px}}
+
+/* ===== Barra Anterior/Siguiente/Listo, chip "Auto" del tema y fondo fijo ===== */
+.gi{scroll-margin:90px 0 100px}
+.tgw{display:flex;align-items:center;gap:8px}
+/* "Elige tu curso" y "Agrega tu curso": el fondo queda fijo a la pantalla y no depende de la altura del contenido, asi no salta al filtrar la lista ni al agregar archivos */
+#v-pick{align-items:flex-start}
+#v-pick>.deco,#v-up>.deco,#v-up>.updeco{position:fixed;inset:0;height:100vh;height:100lvh;z-index:0}
+#v-pick::before,#v-up::before{position:fixed;inset:auto;left:-20vw;top:-40vh;width:140vw;height:180vh}
+#v-pick::after{position:fixed;inset:auto;left:0;top:0;width:100%;height:100vh}
+@supports (height:1lvh){#v-pick::before,#v-up::before{top:-40lvh;height:180lvh}#v-pick::after{height:100lvh}}
+/* Cuadraditos de las casillas (redondeos, mostrar notas): grandes y sin aplastarse cuando el texto ocupa dos lineas */
+.ck{align-items:center;min-height:44px;margin:4px 0;line-height:1.35;cursor:pointer}
+.ck input{flex:none;width:24px;height:24px;margin:0;cursor:pointer}
+.fbon input{width:24px;height:24px}
+@media (pointer:coarse){.ck input,.fbon input{width:28px;height:28px}}
+/* Pregunta 05: lista ordenada */
+.stl{display:grid}
+.sti{display:grid;grid-template-columns:200px 1fr;gap:6px 16px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.sti:first-child{border-top:0;padding-top:2px}
+.sti p{margin:0}
+.stt{display:flex;flex-wrap:wrap;gap:6px}
+@media (max-width:560px){.sti{grid-template-columns:1fr;gap:8px}}
+/* Aviso de aprobado (4 estados), simulador y compartir imagen */
+.tag.m{background:#FFC400;color:var(--navy)}
+.sst{display:block;margin-top:6px;font-size:.84rem;line-height:1.35;font-weight:600;color:var(--mut);text-transform:none;letter-spacing:0}
+#big.wn{color:var(--ink)}#mbig.wn{color:#FFC400}
+.rib{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:44px;margin-top:14px;padding:10px 14px;background:var(--green);color:var(--navy);border:2px solid var(--green);border-radius:2px;font:800 .78rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
+.rib:active,.rib:focus-visible{background:transparent;color:var(--ink)}
+@media (hover:hover){.rib:hover{background:transparent;color:var(--ink)}}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:10px 12px;font-size:.7rem}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+#sim{margin:18px 0 0;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--blue)}
+#simt{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:12px 16px;background:transparent;border:0;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+#simt b{display:block;font-weight:800;font-size:1rem;text-transform:uppercase;letter-spacing:.02em}
+#simt small{display:block;font-weight:500;font-size:.8rem;color:var(--mut)}
+.smc{flex:none;width:10px;height:10px;margin:-4px 4px 0 0;border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(45deg);transition:transform .25s}
+#simt[aria-expanded="true"] .smc{transform:rotate(-135deg);margin-top:4px}
+#simb{padding:0 16px 16px}
+.simi{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;font-size:.85rem;color:var(--mut)}
+.srow{padding:10px 0;border-top:1px solid var(--line)}
+.srow>span{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;font-weight:700;color:var(--ink)}
+.srow em{font-style:normal;font-size:.75rem;font-weight:600;color:var(--mut)}
+.sc2{display:flex;align-items:center;gap:12px}
+.sc2 input[type=range]{flex:1;min-width:0;height:36px;margin:0;accent-color:var(--green)}
+.sc2 output{min-width:3.6ch;text-align:right;font-weight:900;font-size:1.25rem;font-variant-numeric:tabular-nums;color:var(--ink)}
+.simo{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;padding-top:14px;border-top:2px solid var(--ink)}
+.simk{display:block;margin-bottom:6px;font-weight:800;font-size:.78rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
+#simn{font:900 2.6rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-variant-numeric:tabular-nums}
+#simn.gn{color:var(--gt)}#simn.rd{color:var(--rt)}
+#rim{position:fixed;inset:0;z-index:58;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:rgba(3,12,28,.8)}
+.rimc{width:min(460px,100%);max-height:100%;overflow:auto;overscroll-behavior:contain;background:var(--card);color:var(--txt);border-top:6px solid var(--green);padding:10px 16px 16px}
+.rimh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.rimh b{font-weight:800;font-size:.95rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
+#rix{flex:none;width:44px;height:44px;margin-right:-10px;background:transparent;border:0;color:var(--ink);font-size:1.8rem;line-height:1;cursor:pointer}
+.rimp{display:flex;justify-content:center;padding:10px;background:var(--bg);border:1px solid var(--line)}
+#rii{display:block;width:auto;height:auto;max-width:100%;max-height:min(48vh,520px);transition:opacity .2s}
+.rimp[aria-busy="true"] #rii{opacity:.35}
+.rimf{display:flex;gap:8px;margin:12px 0 2px}
+.rimf button{flex:1;min-height:44px;padding:6px;background:transparent;color:var(--ink);border:2px solid var(--line);border-radius:2px;font:700 .72rem/1.1 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;cursor:pointer}
+.rimf button[aria-pressed="true"]{border-color:var(--green);background:color-mix(in srgb,var(--green) 18%,transparent)}
+.rima{display:flex;gap:8px;margin-top:8px}
+.rima .btn{flex:1;min-height:46px;text-align:center}
+#ris{margin:10px 0 0;font-size:.8rem;color:var(--mut)}
+/* Aviso de aprobado centrado entre el titulo y la barra */
+#sl2{margin-top:11px}
+#sum .pbar{margin-top:6px}
+/* Modo oscuro: el encabezado de las tablas se separa de las filas */
+:root[data-theme="dark"]{--thbg:#1d4fb0}
+:root[data-theme="dark"] .sc th.pfc{background:var(--green)}
+:root[data-theme="dark"] .sc td{border-bottom-color:#2d4a7f}
+/* Pie del curso: comentarios bajo "Compartir pagina", "Agrega tu curso" y luego Instagram; cursos con "Ver mas" */
+.fcx{grid-template-rows:auto 1fr}
+.fcx>.fl:last-child{align-self:stretch;display:flex;flex-direction:column}
+.fcx .fadd{margin-top:22px}
+.fcx .fadd .shb{font:700 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px 0 8px;margin-top:2px;background:transparent;color:var(--green);border:2px solid var(--green);text-decoration:none;text-align:center}
+.fcx .fadd .shb:hover,.fcx .fadd .shb:focus-visible{background:var(--green);color:var(--navy)}
+.fcx .fadd .shb span{display:inline}
+.fcx .fadd .shb i{width:22px;height:22px;background:var(--green);color:var(--navy);font-size:1.1rem}
+.fcx .fadd .shb:hover i,.fcx .fadd .shb:focus-visible i{background:var(--navy);color:var(--green)}
+.fcx .igs{margin-top:auto;padding-top:18px}
+.fl .fmore{display:block}
+.fl button.vm{display:inline-flex;align-items:center;gap:8px;margin-top:2px;padding:6px 0;color:var(--green);font-weight:700;font-size:.82rem;letter-spacing:.02em;text-decoration:none}
+.fl button.vm::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.fl button.vm[aria-expanded="true"]::after{transform:translateY(2px) rotate(-135deg)}
+.fl button.vm:hover{text-decoration:underline}
+@media (pointer:coarse){.fl button.vm{min-height:44px}}
+.fl a.ig,.fl a.ig span{white-space:nowrap}
+.fl a.ig .igu{display:inline;margin:0}
+@media (max-width:760px){.fc.fcx{grid-template-areas:"lg" "cm" "co"}.fcx>.fl:last-child{align-self:start}}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -961,7 +1100,7 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 </div>
 
 <div id="v-tool" hidden>
-<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div></div>
+<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb adb" data-add="barra" aria-label="Agrega tu curso" title="Agrega tu curso"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div></div>
 <header class="hd">
 <div class="wrap cs rv" style="--i:1"><button id="cbtn" type="button" aria-controls="clist" aria-expanded="false"><span class="cq">Curso:</span><span class="cv" id="cval"></span><i class="chev"></i></button><div id="clist" hidden></div></div>
 </header>
@@ -972,11 +1111,12 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 </div></section>
 <main class="wrap body">
 <h2 class="it rv" style="--i:3">Ingresa tus notas</h2>
-<p class="nota rv" style="--i:4"><i>i</i><span><b>Nota:</b> <span class="nl">Ingresa tus notas tal como las obtuviste. El sistema ya redondea por defecto las que corresponden y deja las demás sin redondear.<br>Tus notas se quedan en tu dispositivo: no las enviamos ni las guardamos en ningún servidor.</span><span class="ns">Ingresa tus notas tal cual; el sistema ya redondea las que corresponden.<br>Tus notas se quedan en tu dispositivo: no las enviamos.</span></span></p>
+<p class="nota rv" style="--i:4"><i>i</i><span><b>Nota:</b> <span class="nl">Ingresa tus notas tal como las obtuviste. El sistema ya redondea por defecto las que corresponden y deja las demás sin redondear.</span><span class="ns">Ingresa tus notas tal cual; el sistema ya redondea las que corresponden.</span></span></p>
 <section id="tree"></section>
-<section id="sum"><div class="sm1"><div><b id="sl1"></b><div class="mut" id="sl2"></div></div><div id="big"></div></div><div class="pbar"><i id="pf"></i><u id="mk" role="slider" tabindex="0" aria-label="Nota mínima para aprobar" aria-valuemin="0" aria-valuemax="20"><b id="mkt"></b></u></div><div class="sm2"><span id="pt"></span><label class="minl">Nota mínima <input type="text" inputmode="decimal" autocomplete="off" maxlength="5" id="pm" aria-label="Nota mínima para aprobar" value="11"></label></div></section>
+<section id="sum"><div class="sm1"><div><b id="sl1"></b><div class="mut" id="sl2" aria-live="polite"></div></div><div id="big"></div></div><div class="pbar"><i id="pf"></i><u id="mk" role="slider" tabindex="0" aria-label="Nota mínima para aprobar" aria-valuemin="0" aria-valuemax="20"><b id="mkt"></b></u></div><div class="sm2"><span id="pt"></span><label class="minl">Nota mínima <input type="text" inputmode="decimal" autocomplete="off" maxlength="5" id="pm" aria-label="Nota mínima para aprobar" value="11"></label></div><button type="button" class="rib" id="rib" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Compartir mi resultado</span></button></section>
 <p class="tip"><b>TIP:</b> Arrastra la línea o escribe tu nota mínima y la tabla se ajusta.</p>
 <section id="cb"></section>
+<section id="sim" hidden aria-label="Simulador de notas"><button type="button" id="simt" aria-expanded="false" aria-controls="simb"><span><b>¿Y si saco…?</b><small>Prueba notas en lo que falta sin cambiar las tuyas</small></span><i class="smc" aria-hidden="true"></i></button><div id="simb" hidden><p class="simi"><span class="tag m">Simulación</span><span>Mueve los deslizadores. Tus notas reales no cambian hasta que toques “Usar”.</span></p><div id="simr"></div><div class="simo"><div><span class="simk">Promedio simulado</span><div id="simv" aria-live="polite"></div></div><b id="simn"></b></div></div></section>
 <a class="igc" data-ig="resultado" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span class="igt"><b>¿Te sirvió? Síguenos para estar al tanto de nuevas actualizaciones</b><small class="igu">@myponderup</small></span></a>
 </main>
 <section class="faq" id="faq"><div class="wrap">
@@ -985,8 +1125,9 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 <details class="qa"><summary><span class="no">02</span><span class="q">¿Cómo se redondea?</span><i class="pm"></i></summary><div class="ans"><div id="rules"></div></div></details>
 <details class="qa"><summary><span class="no">03</span><span class="q">¿Qué significa "Por rendir"?</span><i class="pm"></i></summary><div class="ans"><p>Es una evaluación que aún no has dado. Si la dejas en blanco, cuenta como 0 en "Mi promedio hasta ahora" y la tabla te dice qué necesitas sacar en ella. Si escribes un 0, cuenta como una nota ya rendida.</p></div></details>
 <details class="qa"><summary><span class="no">04</span><span class="q">¿Es una herramienta oficial?</span><i class="pm"></i></summary><div class="ans"><p>No. Es una calculadora para planificar tus notas. El resultado oficial es el que publica la universidad.</p></div></details>
+<details class="qa"><summary><span class="no">05</span><span class="q">¿Qué significan los avisos de aprobado?</span><i class="pm"></i></summary><div class="ans"><div class="stl"><div class="sti"><div class="stt"><span class="tag y">Ya aprobaste</span></div><p>Aunque saques 0 en lo que falta, llegas a tu nota mínima.</p></div><div class="sti"><div class="stt"><span class="tag m">Aún puedes aprobar</span></div><p>Todavía se puede. Te decimos qué promedio necesitas en lo que falta.</p></div><div class="sti"><div class="stt"><span class="tag n">Ya no se puede llegar</span></div><p>Ni con 20 en todo lo que falta alcanzas tu nota mínima.</p></div><div class="sti"><div class="stt"><span class="tag y">Aprobado</span><span class="tag n">Desaprobado</span></div><p>Solo aparecen cuando ya no queda ninguna evaluación por rendir.</p></div></div></div></details>
 </div></section>
-<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Esta es una herramienta no oficial. Usamos los pesos y reglas de los reglamentos de cada curso, pero si notas alguna diferencia, lo que valida tu profesor o la universidad es lo que cuenta.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form><div class="igs"><a class="ig" data-ig="pie" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>Síguenos en <b class="igu">@myponderup</b></span></a></div></div></div></footer>
+<footer><div class="wrap fc fcx"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Esta es una herramienta no oficial. Usamos los pesos y reglas de los reglamentos de cada curso, pero si notas alguna diferencia, lo que valida tu profesor o la universidad es lo que cuenta.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form><div class="fadd"><b>¿Falta tu curso?</b><button type="button" class="shb adb" data-add="pie"><i>+</i><span>Agrega tu curso</span></button></div><div class="igs"><a class="ig" data-ig="pie" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>Síguenos en <b class="igu">@myponderup</b></span></a></div></div></div></footer>
 </div>
 
 
@@ -1065,6 +1206,7 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 
 <div class="tgw off" id="tgw"><button type="button" class="tg" id="tg" role="switch" aria-checked="false" aria-label="Modo oscuro"><svg class="ti s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><svg class="ti m" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.6 9.6 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z"/></svg><span class="tk"><svg class="s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><svg class="m" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.6 9.6 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z"/></svg></span></button></div>
 <div id="fimini" aria-hidden="true"><span class="ml">Mi factor de inscripción</span><b id="fmbig" class="na">—</b></div>
+<div id="rim" hidden role="dialog" aria-modal="true" aria-labelledby="rimt"><div class="rimc"><div class="rimh"><b id="rimt">Compartir mi resultado</b><button type="button" id="rix" aria-label="Cerrar">×</button></div><div class="rimp" id="rimp" aria-busy="true"><img id="rii" alt="Vista previa de la imagen de tu resultado" width="540" height="675"></div><div class="rimf" role="group" aria-label="Formato de la imagen"><button type="button" data-rf="story" aria-pressed="false">Historia 9:16</button><button type="button" data-rf="post" aria-pressed="false">Publicación 4:5</button></div><label class="ck"><input type="checkbox" id="rin"> Mostrar mis notas en la imagen</label><div class="rima"><button type="button" class="btn" id="rig" disabled>Compartir imagen</button><button type="button" class="btn alt" id="rid" disabled>Descargar</button></div><p id="ris">La imagen solo muestra tu resultado. Tus notas no aparecen salvo que lo actives.</p></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="mini" aria-hidden="true"><span class="ml">Mi promedio hasta ahora</span><i class="mb"><span id="mpf"></span><span id="mmk"></span></i><b id="mbig"></b></div>
 
@@ -1077,7 +1219,10 @@ const FI_ACTIVO=false;
    Mientras PH_KEY este vacia no se envia nada. Solo se envian eventos (que curso, que pantalla, que boton); NUNCA las notas. */
 const idle=f=>("requestIdleCallback" in window)?requestIdleCallback(f,{timeout:4000}):setTimeout(f,1500);
 const PH_KEY="phc_q6PgfjjfSHRyMd65DY3vcoayYPk5Siv4oX2t3zP6bzxj",PH_REGION="us";
-const PH_HOST=PH_REGION==="eu"?"https://eu.i.posthog.com":"https://us.i.posthog.com";
+/* Para que los bloqueadores no la confundan con publicidad, los eventos viajan por TU dominio (/_u/, ver "rewrites" en vercel.json) y de ahi pasan a PostHog.
+   Si ese camino no esta puesto en vercel.json, usa PostHog directo; y si el script de PostHog no carga, el "modo ligero" envia los eventos con un POST pequeno. */
+const PH_DIRECT=PH_REGION==="eu"?"https://eu.i.posthog.com":"https://us.i.posthog.com",PH_ASSETS=PH_DIRECT.replace(".i.posthog.com","-assets.i.posthog.com"),PH_PROXY="/_u";
+let PH_HOST=PH_PROXY;
 /* Trafico interno: abre la pagina una vez con ?interno=1 en cada dispositivo tuyo (?interno=0 lo quita). Tambien se marcan localhost y los previews de Vercel; el sitio real (myponderup.vercel.app) no */
 let INT=false;try{const q=new URLSearchParams(location.search).get("interno");if(q==="1")localStorage.setItem("mp-int","1");else if(q==="0")localStorage.removeItem("mp-int");INT=localStorage.getItem("mp-int")==="1"}catch(_){}
 if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||/^[a-z0-9-]+-[a-z0-9]{9}-[a-z0-9-]+\.vercel\.app$/.test(location.hostname))INT=true;
@@ -1086,16 +1231,29 @@ let ETAPA="inicio";const setEtapa=e=>{ETAPA=e;try{if(phOn)posthog.register({etap
 /* Instagram: usuario de la cuenta (sin @). Se cambia solo aqui; si lo dejas vacio, los enlaces se ocultan */
 const IG_USER="myponderup";
 {const iu=()=>document.querySelectorAll("a[data-ig]").forEach(a=>{if(!IG_USER){a.hidden=true;return}a.href="https://www.instagram.com/"+IG_USER+"/";a.setAttribute("aria-label","Instagram de @"+IG_USER);a.querySelectorAll(".igu").forEach(x=>x.textContent="@"+IG_USER)});if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",iu);else iu()}
-const phQ=[];let phOn=false,phErr=0;
-const track=(n,p)=>{if(!PH_KEY)return;try{if(phOn)posthog.capture(n,p);else phQ.push([n,p])}catch(_){}};
+const phQ=[];let phOn=false,phErr=0,phLite=false;
+/* "No rastrear" del navegador: se respeta siempre (tambien en modo ligero) */
+const DNT=(()=>{try{return navigator.doNotTrack==="1"||window.doNotTrack==="1"||navigator.msDoNotTrack==="1"}catch(_){return false}})();
+const rid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+const liteId=()=>{try{let d=localStorage.getItem("mp-did");if(!d){d=rid();localStorage.setItem("mp-did",d)}return d}catch(_){return "anon-"+rid()}};
+const liteSes=()=>{try{let d=sessionStorage.getItem("mp-sid");if(!d){d=rid();sessionStorage.setItem("mp-sid",d)}return d}catch(_){return "s-"+rid()}};
+/* Modo ligero: evento anonimo (sin perfil de persona) directo a la API de captura */
+let liteBase=PH_PROXY;
+const liteSend=(n,p)=>{if(DNT)return;try{
+ const body=JSON.stringify({api_key:PH_KEY,event:n,distinct_id:liteId(),timestamp:new Date().toISOString(),properties:Object.assign({$lib:"mp-lite",$session_id:liteSes(),$current_url:location.href,$host:location.host,$pathname:location.pathname,$process_person_profile:false,app:"myponderup",pantalla_ancho:window.innerWidth,interno:INT,etapa:ETAPA},p||{})});
+ const go=u=>fetch(u+"/e/",{method:"POST",body,keepalive:true,headers:{"Content-Type":"text/plain"}}).then(r=>{if(!r.ok)throw 0});
+ go(liteBase).catch(()=>{if(liteBase===PH_PROXY){liteBase=PH_DIRECT;go(PH_DIRECT).catch(()=>{})}})}catch(_){}};
+const track=(n,p)=>{if(!PH_KEY)return;try{if(phOn)posthog.capture(n,p);else if(phLite)liteSend(n,p);else phQ.push([n,p])}catch(_){}};
 (()=>{if(!PH_KEY)return;
- const go=()=>{try{const sc=document.createElement("script");sc.async=true;
- sc.src=PH_HOST.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js";
- sc.onload=()=>{try{posthog.init(PH_KEY,{api_host:PH_HOST,person_profiles:"identified_only",capture_pageview:true,capture_pageleave:true,autocapture:true,
+ const lite=()=>{phLite=true;if(DNT){phQ.length=0;return}liteSend("$pageview");phQ.splice(0).forEach(([n,p])=>liteSend(n,p));window.addEventListener("pagehide",()=>liteSend("$pageleave"),{once:true})};
+ const start=host=>{posthog.init(PH_KEY,{api_host:host,ui_host:PH_REGION==="eu"?"https://eu.posthog.com":"https://us.posthog.com",person_profiles:"identified_only",capture_pageview:true,capture_pageleave:true,autocapture:true,
    capture_heatmaps:true,respect_dnt:true,disable_surveys:true,session_recording:{maskAllInputs:true,maskTextSelector:"#sgm"}});
    posthog.register({app:"myponderup",pantalla_ancho:window.innerWidth,interno:INT,etapa:ETAPA});
-   phOn=true;phQ.splice(0).forEach(([n,p])=>posthog.capture(n,p))}catch(_){}};
- document.head.appendChild(sc)}catch(_){}};
+   phOn=true;phQ.splice(0).forEach(([n,p])=>posthog.capture(n,p))};
+ const load=(src,host,next)=>{const sc=document.createElement("script");sc.async=true;sc.src=src;
+  sc.onload=()=>{try{if(!window.posthog||typeof posthog.init!=="function")throw 0;PH_HOST=host;start(host)}catch(_){next()}};
+  sc.onerror=()=>{sc.remove();next()};document.head.appendChild(sc)};
+ const go=()=>{try{load(PH_PROXY+"/static/array.js",PH_PROXY,()=>load(PH_ASSETS+"/static/array.js",PH_DIRECT,lite))}catch(_){lite()}};
  /* PostHog se carga cuando la pagina ya termino de cargar y el navegador esta libre; los eventos mientras tanto quedan en cola */
  if(document.readyState==="complete")idle(go);else window.addEventListener("load",()=>idle(go),{once:true});
  window.addEventListener("error",e=>{if(phErr++<5)track("error_js",{mensaje:String(e.message).slice(0,120)})})})();
@@ -1220,7 +1378,7 @@ rce:{n:"Religiones, Culturas y Economía",pre:"",gp:2,rf:1,i:"Trabajos pesa 50% 
   {id:"ap",n:"Asistencia y Participación",s:"Asist. y Part.",w:20,b:1}]},
  {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
 };
-const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false;
+const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g);
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
@@ -1229,7 +1387,7 @@ const pend=()=>leaves(S.root).filter(l=>isP(l.id));
 const full=o=>{const v={};leaves(S.root).forEach(l=>{const m=l.mx||20;v[l.id]=isP(l.id)?(o[l.id]??0):Math.min(m,Math.max(0,+S.g[l.id]))*20/m});return v};
 const ev=(n,v)=>{const x=n.ch?n.ch.reduce((s,c)=>s+ev(c,v)*(+c.w||0)/100,0):v[n.id];return n.r?rnd(x):x};
 const pass=a=>(S.rf?rnd(a):a)>=S.pm-1e-9;
-const inp=c=>{const v=S.g[c.id],f=v!==undefined&&v!=="",bd=f&&(+v>(c.mx||20)||+v<0);return `<label class="gi${f?" fl":""}${bd?" bad":""}"><input class="g" data-id="${c.id}" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="6" placeholder="Por rendir" aria-label="Nota de ${c.n}" value="${v??""}"${f?` style="width:${String(v).length+.6}ch"`:""}><span class="sf">/${c.mx||20}</span></label>`};
+const inp=c=>{const v=S.g[c.id],f=v!==undefined&&v!=="",bd=f&&(+v>(c.mx||20)||+v<0);return `<label class="gi${f?" fl":""}${bd?" bad":""}"><input class="g" data-id="${c.id}" type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="6" placeholder="Por rendir" aria-label="Nota de ${c.n}" value="${v??""}"${f?` style="width:${String(v).length+.6}ch"`:""}><span class="sf">/${c.mx||20}</span></label>`};
 /* Modelo A: cada evaluación muestra su % sobre el total del curso (c.a se calcula en mkState). d:"" oculta el % (partes medidas en puntos). */
 const dv=c=>c.d===""?"":fmt(c.a)+"%";
 const absW=(n,p)=>(n.ch||[]).forEach(c=>{c.a=p*(+c.w||0)/100;absW(c,c.a)});
@@ -1248,17 +1406,21 @@ let faqNear=false;
 const chk=()=>{$("mini").classList.toggle("on",view==="tool"&&!sumIn&&!faqIn);$("tgw").classList.toggle("off",(view!=="tool"&&view!=="fi")||faqNear)};
 function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
+/* "Agrega tu curso": recuerda desde donde se abrio para volver al mismo lugar */
+function updUpLabels(){const t=upFrom==="tool"&&cur,s=document.querySelector("#upback span"),g=$("upgo");if(s)s.textContent=t?"← Volver a mi curso":"← Volver a cursos";if(g)g.textContent=t?"Volver a mi curso":"Volver a cursos"}
+function leaveUp(){const t=upFrom==="tool"&&cur;showView(t?"tool":"pick");if(t)window.scrollTo({top:upY,behavior:"instant"})}
 
 function setCourse(k){
  cur=k;S=ST[k]||(ST[k]=mkState(k));
  idx={};walk(S.root,c=>idx[c.id]=c);
  $("cval").textContent=(C[k].pre??"Nivelación en ")+C[k].n;
  $("cbtn").style.setProperty("--s",SC[KS.indexOf(k)%4]);
- $("clist").innerHTML=BQ(0)+GR.map(([t,g])=>`<div class="gh">${t}</div>`+inG(g).map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"");
+ $("clist").innerHTML=BQ(0)+GR.map(([t,g])=>`<div class="gh">${t}</div>`+inG(g).map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
  closeList();
  $("ctitle").textContent=(C[k].pre??"Nivelación en ")+C[k].n;
  {const t=$("ctitle");t.classList.remove("mr");void t.offsetWidth;t.classList.add("mr")}
- $("fl").innerHTML=GR.map(([t,g],j)=>`<b${j?' class="sp2"':""}>${t}</b>`+inG(g).map(x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
+ $("fl").innerHTML=GR.map(([t,g],j)=>{const xs=inG(g),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`,L=FLIM,open=fexp.has(j);
+  return `<b${j?' class="sp2"':""}>${t}</b>`+(xs.length<=L?xs.map(mk).join(""):xs.slice(0,L).map(mk).join("")+`<div class="fmore" id="fm${j}"${open?"":" hidden"}>${xs.slice(L).map(mk).join("")}</div><button type="button" class="vm" data-vm="${j}" aria-expanded="${open}" aria-controls="fm${j}">${open?"Ver menos":`Ver ${xs.length-L} más`}</button>`)}).join("")+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
  const G=S.root.ch;
  $("wbar").innerHTML=G.map((g,i)=>`<span data-i="${i}" style="flex:${g.w};--wb:${wbc(i)[0]};--wc:${wbc(i)[1]}">${fmt(g.w)}%</span>`).join("");
  $("lgd").innerHTML=G.map((g,i)=>`<span style="--wb:${wbc(i)[0]}">${g.n}</span>`).join("");
@@ -1273,14 +1435,40 @@ function setCourse(k){
   if(g.ch){h+=`<div class="bb">`;walk(g,(c,d)=>{h+=row(c,d)});h+=`</div>`}
   h+=`</div>`});
  $("tree").innerHTML=h;
+ {const L=document.querySelectorAll("#tree input.g");if(L.length)L[L.length-1].setAttribute("enterkeyhint","done")}
  $("tree").classList.toggle("hdots",G.slice(1).every(g=>!g.ch));
  $("cinfo").textContent=C[k].i;
  let r="";walk(S.root,c=>r+=`<label class="ck"><input type="checkbox" data-r="${c.id}"${c.r?" checked":""}> Redondear ${c.n} a entero</label>`);
  $("rules").innerHTML=r+`<label class="ck"><input type="checkbox" id="rf"${S.rf?" checked":""}> Redondear el promedio final a entero (10.5 cuenta como 11)</label><button type="button" class="btn" id="rs">Restablecer este curso</button>`;
  $("pm").value=S.pm;
- prevOk=null;prevA=null;
+ prevOk=null;prevA=null;prevK=null;
  update();
 }
+
+/* ===== Simulador "¿Y si saco...?": prueba notas en lo pendiente sin tocar las reales ===== */
+function simR(){
+ const P=pend(),W=$("sim");W.hidden=!P.length;if(!P.length)return;
+ $("simt").setAttribute("aria-expanded",String(simOpen));$("simb").hidden=!simOpen;if(!simOpen)return;
+ const ol=outlook(),sv=S.sim||(S.sim={}),def=ol.nec!==null?ol.nec:(ol.k==="no"?20:S.pm);
+ $("simr").innerHTML=P.map(l=>{const mx=l.mx||20,v=sv[l.id]!==undefined?Math.min(mx,sv[l.id]):Math.min(mx,Math.ceil(def*mx/20*2-1e-6)/2);sv[l.id]=v;
+  return `<div class="srow"><span>${l.n}${dv(l)?`<em>${dv(l)}</em>`:""}</span><div class="sc2"><input type="range" min="0" max="${mx}" step="0.5" value="${v}" data-sid="${l.id}" aria-label="Nota simulada de ${l.n}"><output>${fmt(v)}</output><button type="button" class="btn sm" data-use="${l.id}" title="Usar como nota real">Usar</button></div></div>`}).join("");
+ simU()}
+function simU(){
+ const P=pend(),sv=S.sim||{},u={};P.forEach(l=>u[l.id]=(sv[l.id]||0)*20/(l.mx||20));
+ const v=ev(S.root,full(u)),ok=pass(v),g=Math.abs(S.rf?rnd(v)-S.pm:v-S.pm),near=g<.005;
+ $("simn").textContent=S.rf?rnd(v):fmt(v);$("simn").className=ok?"gn":"rd";
+ $("simv").innerHTML=`<span class="tag ${ok?"y":"n"}">${ok?"Aprobarías":"Desaprobarías"}</span><span class="sst">${ok?(near?`Justo en la nota mínima de ${S.pm}.`:`Superas la mínima (${S.pm}) por ${fmt(g)}.`):`Te faltan ${fmt(g)} para llegar a ${S.pm}.`}</span>`}
+$("simt").addEventListener("click",()=>{simOpen=!simOpen;if(simOpen&&!seenSim.has(cur)){seenSim.add(cur);track("simulador_abierto",{curso:cur,pendientes:pend().length})}simR()});
+$("sim").addEventListener("input",e=>{const t=e.target;if(!t.dataset||!t.dataset.sid)return;(S.sim||(S.sim={}))[t.dataset.sid]=+t.value;const o=t.parentNode.querySelector("output");if(o)o.textContent=fmt(+t.value);simU()});
+$("sim").addEventListener("click",e=>{const b=e.target.closest("button[data-use]");if(!b)return;
+ const id=b.dataset.use,v=(S.sim||{})[id],inpt=[...document.querySelectorAll("#tree input.g")].find(x=>x.dataset.id===id);if(!inpt||v===undefined)return;
+ inpt.value=String(v);inpt.dispatchEvent(new Event("input",{bubbles:true}));inpt.dispatchEvent(new Event("change",{bubbles:true}));
+ toast(`Pusiste ${fmt(v)} como nota de ${idx[id].n}`);track("simulador_usar",{curso:cur,evaluacion:id})});
+
+/* Pie: "Ver más / Ver menos" en cada seccion de cursos */
+$("fl").addEventListener("click",e=>{const b=e.target.closest("button[data-vm]");if(!b)return;
+ const j=+b.dataset.vm,m=$("fm"+j),open=m.hidden;m.hidden=!open;open?fexp.add(j):fexp.delete(j);
+ b.setAttribute("aria-expanded",String(open));b.textContent=open?"Ver menos":`Ver ${m.children.length} más`;track("pie_ver_mas",{seccion:GR[j][0],abierto:open})});
 
 const RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 function setNum(el,txt){
@@ -1289,25 +1477,76 @@ function setNum(el,txt){
  const from=el._v??0;el._to=to;cancelAnimationFrame(el._r);const t0=performance.now(),D=500;
  const step=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);el._v=from+(to-from)*e;el.textContent=k<1?el._v.toFixed(dec):txt;if(k<1)el._r=requestAnimationFrame(step)};
  el._r=requestAnimationFrame(step)}
-let prevOk=null,prevA=null;
+const FLIM=3,fexp=new Set();
+let prevOk=null,prevA=null,prevK=null,simOpen=false;const seenEst=new Set(),seenSim=new Set();
 function burst(){
  if(RM)return;const r=document.createElement("div");r.className="cf";r.setAttribute("aria-hidden","true");
  const cols=["#00F03C","#0A5CFF","#F000F0","#ffffff"];
  for(let i=0;i<26;i++){const p=document.createElement("i"),an=Math.random()*Math.PI*2,dist=50+Math.random()*90;
   p.style.cssText=`--x:${Math.cos(an)*dist}px;--y:${Math.sin(an)*dist-40}px;--r:${Math.round(Math.random()*540-270)}deg;--c:${cols[i%4]};--s:${6+Math.round(Math.random()*6)}px;--d:${Math.round(Math.random()*90)}ms`;r.appendChild(p)}
  $("sum").appendChild(r);setTimeout(()=>r.remove(),1500)}
+/* Estado de aprobacion. Con notas pendientes se miran los dos extremos: lo pendiente en 0 (lo), lo pendiente en 20 (hi), y el promedio parejo
+   que hace falta en lo pendiente (nec, sobre 20). k: ya = aprobado seguro | aun = todavia se puede | no = imposible | fa / fd = final aprobado / desaprobado */
+function outlook(){
+ const R=S.root,P=pend(),n=P.length,z={},t={};P.forEach(l=>{z[l.id]=0;t[l.id]=20});
+ const lo=ev(R,full(z)),hi=ev(R,full(t)),o={n,P,lo,hi,loOk:pass(lo),hiOk:pass(hi),nec:null};
+ if(n&&!o.loOk&&o.hiOk){const at=x=>{const u={};P.forEach(l=>u[l.id]=x);return pass(ev(R,full(u)))};
+  let a=0,b=20;for(let i=0;i<32;i++){const m=(a+b)/2;if(at(m))b=m;else a=m}
+  let x=Math.min(20,Math.ceil(b*10-1e-6)/10);while(x<20&&!at(x))x=Math.min(20,Math.round((x+.1)*10)/10);o.nec=x}
+ o.k=!n?(o.loOk?"fa":"fd"):o.loOk?"ya":!o.hiOk?"no":"aun";return o}
+/* Texto del aviso. yo=true lo escribe en primera persona (para la imagen que se comparte) */
+function vtxt(o,yo){
+ if(!o.n)return o.loOk?{t:"Aprobado",c:"y",m:""}:{t:"Desaprobado",c:"n",m:""};
+ if(o.loOk)return{t:yo?"Ya aprobé":"Ya aprobaste",c:"y",m:""};
+ if(!o.hiOk)return{t:`Ya no se puede llegar a ${S.pm}`,c:"n",m:""};
+ return{t:yo?"Aún puedo aprobar":"Aún puedes aprobar",c:"m",m:""}}
+/* ===== Barra de progreso: agua =====
+   Solo es visual. update() sigue calculando el % y escribiendo style.width con el valor exacto; aquí solo se anima lo que se ve.
+   Nivel = muelle amortiguado hacia el valor; chapoteo = oscilador que reacciona a la aceleración; ondas del frente = amplitud según la energía.
+   En reposo se quita todo (clase .pf-agua, clip-path y variables) y la barra vuelve a ser la normal, con el ancho exacto. */
+const waterTo=(()=>{
+ const pf=$("pf"),pb=pf&&pf.parentNode,mq=window.matchMedia?matchMedia("(prefers-reduced-motion: reduce)"):null;
+ if(!pf||!pb)return()=>{};
+ const N=20,H=1/120,WN=6.2,Z=.9,WS=14.4,ZS=.16,cl=(x,a,b)=>x<a?a:x>b?b:x;
+ let L=0,V=0,T=0,S=0,SV=0,A=0,P1=0,P2=0,WX=0,DR=1,W=0,raf=0,last=0,acc=0,on=false,Vp=0,Sx=0;
+ const rest=()=>{if(raf)cancelAnimationFrame(raf);raf=0;on=false;L=T;V=S=SV=A=Vp=Sx=0;pf.classList.remove("pf-agua");pf.style.clipPath=pf.style.webkitClipPath="";["--wa","--wx","--vw"].forEach(n=>pf.style.removeProperty(n))};
+ const draw=()=>{
+  const lp=L*W/100,g=cl(lp/8,0,1)*cl((W-lp)/8,0,1),am=1.2*Math.pow(A,.85)*g,ti=Sx*g,bu=cl(Vp/110,-1,1)*.9*g,lc=L.toFixed(3);
+  let q="0 0";
+  for(let i=0;i<=N;i++){const u=i/N,o=ti*(1-2*u)+bu*(1-(2*u-1)*(2*u-1))+am*(.62*Math.sin(8.48*u+P1)+.38*Math.sin(15.08*u+P2));q+=",calc("+lc+"% + "+o.toFixed(2)+"px) "+(u*100).toFixed(1)+"%"}
+  const c="polygon("+q+",0 100%)";pf.style.clipPath=pf.style.webkitClipPath=c;
+  pf.style.setProperty("--vw",Math.max(0,L).toFixed(3)+"%");pf.style.setProperty("--wa",Math.min(1,A*1.15).toFixed(3));pf.style.setProperty("--wx",WX.toFixed(1)+"px")};
+ const frame=ts=>{
+  raf=0;const dt=last?Math.min((ts-last)/1000,.05):H;last=ts;acc+=dt;
+  while(acc>=H){acc-=H;const a=-2*Z*WN*V-WN*WN*(L-T);V+=a*H;L+=V*H;SV+=(-a*W/100*.35-2*ZS*WS*SV-WS*WS*S)*H;S+=SV*H}
+  Vp=V*W/100;Sx=1.8*Math.tanh(S/1.8);
+  const tg=Math.min(1,Math.abs(Vp)/60+Math.abs(Sx)/1);A=tg>A?Math.min(tg,A+dt*7):Math.max(tg,A*Math.exp(-dt/.5));
+  P1+=dt*5.4;P2-=dt*3.9;if(Math.abs(Vp)>3)DR=Vp>0?1:-1;WX+=(Vp*.55+DR*20*A)*dt;
+  if(Math.abs(L-T)<.003&&Math.abs(V)<.05&&Math.abs(S)<.03&&Math.abs(SV)<.3&&A<.012){rest();return}
+  draw();raf=requestAnimationFrame(frame)};
+ if(window.ResizeObserver)new ResizeObserver(()=>{W=pb.clientWidth}).observe(pb);
+ return v=>{
+  if(!isFinite(v))return;
+  W=pb.clientWidth;
+  if(!W||(mq&&mq.matches)){T=v;rest();return}
+  if(v===T&&!on)return;
+  T=v;
+  if(!on){on=true;last=0;acc=0;pf.classList.add("pf-agua");draw();raf=requestAnimationFrame(frame)}}
+})();
 function update(){
- const R=S.root,P=pend(),n=P.length,a=ev(R,full({})),okk=pass(a),num=S.rf?rnd(a):fmt(a),col=okk?"gn":"rd";
+ const R=S.root,P=pend(),n=P.length,a=ev(R,full({})),okk=pass(a),num=S.rf?rnd(a):fmt(a),ol=outlook(),vd=vtxt(ol),col=ol.k==="aun"?"wn":(okk?"gn":"rd");
  if(prevOk===false&&okk&&a!==prevA)burst();prevOk=okk;prevA=a;
  walk(R,c=>{if(!c.ch)return;const hp=leaves(c).some(l=>isP(l.id)),e=$("sv-"+c.id);e.textContent=hp?"Faltan notas":fmt(ev(c,full({})));e.classList.toggle("pn",hp)});
  $("sl1").textContent=n?"Mi promedio hasta ahora":"Mi promedio final";
- $("sl2").innerHTML=`<span class="tag ${okk?"y":"n"}">${okk?"Aprobado":"Desaprobado"}</span>`;
+ $("sl2").innerHTML=`<span class="tag ${vd.c}">${vd.t}</span>${vd.m?`<span class="sst">${vd.m}</span>`:""}`;
  setNum($("big"),num);$("big").className=col;
  setNum($("mbig"),num);$("mbig").className=col;
- const w=Math.min(100,a/20*100)+"%",m=Math.min(100,S.pm/20*100)+"%",bg=okk?"#00F03C":"#ff5a5f";
- $("pf").style.width=w;$("pf").style.background=bg;$("mk").style.left=m;$("mk").setAttribute("aria-valuenow",S.pm);$("mkt").textContent=fmt(S.pm);
+ const w=Math.min(100,a/20*100)+"%",m=Math.min(100,S.pm/20*100)+"%",bg=ol.k==="aun"?"#FFC400":(okk?"#00F03C":"#ff5a5f");
+ $("pf").style.width=w;waterTo(parseFloat(w));$("pf").style.background=bg;$("mk").style.left=m;$("mk").setAttribute("aria-valuenow",S.pm);$("mkt").textContent=fmt(S.pm);
  $("mpf").style.width=w;$("mpf").style.background=bg;$("mmk").style.left=m;
- $("pt").textContent=`${fmt(a)} de ${S.pm} para aprobar`;
+ $("pt").textContent=n?`Llevas ${fmt(a)} y la meta es ${S.pm}`:`Terminaste con ${fmt(a)} (meta ${S.pm})`;
+ $("rib").hidden=leaves(R).length-n===0;
+ if(ol.k!==prevK){if(prevK!==null&&!seenEst.has(cur+ol.k)){seenEst.add(cur+ol.k);track("estado_aprobacion",{curso:cur,estado:ol.k,pendientes:n})}prevK=ol.k}
  let cb="";
  if(n){
   const fp=(x,l)=>String(Math.round(x*(l.mx||20)/20*100)/100);
@@ -1331,9 +1570,10 @@ function update(){
    for(let x=-D/2;x<=20+D/2+1e-9;x+=.5){
     const o={};P.forEach((l,i)=>o[l.id]=sn(Math.max(0,Math.min(20,x+D*(.5-i/(n-1)))),l));
     if(okc(o)){const k=P.map(l=>o[l.id]).join(",");if(!seen.has(k)){seen.add(k);rows.push(mk(o))}break}}}
-  cb=okk?`<p class="msg">Ya aprobaste: aunque saques 0 en lo que falta, llegas a ${S.pm}.</p>`:!rows.length?`<p class="msg bad">La nota mínima de ${S.pm} ya no es alcanzable.</p>`:`<h2>Combinaciones posibles para aprobar</h2><div class="sc"><table>${hdr}${rows.join("")}</table></div>`;
+  cb=okk?`<p class="msg">Ya aprobaste: aunque saques 0 en lo que falta, llegas a ${S.pm}.</p>`:(ol.k==="no"||!rows.length)?`<p class="msg bad">La nota mínima de ${S.pm} ya no es alcanzable.</p>`:`<h2>Combinaciones posibles para aprobar con ${S.pm}</h2><div class="sc"><table>${hdr}${rows.join("")}</table></div>`;
  }
  $("cb").innerHTML=cb;
+ simR();
  trackCombo();
  paintBars();
  save();
@@ -1352,7 +1592,7 @@ const h=e=>{const t=e.target,id=t.dataset.id;
 document.addEventListener("input",h);document.addEventListener("change",h);
 /* Analíticas de uso de la calculadora: solo conteos y si aprueba o no, nunca las notas */
 function trackCalc(){clearTimeout(calcTm);calcTm=setTimeout(()=>{if(!S)return;const L=leaves(S.root),n=pend().length;
- track("calculo_actualizado",{curso:cur,total:L.length,ingresadas:L.length-n,pendientes:n,completo:n===0,aprobado:pass(ev(S.root,full({}))),nota_minima:S.pm,redondeo_final:!!S.rf});if(n===0)setEtapa("completo")},1800)}
+ track("calculo_actualizado",{curso:cur,total:L.length,ingresadas:L.length-n,pendientes:n,completo:n===0,aprobado:pass(ev(S.root,full({}))),estado:outlook().k,nota_minima:S.pm,redondeo_final:!!S.rf});if(n===0)setEtapa("completo")},1800)}
 document.addEventListener("change",e=>{const t=e.target;if(!t||!t.classList)return;
  if(t.classList.contains("g")&&t.value!==""){const L=leaves(S.root),n=L.filter(l=>!isP(l.id)).length;
   track("nota_ingresada",{curso:cur,evaluacion:t.dataset.id,ingresadas:n,total:L.length});
@@ -1367,8 +1607,8 @@ document.addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
  if(b.hasAttribute("data-share"))doShare(b.classList.contains("shf")?"pie":"barra");
  else if(b.id==="go"){track("empezar_click");showView("pick")}
- else if(b.id==="addc"||b.id==="addc2"){track("subir_curso_abierto");closeList();showView("up")}
- else if(b.id==="upback"){showView("pick")}
+ else if(b.id==="addc"||b.id==="addc2"||b.dataset.add){upFrom=view==="tool"?"tool":"pick";upY=window.scrollY;track("subir_curso_abierto",{origen:b.dataset.add||(b.id==="addc"?"pick_arriba":"pick_bloque")});closeList();$("upok").hidden=true;$("upf").hidden=false;showView("up");updUpLabels()}
+ else if(b.id==="upback"){leaveUp()}
  else if(b.id==="pickback"){track("volver_inicio");closeList();showView("welcome")}
  else if(b.id==="uphome"){closeList();showView("welcome")}
  else if(b.id==="home"){track("volver_inicio");closeList();showView("welcome")}
@@ -1376,16 +1616,35 @@ document.addEventListener("click",e=>{
  else if(b.dataset.fi){closeList();showView("fi")}
  else if(b.dataset.c){track("curso_elegido",{curso:b.dataset.c,nombre:C[b.dataset.c].n,grupo:["nivelacion","curso","sello_up"][gof(b.dataset.c)],origen:b.dataset.p?"pantalla_elegir":b.dataset.f?"pie":"menu"});setCourse(b.dataset.c);if(b.dataset.p)showView("tool");else if(b.dataset.f)window.scrollTo({top:0})}
  else if(b.id==="rs"){track("curso_restablecido",{curso:cur});ST[cur]=null;setCourse(cur)}});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeList()});
-
+/* Notas: Enter (o "Siguiente" del teclado del celular) pasa a la siguiente; Shift+Enter vuelve a la anterior; en la ultima cierra el teclado y lleva al resumen */
+const nCoarse=window.matchMedia?matchMedia("(pointer:coarse)"):{matches:false};
+function nextNota(el,d){const L=[...document.querySelectorAll("#tree input.g")],n=L[L.indexOf(el)+d];
+ if(n){n.focus({preventScroll:nCoarse.matches});if(!nCoarse.matches){try{n.select()}catch(_){}}n.scrollIntoView({block:nCoarse.matches?"nearest":"center",behavior:RM?"auto":"smooth"})}
+ else if(d>0){el.blur();$("sum").scrollIntoView({block:"center",behavior:RM?"auto":"smooth"})}}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeList();
+ const t=e.target;if(e.key==="Enter"&&!e.isComposing&&t&&t.matches){if(t.matches("#tree input.g")){e.preventDefault();nextNota(t,e.shiftKey?-1:1)}else if(t.id==="pm"){e.preventDefault();t.blur()}}});
 $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+GR.map(([t,g])=>`<section class="pg"><h2 class="gt">${t}<i>${inG(g).length}</i></h2><div class="pl">${inG(g).map(x=>{const i=KS.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`}).join("")}</div></section>`).join("");
 const pb=document.querySelector("#sum .pbar");let drag=false,raf=0;
 const setPm=v=>{v=Math.max(0,Math.min(20,Math.round(v)));if(v===S.pm)return;S.pm=v;trackCalc();clearTimeout(pmT);pmT=setTimeout(()=>track("meta_cambiada",{curso:cur,valor:S.pm,via:"barra"}),1200);$("pm").value=v;if(!raf)raf=requestAnimationFrame(()=>{raf=0;update()})};
 const fromX=x=>{const r=pb.getBoundingClientRect();return r.width?(x-r.left)/r.width*20:S.pm};
-pb.addEventListener("pointerdown",e=>{drag=true;try{pb.setPointerCapture(e.pointerId)}catch(_){}pb.classList.add("drag");setPm(fromX(e.clientX))});
-pb.addEventListener("pointermove",e=>{if(drag)setPm(fromX(e.clientX))});
-const endDrag=()=>{drag=false;pb.classList.remove("drag")};
-pb.addEventListener("pointerup",endDrag);pb.addEventListener("pointercancel",endDrag);
+/* Mouse: arrastra al instante. Dedo: tambien al instante, pero con dos candados para que un scroll nunca mueva la nota minima:
+   1) si la pantalla se esta moviendo (scroll o inercia) la barra no responde a ese toque;
+   2) si el dedo empieza moviendose hacia arriba/abajo es un scroll y se ignora; solo un movimiento hacia los lados la agarra. */
+let armed=false,sx=0,sy=0,pid=0,lastScroll=0;
+window.addEventListener("scroll",()=>{lastScroll=performance.now()},{passive:true});
+const still=()=>performance.now()-lastScroll>150;
+pb.addEventListener("pointerdown",e=>{
+ if(e.pointerType==="mouse"){drag=true;try{pb.setPointerCapture(e.pointerId)}catch(_){}pb.classList.add("drag");setPm(fromX(e.clientX));return}
+ armed=still();sx=e.clientX;sy=e.clientY;pid=e.pointerId});
+pb.addEventListener("pointermove",e=>{
+ if(armed){const dx=Math.abs(e.clientX-sx),dy=Math.abs(e.clientY-sy);if(dx<3&&dy<3)return;armed=false;
+  if(dx>=dy){drag=true;try{pb.setPointerCapture(pid)}catch(_){}pb.classList.add("drag");setPm(fromX(e.clientX))}return}
+ if(drag)setPm(fromX(e.clientX))});
+const endDrag=()=>{armed=false;drag=false;pb.classList.remove("drag")};
+pb.addEventListener("pointerup",e=>{if(armed&&e.pointerType!=="mouse")setPm(fromX(e.clientX));endDrag()});
+pb.addEventListener("pointercancel",endDrag);
+pb.addEventListener("touchmove",e=>{if(drag&&e.cancelable)e.preventDefault()},{passive:false});
+pb.addEventListener("contextmenu",e=>e.preventDefault());
 $("mk").addEventListener("keydown",e=>{const d={ArrowLeft:-1,ArrowDown:-1,ArrowRight:1,ArrowUp:1}[e.key];if(d){e.preventDefault();setPm(d>0?Math.floor(S.pm)+1:Math.ceil(S.pm)-1)}else if(e.key==="Home"){e.preventDefault();setPm(0)}else if(e.key==="End"){e.preventDefault();setPm(20)}});
 const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.target.id==="sum")sumIn=e.isIntersecting;else faqIn=e.isIntersecting;if(e.isIntersecting&&view==="tool"){const k=e.target.id+":"+cur;if(!seenSec.has(k)){seenSec.add(k);track(e.target.id==="sum"?"resumen_visto":"faq_vista",{curso:cur})}}});chk()});
 io.observe($("sum"));io.observe($("faq"));
@@ -1425,13 +1684,16 @@ document.querySelectorAll(".qa").forEach(d=>{
 {const im=new Image();im.crossOrigin="anonymous";
  im.onload=()=>{try{const N=256,c=document.createElement("canvas");c.width=c.height=N;const x=c.getContext("2d"),k=Math.min(N/im.naturalWidth,N/im.naturalHeight),w=im.naturalWidth*k,hh=im.naturalHeight*k;x.imageSmoothingQuality="high";x.drawImage(im,(N-w)/2,(N-hh)/2,w,hh);const u=c.toDataURL("image/png");document.querySelectorAll('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(l=>{l.type="image/png";l.href=u})}catch(_){}};
  idle(()=>{im.src="/img/favicon.png"})}
-/* Modo claro / oscuro */
+/* Modo claro / oscuro: sin eleccion guardada sigue al sistema; al tocar el interruptor se fija claro u oscuro y se guarda en mp-theme. */
 {const root=document.documentElement,tg=$("tg"),mq=window.matchMedia?matchMedia("(prefers-color-scheme: dark)"):null;let saved=null;
- try{saved=localStorage.getItem("mp-theme")}catch(_){}
- const apply=d=>{root.dataset.theme=d?"dark":"light";tg.setAttribute("aria-checked",String(d))};
- apply(saved?saved==="dark":!!(mq&&mq.matches));
- tg.addEventListener("click",()=>{const d=root.dataset.theme!=="dark";apply(d);track("tema_cambiado",{tema:d?"oscuro":"claro"});saved=d?"dark":"light";try{localStorage.setItem("mp-theme",saved)}catch(_){}});
- if(mq&&mq.addEventListener)mq.addEventListener("change",e=>{if(!saved)apply(e.matches)})}
+ try{const v=localStorage.getItem("mp-theme");saved=(v==="dark"||v==="light")?v:null}catch(_){}
+ const isDark=()=>saved?saved==="dark":!!(mq&&mq.matches);
+ const apply=()=>{const d=isDark();root.dataset.theme=d?"dark":"light";tg.setAttribute("aria-checked",String(d))};
+ const store=()=>{try{if(saved)localStorage.setItem("mp-theme",saved);else localStorage.removeItem("mp-theme")}catch(_){}};
+ apply();
+ tg.addEventListener("click",()=>{const d=root.dataset.theme!=="dark";saved=d?"dark":"light";store();apply();toast(d?"Modo oscuro":"Modo claro");track("tema_cambiado",{tema:d?"oscuro":"claro",modo:"manual"})});
+
+ if(mq&&mq.addEventListener)mq.addEventListener("change",()=>{if(!saved)apply()})}
 const fo=new IntersectionObserver(es=>es.forEach(e=>{if(e.target.id==="faq"){faqNear=e.isIntersecting;chk()}}),{rootMargin:"0px 0px 170px 0px"});fo.observe($("faq"));
 
 /* ===== Guardado automático (localStorage): notas, nota mínima y redondeos de cada curso ===== */
@@ -1464,6 +1726,103 @@ async function doShare(o){track("compartir_click",{origen:o});
  if(navigator.share&&window.matchMedia&&matchMedia("(pointer:coarse)").matches){try{await navigator.share(d);track("compartir_ok",{origen:o,metodo:"nativo"});return}catch(e){if(e&&e.name==="AbortError")return}}
  try{await navigator.clipboard.writeText(url);toast("Enlace copiado");track("compartir_ok",{origen:o,metodo:"copiar"})}
  catch(_){const ta=document.createElement("textarea");ta.value=url;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Enlace copiado":url)}}
+
+/* ===== Compartir mi resultado: imagen hecha en el navegador (canvas), sin servidor ===== */
+const SITE_HOST="myponderup.vercel.app";
+{const M=$("rim"),IMG=$("rii"),BG=$("rig"),BD=$("rid"),CK=$("rin"),NT=$("ris"),PV=$("rimp"),FONT='Montserrat,"Montserrat Fallback",Arial,sans-serif',NAME="mi-resultado-myponderup.png";
+ let fk=nCoarse.matches?"story":"post",file=null,blobUrl="",dataUrl="",seq=0,logo,nat=false,failed=false,back=null;
+ const F=(w,s)=>`${w} ${s}px ${FONT}`,tmo=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);
+ const loadLogo=()=>logo!==undefined?Promise.resolve(logo):tmo(new Promise(r=>{const im=new Image();im.onload=()=>r(logo=im);im.onerror=()=>r(logo=null);im.src="/img/logo-horizontal.webp"}),2500).then(x=>x||(logo=null));
+ const wrap=(c,t,w)=>{const o=[];let l="";String(t).split(" ").forEach(p=>{const x=l?l+" "+p:p;if(c.measureText(x).width>w&&l){o.push(l);l=p}else l=x});if(l)o.push(l);return o};
+ const clip=(c,t,w)=>{if(c.measureText(t).width<=w)return t;while(t.length>1&&c.measureText(t+"…").width>w)t=t.slice(0,-1);return t+"…"};
+ const d2b=u=>{const a=u.split(","),m=/:(.*?);/.exec(a[0])[1],s=atob(a[1]),u8=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u8[i]=s.charCodeAt(i);return new Blob([u8],{type:m})};
+ const hint=()=>"La imagen solo muestra tu resultado. Tus notas no aparecen salvo que lo actives."+(nCoarse.matches?" Si no se descarga, mantén presionada la imagen para guardarla.":"");
+ /* Datos de la imagen: solo resultado; las notas solo si la persona lo activa */
+ const snap=notes=>{const o=outlook(),f=v=>S.rf?String(rnd(v)):fmt(v),L=leaves(S.root);
+  return{curso:(C[cur].pre??"Nivelación en ")+C[cur].n,n:o.n,vd:vtxt(o,true),num:f(o.lo),lo:f(o.lo),hi:f(o.hi),lov:o.lo,hiv:o.hi,pm:S.pm,hechas:L.length-o.n,total:L.length,
+   rows:notes?S.root.ch.map(g=>{const pd=g.ch?leaves(g).some(l=>isP(l.id)):isP(g.id);return{n:g.n,v:pd?"—":(g.ch?fmt(ev(g,full({}))):fmt(Math.min(+S.g[g.id],g.mx||20)))+(g.ch||!g.mx?"":" / "+g.mx)}}):null}};
+ function paint(c,W,d,lg){
+  const X=84,CW=W-2*X,WH="#fff",MU="rgba(255,255,255,.74)",col=d.vd.c==="y"?"#00F03C":d.vd.c==="n"?"#ff7a7a":"#FFC400";let y=0;
+  c.textBaseline="alphabetic";c.textAlign="left";
+  ["#0A5CFF","#00F03C","#F000F0","#FFFFFF"].forEach((k,i)=>{c.fillStyle=k;c.fillRect(X+i*64,y,64,12)});y+=12+48;
+  c.font=F(600,34);c.fillStyle=MU;c.fillText("Mi ponderado de",X,y+28);y+=28+18;
+  let fs=72,L;c.font=F(800,fs);L=wrap(c,d.curso,CW);if(L.length>2){fs=54;c.font=F(800,fs);L=wrap(c,d.curso,CW)}
+  c.fillStyle=WH;L.forEach(t=>{c.fillText(t,X,y+fs*.9);y+=fs*1.12});y+=40;
+  c.font=F(900,100);const hs=Math.min(360,Math.floor(CW/c.measureText(d.num).width*100));
+  c.font=F(900,hs);c.fillStyle=d.vd.c==="m"?WH:col;c.fillText(d.num,X-6,y+hs*.74);y+=hs*.74+44;
+  c.font=F(600,32);c.fillStyle=MU;wrap(c,d.n?"Mi promedio hasta ahora (lo que falta cuenta 0)":"Mi promedio final",CW).forEach(t=>{c.fillText(t,X,y+28);y+=42});y+=30;
+  let cs=40,tx=d.vd.t.toUpperCase();c.font=F(800,cs);while(c.measureText(tx).width>CW-64&&cs>24){cs-=2;c.font=F(800,cs)}
+  const cw=c.measureText(tx).width+64,chh=cs+40;c.fillStyle=col;c.fillRect(X,y,cw,chh);c.fillStyle="#061F47";c.fillText(tx,X+32,y+chh/2+cs*.35);y+=chh+30;
+  if(d.vd.m){c.font=F(600,40);c.fillStyle=WH;wrap(c,d.vd.m,CW).forEach(t=>{c.fillText(t,X,y+40);y+=54});y+=24}
+  y+=46;const bh=30,fx=v=>Math.min(1,Math.max(0,v/20))*CW,px=X+fx(d.pm);
+  c.fillStyle="rgba(255,255,255,.18)";c.fillRect(X,y,CW,bh);
+  c.fillStyle=col;c.fillRect(X,y,fx(d.lov),bh);
+  c.fillStyle=WH;c.fillRect(px-3,y-12,6,bh+24);
+  c.font=F(700,28);c.textAlign="center";c.fillText("mín. "+d.pm,Math.min(X+CW-60,Math.max(X+60,px)),y-24);c.textAlign="left";
+  y+=bh+12+22;c.font=F(600,32);c.fillStyle=MU;c.fillText(d.n?`Llevo ${d.lo} y la meta es ${d.pm}`:`Terminé con ${d.lo} (meta ${d.pm})`,X,y+30);y+=30+22;
+  c.font=F(600,30);c.fillText(`Evaluaciones rendidas: ${d.hechas} de ${d.total}`,X,y+28);y+=28;
+  if(d.rows){y+=36;const pad=30,rh=66,ph=pad*2+46+d.rows.length*rh;c.fillStyle="rgba(255,255,255,.07)";c.fillRect(X,y,CW,ph);
+   c.font=F(700,28);c.fillStyle=MU;c.fillText("Mis notas",X+pad,y+pad+26);
+   d.rows.forEach((r,i)=>{const ry=y+pad+46+i*rh;if(i){c.fillStyle="rgba(255,255,255,.14)";c.fillRect(X+pad,ry,CW-2*pad,2)}
+    c.textAlign="left";c.font=F(700,34);c.fillStyle=WH;c.fillText(clip(c,r.n,CW-2*pad-250),X+pad,ry+rh/2+12);
+    c.textAlign="right";c.font=F(800,38);c.fillText(r.v,X+CW-pad,ry+rh/2+13);c.textAlign="left"});y+=ph}
+  return y}
+ /* Dibuja la imagen completa. k = escala (1 normal; si el telefono no aguanta, se reintenta mas chica) */
+ function draw(d,k,lg){
+  const W=1080,story=fk==="story",H=story?1920:1350,cv=document.createElement("canvas");cv.width=Math.round(W*k);cv.height=Math.round(H*k);const c=cv.getContext("2d");c.scale(k,k);
+  c.fillStyle="#061F47";c.fillRect(0,0,W,H);
+  let g=c.createRadialGradient(W*.88,H*.1,0,W*.88,H*.1,W*.75);g.addColorStop(0,"rgba(10,92,255,.42)");g.addColorStop(1,"rgba(10,92,255,0)");c.fillStyle=g;c.fillRect(0,0,W,H);
+  g=c.createRadialGradient(W*.05,H*.95,0,W*.05,H*.95,W*.6);g.addColorStop(0,"rgba(0,240,60,.16)");g.addColorStop(1,"rgba(0,240,60,0)");c.fillStyle=g;c.fillRect(0,0,W,H);
+  const X=84,CW=W-2*X,fy=H-(story?230:76)-64,top=story?230:84,avail=fy-34-34-top;
+  /* si no cabe, se encoge todo el bloque pero se pinta mas ancho para que siga ocupando el mismo ancho que el pie */
+  const sc=document.createElement("canvas").getContext("2d");let s=1,Wp=W,hh=0;
+  for(let i=0;i<3;i++){Wp=2*X+CW/s;hh=paint(sc,Wp,d,lg);s=Math.min(1,avail/hh)}
+  Wp=2*X+CW/s;hh=paint(sc,Wp,d,lg);const oy=top+Math.max(0,(avail-hh*s)/2);
+  c.save();c.translate(X,oy);c.scale(s,s);c.translate(-X,0);paint(c,Wp,d,lg);c.restore();
+  c.fillStyle="rgba(255,255,255,.2)";c.fillRect(X,fy-34,CW,2);
+  if(lg&&lg.naturalWidth){const lh=60,lw=Math.min(380,lg.naturalWidth/lg.naturalHeight*lh);c.drawImage(lg,X,fy,lw,lw/(lg.naturalWidth/lg.naturalHeight))}
+  else{c.textAlign="left";c.font=F(900,44);c.fillStyle="#fff";c.fillText("My Ponder",X,fy+44);const w=c.measureText("My Ponder").width;c.fillStyle="#00F03C";c.fillText("UP",X+w,fy+44)}
+  c.textAlign="right";c.font=F(800,34);c.fillStyle="#00F03C";c.fillText(SITE_HOST,X+CW,fy+28);c.font=F(600,26);c.fillStyle="rgba(255,255,255,.74)";c.fillText("Calcula el tuyo gratis",X+CW,fy+64);
+  return cv}
+ const ui=b=>{BG.disabled=BD.disabled=b;PV.setAttribute("aria-busy",String(b))};
+ async function render(){
+  const my=++seq;failed=false;ui(true);NT.textContent="Creando tu imagen…";BG.textContent="Creando…";
+  try{
+   try{await tmo(Promise.all(["900 100px","800 40px","700 30px","600 30px"].map(f=>document.fonts.load(f+" Montserrat"))),1800)}catch(_){}
+   const lg=await loadLogo();if(my!==seq)return;
+   const d=snap(CK.checked);let cv=null,blob=null,du="";
+   for(const k of [1,.7,.5]){try{cv=draw(d,k,lg);blob=await new Promise(r=>{try{cv.toBlob(r,"image/png")}catch(_){r(null)}});try{du=cv.toDataURL("image/png")}catch(_){du=""}if(du.length<200)du="";if(blob&&blob.size<500)blob=null;if(blob||du)break}catch(_){cv=null}}
+   if(my!==seq)return;
+   if(!blob&&du){try{blob=d2b(du)}catch(_){}}
+   if(!blob&&!du)throw 0;
+   if(blobUrl){URL.revokeObjectURL(blobUrl);blobUrl=""}
+   file=null;if(blob){try{file=new File([blob],NAME,{type:"image/png"})}catch(_){file=blob;try{file.name=NAME}catch(_){}}try{blobUrl=URL.createObjectURL(blob)}catch(_){blobUrl=""}}
+   dataUrl=du;IMG.onerror=()=>{const o=IMG.src===dataUrl?blobUrl:dataUrl;if(o&&IMG.src!==o)IMG.src=o};IMG.src=du||blobUrl;
+   nat=!!(file&&window.File&&file instanceof File&&nCoarse.matches&&navigator.canShare&&navigator.canShare({files:[file]}));
+   const cp=!nCoarse.matches&&!!(navigator.clipboard&&window.ClipboardItem&&file);
+   BG.textContent=nat?"Compartir imagen":"Descargar imagen";BD.textContent=nat?"Descargar":"Copiar imagen";BD.hidden=!nat&&!cp;NT.textContent=hint();ui(false)}
+  catch(_){if(my!==seq)return;failed=true;ui(false);BG.textContent="Reintentar";BD.hidden=true;NT.textContent="No pudimos crear la imagen. Toca “Reintentar”."}}
+ const link=()=>location.origin+location.pathname+"?utm_source=share_img";
+ const dl=()=>{const u=blobUrl||dataUrl;if(!u)return;try{const a=document.createElement("a");a.href=u;a.download=NAME;a.rel="noopener";a.style.display="none";document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),600)}catch(_){}};
+ const ev2=m=>track("resultado_compartido",{curso:cur,metodo:m,formato:fk,con_notas:CK.checked});
+ const setF=()=>{M.querySelectorAll("[data-rf]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rf===fk)))};
+ const open=()=>{back=document.activeElement;setF();CK.checked=false;NT.textContent=hint();M.hidden=false;document.documentElement.style.overflow="hidden";track("resultado_imagen_abierta",{curso:cur,pendientes:pend().length});render();$("rix").focus()};
+ const close=()=>{M.hidden=true;document.documentElement.style.overflow="";seq++;if(blobUrl){URL.revokeObjectURL(blobUrl);blobUrl=""}file=null;dataUrl="";IMG.onerror=null;IMG.removeAttribute("src");if(back&&back.focus)back.focus()};
+ $("rib").addEventListener("click",open);$("rix").addEventListener("click",close);
+ M.addEventListener("click",e=>{if(e.target===M){close();return}const b=e.target.closest("[data-rf]");if(!b||b.dataset.rf===fk)return;fk=b.dataset.rf;setF();render()});
+ CK.addEventListener("change",()=>{NT.textContent=CK.checked?"Tus notas aparecen en la imagen. Tú decides con quién la compartes.":hint();render().then(()=>{if(CK.checked&&!failed)NT.textContent="Tus notas aparecen en la imagen. Tú decides con quién la compartes."})});
+ BG.addEventListener("click",async()=>{
+  if(failed){render();return}
+  if(!file&&!blobUrl&&!dataUrl)return;
+  if(nat){try{await navigator.share({files:[file],title:"My PonderUP",text:`Mi resultado en ${C[cur].n}. Calcula el tuyo gratis: ${link()}`});ev2("nativo")}catch(e){if(e&&e.name!=="AbortError"){dl();ev2("descarga")}}}
+  else{dl();ev2("descarga");toast("Descargando imagen…")}});
+ BD.addEventListener("click",async()=>{if(!file&&!blobUrl&&!dataUrl)return;
+  if(nat){dl();ev2("descarga");toast("Descargando imagen…")}
+  else{try{await navigator.clipboard.write([new ClipboardItem({"image/png":file})]);ev2("copiar");toast("Imagen copiada")}catch(_){dl();toast("No se pudo copiar; se descargó la imagen")}}});
+ document.addEventListener("keydown",e=>{if(M.hidden)return;
+  if(e.key==="Escape"){e.preventDefault();close()}
+  else if(e.key==="Tab"){const f=[...M.querySelectorAll("button,input")].filter(x=>!x.disabled&&!x.hidden&&x.offsetParent!==null);if(!f.length)return;const a=f[0],z=f[f.length-1];
+   if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}})}
 
 /* ===== Comentarios o sugerencias (API propia /api/sugerencia) =====
    El navegador solo ayuda al usuario (trampa oculta _gotcha, tiempo minimo escribiendo, sin enlaces, sin repetidos y
@@ -1538,7 +1897,7 @@ function bqD(root,raw,msg){
 function bqA(root,raw,msg){
  const pick=root.id==="plist",rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
  if(rm){bqD(root,raw,msg);return}
- const els=()=>[...root.querySelectorAll(pick?".gt,button":".gh,button[data-c],button[data-fi],.sno")].concat(pick?[...document.querySelectorAll("#addb,#bqpn")]:[]);
+ const els=()=>[...root.querySelectorAll(pick?".gt,button":".gh,button[data-c],button[data-fi],.sno,.caddw")].concat(pick?[...document.querySelectorAll("#addb,#bqpn")]:[]);
  const was=new Map(),h0=pick?0:root.offsetHeight;
  els().forEach(e=>{if(e.offsetParent!==null)was.set(e,e.getBoundingClientRect())});
  bqD(root,raw,msg);
@@ -1560,7 +1919,13 @@ function bqU(i){
  const pick=i.id==="bqp",root=pick?$("plist"):i.closest("#clist");if(!root)return;
  i.parentNode.querySelector(".bqk").classList.toggle("bqv",!!i.value);
  if(pick)root.classList.add("bqd");
- bqA(root,i.value,pick?$("bqpn"):root.querySelector(".sno"))}
+ bqA(root,i.value,pick?$("bqpn"):root.querySelector(".sno"));bqTrack(i,pick)}
+/* Cursos que faltan: si despues de dejar de escribir no hay resultados, se registra SOLO el texto buscado (en minusculas y sin tildes), una vez por texto.
+   No se guarda si parece un correo o un numero largo. Sirve para ver en PostHog que cursos agregar primero. */
+let bqT=0;const bqSeen=new Set();
+function bqTrack(i,pick){clearTimeout(bqT);bqT=setTimeout(()=>{const q=bqN(i.value);if(q.length<3||q.length>40||/@|\d{5,}/.test(q)||bqSeen.has(q))return;
+ const root=pick?$("plist"):i.closest("#clist");if(!root)return;const msg=pick?$("bqpn"):root.querySelector(".sno");
+ if(msg&&!msg.hidden){bqSeen.add(q);track("busqueda_sin_resultados",{texto:q,origen:pick?"elegir_curso":"lista_curso",curso_actual:cur||""})}},1500)}
 $("plist").insertAdjacentHTML("beforebegin",BQ(1));
 $("plist").insertAdjacentHTML("afterend",`<p class="sno" id="bqpn" hidden role="status">No se encontraron cursos.</p>`);
 document.addEventListener("input",e=>{const i=e.target.closest&&e.target.closest(".bqi");if(i)bqU(i)});
@@ -1610,7 +1975,7 @@ $("cbtn").addEventListener("click",()=>setTimeout(()=>{const l=$("clist");if(!l.
  ul.addEventListener("click",e=>{const b=e.target.closest("button[data-rm]");if(!b)return;files.splice(+b.dataset.rm,1);say("");render()});
  cu.addEventListener("focus",()=>{if(!t0)t0=Date.now()});
  $("upagain").addEventListener("click",()=>{ok.hidden=true;f.hidden=false;say("");t0=0;cu.focus()});
- $("upgo").addEventListener("click",()=>{ok.hidden=true;f.hidden=false;showView("pick")});
+ $("upgo").addEventListener("click",()=>{ok.hidden=true;f.hidden=false;leaveUp()});
  f.addEventListener("submit",async e=>{e.preventDefault();if(busy)return;
   const curso=cu.value.trim().replace(/\s+/g," "),msg=$("upm").value.trim(),mail=$("upe").value.trim();
   if($("upg").value){files=[];render();f.hidden=true;ok.hidden=false;return}
