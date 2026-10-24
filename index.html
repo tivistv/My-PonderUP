@@ -444,6 +444,17 @@ a[data-ig][hidden]{display:none!important}
 .igw{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:16px;color:rgba(255,255,255,.8);font-weight:700;font-size:.95rem;text-decoration:none;white-space:nowrap;transition:color .2s}
 .igw:hover{color:var(--green)}
 @media (max-width:600px){.igc{min-height:56px;margin:16px 0 0}}
+/* Celular: texto corto y tarjeta mas llamativa (fondo azul, icono verde, flecha) */
+.igk{display:none}
+@media (max-width:600px){
+ .igf{display:none}.igk{display:inline}
+ .igc{min-height:68px;gap:14px;padding:14px 16px 14px 14px;background:var(--navy);border:0;border-left:6px solid var(--green);color:#fff;box-shadow:0 6px 18px rgba(6,31,71,.28)}
+ .igc:hover{border:0;border-left:6px solid var(--green)}
+ .igc svg{width:44px;height:44px;padding:9px;box-sizing:border-box;background:var(--green);color:var(--navy)}
+ .igc b{font-size:1.15rem;font-weight:900}
+ .igc small{color:var(--green);font-size:.95rem}
+ .igc::after{content:"›";flex:none;margin-left:auto;color:var(--green);font-size:2rem;font-weight:700;line-height:1}
+}
 
 #sl1{font-size:clamp(1.1rem,4.8vw,1.5rem);font-weight:900;line-height:1.15;letter-spacing:.01em}
 #big{font-size:3.6rem}
@@ -546,7 +557,8 @@ input.g:placeholder-shown+.sf{display:none}
 .fbh .mark{margin-right:10px}.fbh b{color:var(--green)}
 .lg-f{display:block;width:min(38vw,130px);max-width:none;height:auto;object-fit:contain}
 /* ===== Interruptor flotante sol / luna ===== */
-.tgw{position:fixed;right:14px;bottom:calc(78px + env(safe-area-inset-bottom,0px));z-index:45;transition:opacity .35s ease,transform .35s ease}
+.tgw{position:fixed;right:14px;bottom:calc(78px + env(safe-area-inset-bottom,0px));z-index:45;transition:opacity .35s ease,transform .35s ease,bottom .35s cubic-bezier(.2,.7,.2,1)}
+.tgw.low{bottom:calc(14px + env(safe-area-inset-bottom,0px))}/* sin barra inferior: el interruptor va en la esquina */
 .tgw.off{opacity:0;transform:translateY(16px) scale(.9);pointer-events:none}
 .tg{position:relative;display:block;width:72px;height:38px;padding:0;border:2px solid var(--green);border-radius:99px;background:var(--navy);cursor:pointer;box-shadow:0 8px 22px rgba(6,31,71,.4),0 0 0 4px rgba(0,240,60,.14);animation:flt 4.5s ease-in-out infinite alternate}
 .tg .ti{position:absolute;top:50%;width:18px;height:18px;margin-top:-9px;color:rgba(255,255,255,.55)}
@@ -712,14 +724,14 @@ input.g:placeholder-shown+.sf{display:none}
 }
 /* ===== Compartir, sugerencias y aviso ===== */
 .hr{display:flex;align-items:center;gap:8px;flex:none}
-.shb{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;min-width:40px;padding:0 12px;background:transparent;color:var(--green);border:2px solid var(--green);border-radius:2px;font:700 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.shb{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;min-width:40px;padding:0 12px;background:transparent;color:var(--green);border:2px solid var(--green);border-radius:2px;font:700 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:background .25s ease,color .25s ease,transform .2s,filter .25s ease}
 .shb svg{flex:none}
 .shb:hover{background:var(--green);color:var(--navy)}
 .shb:active{transform:scale(.96)}
 .shb:focus-visible{outline:2px solid #fff;outline-offset:2px}
 /* Banner superior: unico boton, verde y con texto tambien en celular */
 .bar .shb{background:var(--green);color:var(--navy);border-color:var(--green)}
-.bar .shb:hover{background:var(--green);color:var(--navy);filter:brightness(1.1)}
+.bar .shb:hover,.bar .shb:focus-visible{background:var(--green);color:var(--navy);filter:brightness(1.1)}
 .shf{margin-top:16px;height:44px;padding:0 16px}
 @media (max-width:480px){.hr{gap:6px}.hd1 .btn{padding:12px 10px;font-size:.66rem}.lg-h{max-width:calc(100vw - 190px)}}
 .sgf{margin:8px 0 0;max-width:460px}
@@ -979,9 +991,10 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 .tag.m{background:#FFC400;color:var(--navy)}
 .sst{display:block;margin-top:6px;font-size:.84rem;line-height:1.35;font-weight:600;color:var(--mut);text-transform:none;letter-spacing:0}
 #big.wn{color:var(--ink)}#mbig.wn{color:#FFC400}
-.rib{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:44px;margin-top:14px;padding:10px 14px;background:var(--green);color:var(--navy);border:2px solid var(--green);border-radius:2px;font:800 .78rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
-.rib:active,.rib:focus-visible{background:transparent;color:var(--ink)}
-@media (hover:hover){.rib:hover{background:transparent;color:var(--ink)}}
+.rib{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:44px;margin-top:14px;padding:10px 14px;background:var(--green);color:var(--navy);border:2px solid var(--green);border-radius:2px;font:800 .78rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:filter .25s ease,transform .2s}
+.rib:active,.rib:focus-visible{filter:brightness(1.1)}
+.rib:active{transform:scale(.98)}
+@media (hover:hover){.rib:hover{filter:brightness(1.1)}}
 .btn:disabled{opacity:.5;cursor:default}
 .btn.sm{padding:10px 12px;font-size:.7rem}
 .btn.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
@@ -1117,7 +1130,7 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 <p class="tip"><b>TIP:</b> Arrastra la línea o escribe tu nota mínima y la tabla se ajusta.</p>
 <section id="cb"></section>
 <section id="sim" hidden aria-label="Simulador de notas"><button type="button" id="simt" aria-expanded="false" aria-controls="simb"><span><b>¿Y si saco…?</b><small>Prueba notas en lo que falta sin cambiar las tuyas</small></span><i class="smc" aria-hidden="true"></i></button><div id="simb" hidden><p class="simi"><span class="tag m">Simulación</span><span>Mueve los deslizadores. Tus notas reales no cambian hasta que toques “Usar”.</span></p><div id="simr"></div><div class="simo"><div><span class="simk">Promedio simulado</span><div id="simv" aria-live="polite"></div></div><b id="simn"></b></div></div></section>
-<a class="igc" data-ig="resultado" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span class="igt"><b>¿Te sirvió? Síguenos para estar al tanto de nuevas actualizaciones</b><small class="igu">@myponderup</small></span></a>
+<a class="igc" data-ig="resultado" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span class="igt"><b><span class="igf">¿Te sirvió? Síguenos para estar al tanto de nuevas actualizaciones</span><span class="igk">¿Te sirvió? ¡Síguenos!</span></b><small class="igu">@myponderup</small></span></a>
 </main>
 <section class="faq" id="faq"><div class="wrap">
 <h2>Cómo funciona</h2>
@@ -1402,8 +1415,13 @@ function paintBars(){
   e.style.setProperty("--f",f+"%");const b=document.querySelector(`.blk[data-b="${i}"]`);if(b){b.style.setProperty("--f",f+"%");const c=b.querySelector(".cnt");if(c){const L=leaves(g),n=L.filter(l=>!isP(l.id)).length;c.textContent=n+" de "+L.length;c.classList.toggle("full",n===L.length)}}});
  document.querySelectorAll("input.g").forEach(i=>{const r=i.closest(".row,.bh");if(r)r.classList.toggle("dn",!isP(i.dataset.id))});
  document.querySelectorAll("#zb .zs").forEach(e=>{const was=e.classList.contains("pd"),now=e.dataset.ids.split(",").some(isP);e.classList.toggle("pd",now);if(was&&!now){e.classList.remove("pop");void e.offsetWidth;e.classList.add("pop")}})}
-let faqNear=false;
-const chk=()=>{$("mini").classList.toggle("on",view==="tool"&&!sumIn&&!faqIn);$("tgw").classList.toggle("off",(view!=="tool"&&view!=="fi")||faqNear)};
+let faqNear=false,bodyIn=false,fiBodyIn=false;
+/* bodyIn / fiBodyIn: el contenido claro/oscuro (debajo del encabezado azul) ya ocupa buena parte de la pantalla. Arriba del todo no se ve el cambio de tema, asi que ahi no van ni la barra "Mi promedio hasta ahora" ni el interruptor. */
+const chk=()=>{const mOn=view==="tool"&&bodyIn&&!sumIn&&!faqIn,fm=$("fimini"),
+ tOn=!faqNear&&(view==="tool"?bodyIn:view==="fi"?fiBodyIn:false);
+ $("mini").classList.toggle("on",mOn);
+ $("tgw").classList.toggle("off",!tOn);
+ $("tgw").classList.toggle("low",!(mOn||(fm&&fm.classList.contains("on"))))};
 function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
 /* "Agrega tu curso": recuerda desde donde se abrio para volver al mismo lugar */
@@ -1695,6 +1713,9 @@ document.querySelectorAll(".qa").forEach(d=>{
 
  if(mq&&mq.addEventListener)mq.addEventListener("change",()=>{if(!saved)apply()})}
 const fo=new IntersectionObserver(es=>es.forEach(e=>{if(e.target.id==="faq"){faqNear=e.isIntersecting;chk()}}),{rootMargin:"0px 0px 170px 0px"});fo.observe($("faq"));
+/* Zona donde se nota el cambio claro/oscuro: el contenido ya entro en el 60% superior de la pantalla */
+{const bo=new IntersectionObserver(es=>es.forEach(e=>{if(e.target.closest("#v-fi"))fiBodyIn=e.isIntersecting;else bodyIn=e.isIntersecting;chk()}),{rootMargin:"0px 0px -40% 0px"});
+ document.querySelectorAll("#v-tool main.body,#v-fi main.body").forEach(m=>bo.observe(m))}
 
 /* ===== Guardado automático (localStorage): notas, nota mínima y redondeos de cada curso ===== */
 const LSK="mp-progress";
@@ -2008,7 +2029,7 @@ const FS={first:null,car:"",rows:[],ca:"",bon:{}};
 let fiUid=0,fiSumIn=false,fiFaqIn=false,FI_LIST=[];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const unp=s=>s.split(";").map(x=>{const a=x.split("|");return[a[0],+a[1],a[2],+a[3],+a[4]]}); /* [nombre, créditos, código, horas T, horas P] */
-function fchk(){const m=$("fimini");if(m)m.classList.toggle("on",view==="fi"&&FS.first!==null&&!fiSumIn&&!fiFaqIn)}
+function fchk(){const m=$("fimini");if(m)m.classList.toggle("on",view==="fi"&&FS.first!==null&&!fiSumIn&&!fiFaqIn);chk()}
 function fiCarOpts(){const k=Object.keys(PLN).sort((a,b)=>PLN[a].n.localeCompare(PLN[b].n,"es"));
  $("fi-car").innerHTML='<option value="">Elige tu carrera…</option>'+k.map(x=>`<option value="${x}">${esc(PLN[x].n)}</option>`).join("")}
 function fiAddOpts(){
