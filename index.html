@@ -408,12 +408,6 @@ footer{border-top:1px solid rgba(255,255,255,.2);padding:28px 0 128px;font-size:
 /* Barra #pf: agua. Solo existe mientras el nivel se mueve (clase .pf-agua); en reposo se quita y la barra queda como siempre. */
 #pf.pf-agua{width:100%!important;will-change:clip-path}
 #pf.pf-agua::after{right:auto;width:var(--vw,100%)}
-#pf.pf-agua::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:var(--wa,0);
- background:
-  linear-gradient(90deg,transparent calc(var(--vw,100%) - 10px),rgba(255,255,255,.34) calc(var(--vw,100%) - 2px),rgba(255,255,255,.1) var(--vw,100%)),
-  linear-gradient(100deg,transparent,rgba(255,255,255,.22) 50%,transparent) var(--wx,0px) 0/46px 100% repeat-x,
-  linear-gradient(80deg,transparent,rgba(255,255,255,.14) 50%,transparent) calc(var(--wx,0px) * -.6) 0/73px 100% repeat-x,
-  linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0) 46%,rgba(0,0,0,.2))}
 .js .sr{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*90ms)}
 .js .sr.in{opacity:1;transform:none}
 .btn{position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
@@ -990,10 +984,10 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 .tag.m{background:#FFC400;color:var(--navy)}
 .sst{display:block;margin-top:6px;font-size:.84rem;line-height:1.35;font-weight:600;color:var(--mut);text-transform:none;letter-spacing:0}
 #big.wn{color:var(--ink)}#mbig.wn{color:#FFC400}
-.rib{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:44px;margin-top:14px;padding:10px 14px;background:var(--green);color:var(--navy);border:2px solid var(--green);border-radius:2px;font:800 .78rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:filter .25s ease,transform .2s}
-.rib:active,.rib:focus-visible{filter:brightness(1.1)}
+.rib{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:44px;margin-top:14px;padding:10px 14px;background:var(--green);color:var(--navy);border:2px solid var(--green);border-radius:2px;font:800 .78rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:filter .25s ease,transform .2s,background .25s ease,color .25s ease}
+.rib:active,.rib:focus-visible{background:transparent;color:var(--ink)}
 .rib:active{transform:scale(.98)}
-@media (hover:hover){.rib:hover{filter:brightness(1.1)}}
+@media (hover:hover){.rib:hover{background:transparent;color:var(--ink)}}
 .btn:disabled{opacity:.5;cursor:default}
 .btn.sm{padding:10px 12px;font-size:.7rem}
 .btn.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
@@ -1529,27 +1523,71 @@ function vtxt(o,yo){
  return{t:yo?"Aún puedo aprobar":"Aún puedes aprobar",c:"m",m:""}}
 /* ===== Barra de progreso: agua =====
    Solo es visual. update() sigue calculando el % y escribiendo style.width con el valor exacto; aquí solo se anima lo que se ve.
-   Nivel = muelle amortiguado hacia el valor; chapoteo = oscilador que reacciona a la aceleración; ondas del frente = amplitud según la energía.
-   En reposo se quita todo (clase .pf-agua, clip-path y variables) y la barra vuelve a ser la normal, con el ancho exacto. */
+   - Nivel: movimiento amortiguado crítico (sube o baja y se detiene sin pasarse, sin rebotes).
+   - Oleaje: la superficie pasa suavemente entre dos formas de ola (como el efecto de agua en texto con clip-path), con ease-in-out.
+   - Mini olas: olas pequeñas que avanzan siempre hacia el frente, encima del oleaje.
+   - Luz: canvas sobre la barra con profundidad, brillo bajo la superficie, reflejos en las crestas y menisco en el frente.
+   La altura de todo depende de cuánto se mueve el nivel y se apaga sola.
+   En reposo se quita todo (clase .pf-agua, clip-path, canvas y variables) y la barra vuelve a ser la normal, con el ancho exacto. */
 const waterTo=(()=>{
  const pf=$("pf"),pb=pf&&pf.parentNode,mq=window.matchMedia?matchMedia("(prefers-reduced-motion: reduce)"):null;
  if(!pf||!pb)return()=>{};
- const N=20,H=1/120,WN=6.2,Z=.9,WS=14.4,ZS=.16,cl=(x,a,b)=>x<a?a:x>b?b:x;
- let L=0,V=0,T=0,S=0,SV=0,A=0,P1=0,P2=0,WX=0,DR=1,W=0,raf=0,last=0,acc=0,on=false,Vp=0,Sx=0;
- const rest=()=>{if(raf)cancelAnimationFrame(raf);raf=0;on=false;L=T;V=S=SV=A=Vp=Sx=0;pf.classList.remove("pf-agua");pf.style.clipPath=pf.style.webkitClipPath="";["--wa","--wx","--vw"].forEach(n=>pf.style.removeProperty(n))};
+ const NP=12,RY=36,H=1/240,WN=6.2,AS=2600,TP=Math.PI*2,SWD=2.9,TM=3.2,PW=72,cl=(x,a,b)=>x<a?a:x>b?b:x,sm=t=>{t=cl(t,0,1);return t*t*(3-2*t)};
+ const XS=[0,.16,.33,.53,.7,.86,1],VA=[6,2,0,3,8,10,6],VB=[5,10,13,10,3,0,5];
+ const LM=[44,27,17.5,11.3],WG=[.34,.34,.22,.1],KK=LM.map(l=>TP/l),CC=LM.map(l=>13.5*Math.sqrt(l));
+ const cv=document.createElement("canvas"),cx=cv.getContext("2d"),oc=document.createElement("canvas"),ox=oc.getContext("2d");
+ cv.setAttribute("aria-hidden","true");cv.style.cssText="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;display:none";pf.after(cv);
+ const XF=new Float32Array(RY),yy=new Float32Array(RY),cr=new Float32Array(RY),sr=new Float32Array(RY),PH=new Float32Array(4);
+ let YS=null,SA=null,CA=null,img=null,cols=0,hp=0,trk=null,L=0,Vl=0,T=0,A=0,Ps=0,Pm=0,W=0,raf=0,last=0,acc=0,on=false,Vp=0,Ap=0;
+ const ensure=()=>{const c=Math.max(1,Math.round(W)),dpr=Math.min(window.devicePixelRatio||1,3),h=Math.max(1,pb.clientHeight);
+  if(c!==cols||h!==hp){cols=c;hp=h;oc.width=cols;oc.height=RY;img=ox.createImageData(cols,RY);YS=new Float32Array(cols);SA=new Float32Array(cols);CA=new Float32Array(cols);for(let r=0;r<RY;r++){yy[r]=(r+.5)/RY*hp;cr[r]=Math.cos(.5*yy[r]);sr[r]=Math.sin(.5*yy[r])}}
+  const cw=Math.round(cols*dpr),ch=Math.round(hp*dpr);if(cv.width!==cw||cv.height!==ch){cv.width=cw;cv.height=ch}};
+ const rest=()=>{if(raf)cancelAnimationFrame(raf);raf=0;on=false;L=T;Vl=A=Vp=Ap=0;
+  pf.classList.remove("pf-agua");pf.style.clipPath=pf.style.webkitClipPath="";pf.style.removeProperty("--vw");cv.style.display="none"};
  const draw=()=>{
-  const lp=L*W/100,g=cl(lp/8,0,1)*cl((W-lp)/8,0,1),am=1.2*Math.pow(A,.85)*g,ti=Sx*g,bu=cl(Vp/110,-1,1)*.9*g,lc=L.toFixed(3);
+  const lp=L*W/100,g=cl(lp/8,0,1)*cl((W-lp)/8,0,1),lc=L.toFixed(3),bu=cl(Vp/90,-1,1)*1.1*g;
   let q="0 0";
-  for(let i=0;i<=N;i++){const u=i/N,o=ti*(1-2*u)+bu*(1-(2*u-1)*(2*u-1))+am*(.62*Math.sin(8.48*u+P1)+.38*Math.sin(15.08*u+P2));q+=",calc("+lc+"% + "+o.toFixed(2)+"px) "+(u*100).toFixed(1)+"%"}
-  const c="polygon("+q+",0 100%)";pf.style.clipPath=pf.style.webkitClipPath=c;
-  pf.style.setProperty("--vw",Math.max(0,L).toFixed(3)+"%");pf.style.setProperty("--wa",Math.min(1,A*1.15).toFixed(3));pf.style.setProperty("--wx",WX.toFixed(1)+"px")};
+  for(let j=0;j<=NP;j++){const u=j/NP;q+=",calc("+lc+"% + "+(bu*(1-(2*u-1)*(2*u-1))).toFixed(2)+"px) "+(u*100).toFixed(1)+"%"}
+  pf.style.clipPath=pf.style.webkitClipPath="polygon("+q+",0 100%)";
+  pf.style.setProperty("--vw",Math.max(0,L).toFixed(3)+"%");
+  if(!cx||!ox)return;
+  ensure();cv.style.display="block";
+  for(let r=0;r<RY;r++){const v=yy[r]/hp;XF[r]=lp+bu*(1-(2*v-1)*(2*v-1))}
+  const d=img.data,Am=A,Af=Math.min(1,A*1.25),xe=Math.max(lp,1),SW=SWD*Am*g/10,DR=Am*g;
+  for(let x=0;x<cols;x++){
+   const xc=x+.5;let c=0;
+   for(let i=0;i<4;i++){const a=KK[i]*xc+PH[i];c+=WG[i]*Math.sin(a)}
+   const cs=2*Math.pow((cl(c,-1,1)+1)/2,1.5)-1,rip=DR*sm(xc/28)*sm((xe-xc)/14)*(.78+.22*Math.sin(TP*xc/190-Pm))*(1-cs)/2;
+   const pu=xc/PW+.12*Math.sin(xc/230+.7),u=pu-Math.floor(pu);let k=0;while(k<5&&u>XS[k+1])k++;
+   const tt=sm((u-XS[k])/(XS[k+1]-XS[k])),va=VA[k]+(VA[k+1]-VA[k])*tt,vb=VB[k]+(VB[k+1]-VB[k])*tt,s2=.5-.5*Math.cos(TP*(Ps-xc/420));
+   YS[x]=SW*(va+(vb-va)*s2)+rip;
+   const a1=KK[1]*xc+PH[1];SA[x]=Math.sin(a1);CA[x]=Math.cos(a1)}
+  for(let x=0;x<cols;x++){
+   const xc=x+.5,ys=YS[x],sl=(YS[x<cols-1?x+1:x]-YS[x>0?x-1:x])*.5,sp=cl(.5-sl*6,0,1),sp3=Math.pow(cl(-sl*6,0,1),3),sA=SA[x],cA=CA[x];
+   for(let r=0;r<RY;r++){
+    const o=(r*cols+x)*4,dd=XF[r]-xc,m=cl(dd+.5,0,1);
+    if(m<=0){d[o+3]=0;continue}
+    const y=yy[r],ya=y-ys,v=y/hp,cov=trk?cl(.5-ya,0,1):0;
+    let aw=0,ak=Am*(.03+.16*v*v);
+    if(ya>-.5){const dp=ya>0?ya:0;
+     aw+=Am*.11*Math.exp(-dp/1.6);
+     const st=cA*cr[r]-sA*sr[r];if(st>0){const q2=st*st;aw+=Am*.07*q2*q2*Math.exp(-dp/4)}
+     aw+=Am*(.24+.4*sp*sp)*Math.exp(-ya*ya/.3);
+     aw+=Am*.45*sp3*Math.exp(-ya*ya/.25);
+     if(dd>-.5){aw+=Af*.34*Math.exp(-Math.max(dd,0)/2.2);const e=dd-4.5;ak+=Af*.09*Math.exp(-e*e/2)}}
+    if(aw>.9)aw=.9;
+    const at=aw+ak*(1-aw),gy=at>0?aw/at*255:0;
+    if(cov>0){const oa=cov+at*(1-cov);d[o]=(trk[0]*cov+gy*at*(1-cov))/oa;d[o+1]=(trk[1]*cov+gy*at*(1-cov))/oa;d[o+2]=(trk[2]*cov+gy*at*(1-cov))/oa;d[o+3]=Math.min(1,oa)*m*255}
+    else{d[o]=d[o+1]=d[o+2]=gy;d[o+3]=Math.min(1,at)*m*255}}
+  }
+  ox.putImageData(img,0,0);cx.clearRect(0,0,cv.width,cv.height);cx.imageSmoothingEnabled=true;cx.drawImage(oc,0,0,cols,RY,0,0,cv.width,cv.height)};
  const frame=ts=>{
   raf=0;const dt=last?Math.min((ts-last)/1000,.05):H;last=ts;acc+=dt;
-  while(acc>=H){acc-=H;const a=-2*Z*WN*V-WN*WN*(L-T);V+=a*H;L+=V*H;SV+=(-a*W/100*.35-2*ZS*WS*SV-WS*WS*S)*H;S+=SV*H}
-  Vp=V*W/100;Sx=1.8*Math.tanh(S/1.8);
-  const tg=Math.min(1,Math.abs(Vp)/60+Math.abs(Sx)/1);A=tg>A?Math.min(tg,A+dt*7):Math.max(tg,A*Math.exp(-dt/.5));
-  P1+=dt*5.4;P2-=dt*3.9;if(Math.abs(Vp)>3)DR=Vp>0?1:-1;WX+=(Vp*.55+DR*20*A)*dt;
-  if(Math.abs(L-T)<.003&&Math.abs(V)<.05&&Math.abs(S)<.03&&Math.abs(SV)<.3&&A<.012){rest();return}
+  while(acc>=H){acc-=H;const a=-2*WN*Vl-WN*WN*(L-T);Vl+=a*H;L+=Vl*H;Ap=a*W/100}
+  Vp=Vl*W/100;
+  const tg=Math.min(1,Math.abs(Vp)/70+Math.abs(Ap)/AS);A=tg>A?Math.min(tg,A+dt*7):Math.max(tg,A*Math.exp(-dt/.8));
+  const sf=.5+A;for(let i=0;i<4;i++)PH[i]+=dt*KK[i]*CC[i]*sf;Ps+=dt/TM*(.6+.8*A);Pm+=dt*TP/190*(30+30*A);
+  if(Math.abs(L-T)<.003&&Math.abs(Vl)<.05&&A<.03){rest();return}
   draw();raf=requestAnimationFrame(frame)};
  if(window.ResizeObserver)new ResizeObserver(()=>{W=pb.clientWidth}).observe(pb);
  return v=>{
@@ -1558,7 +1596,9 @@ const waterTo=(()=>{
   if(!W||(mq&&mq.matches)){T=v;rest();return}
   if(v===T&&!on)return;
   T=v;
-  if(!on){on=true;last=0;acc=0;pf.classList.add("pf-agua");draw();raf=requestAnimationFrame(frame)}}
+  if(!on){on=true;last=0;acc=0;
+   const m=(getComputedStyle(pb).backgroundColor||"").match(/[\d.]+/g);trk=m&&m.length>=3&&(m.length<4||+m[3]>.99)?[+m[0],+m[1],+m[2]]:null;
+   pf.classList.add("pf-agua");draw();raf=requestAnimationFrame(frame)}}
 })();
 function update(){
  const R=S.root,P=pend(),n=P.length,a=ev(R,full({})),okk=pass(a),num=S.rf?rnd(a):fmt(a),ol=outlook(),vd=vtxt(ol),col=ol.k==="aun"?"wn":(okk?"gn":"rd");
