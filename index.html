@@ -146,7 +146,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   - Compartir mi resultado (#rib, modal #rim): imagen PNG hecha con canvas en el navegador, formatos Historia 9:16 y Publicacion 4:5, notas ocultas por defecto
     (casilla #rin). En celular usa el menu de compartir con archivo; en PC descarga o copia. Lleva SITE_HOST al pie. Eventos resultado_imagen_abierta y resultado_compartido.
   - Simulador "¿Y si saco...?" (#sim, funciones simR() y simU()): deslizadores por evaluacion pendiente; "Usar" copia el valor a la casilla real.
-  - Valoracion "¿Te ayudo a planificar tus notas?" (#fbk, funciones fbSync() y fbPaint()): aparece con la primera nota; 1 voto por curso y navegador (localStorage mp-fb).
+  - Valoracion "¿Te ayudo a planificar tus notas?" (#mpv, funciones fbSync() y fbPaint()): aparece con la primera nota; 1 voto por curso y navegador (localStorage mp-fb).
     Eventos valoracion_vista, resultado_util (valor si|no) y resultado_util_comentar (el "No mucho" lleva al cuadro de comentarios #sgm).
   - Visitante nuevo/recurrente (constante VIS): localStorage mp-vis (primera visita y n de visitas = sesiones). Propiedades en TODOS los eventos: visitante, visitas,
     dias_desde_primera_visita. before_send en posthog.init tambien fija app, interno y etapa en el primer $pageview.
@@ -439,23 +439,23 @@ input.g:focus{border-style:solid;border-color:var(--ink);box-shadow:0 0 0 3px rg
 .igc b{font-weight:800;font-size:.98rem;line-height:1.25}
 .igc small{font-weight:700;color:var(--gt);font-size:.9rem}
 /* Valoracion "¿Te ayudo?" (aparece cuando ya hay al menos una nota) */
-.fbk{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 16px;margin:20px 0 0;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--blue);color:var(--ink)}
-.fbk[hidden]{display:none}
-.fbq{margin:0;font-weight:800;font-size:.98rem;line-height:1.25}
-.fbb{display:flex;gap:8px}
-.fbv{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px 16px;background:transparent;color:var(--ink);border:2px solid var(--ink);border-radius:2px;font:800 .85rem/1 Montserrat,"Montserrat Fallback",system-ui,sans-serif;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
-.fbv svg{flex:none;width:20px;height:20px}
-.fbv:focus-visible,.fbl:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.fbv:active{transform:scale(.97)}
-@media (hover:hover){.fbv[data-v="si"]:hover{background:var(--green);border-color:var(--green);color:var(--navy)}.fbv[data-v="no"]:hover{background:var(--ink);color:var(--card)}}
-.fbt{display:none;align-items:center;flex-wrap:wrap;gap:4px 14px;margin:0;font-weight:700;font-size:.92rem;line-height:1.35}
-.fbk.done .fbq,.fbk.done .fbb{display:none}
-.fbk.done .fbt{display:flex}
-.fbl{padding:10px 0;background:none;border:0;color:var(--gt);font:800 .92rem/1.2 Montserrat,"Montserrat Fallback",system-ui,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.fbl[hidden]{display:none}
+.mpv{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 14px;margin:18px 0 0;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--blue);color:var(--ink)}
+.mpv[hidden]{display:none}
+.mpvq{margin:0;font-weight:800;font-size:.92rem;line-height:1.25}
+.mpvb{display:flex;gap:8px}
+.mpvbtn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:6px 14px;background:transparent;color:var(--ink);border:2px solid var(--ink);border-radius:2px;font:800 .8rem/1 Montserrat,"Montserrat Fallback",system-ui,sans-serif;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.mpvbtn svg{flex:none;width:18px;height:18px}
+.mpvbtn:focus-visible,.mpvl:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.mpvbtn:active{transform:scale(.97)}
+@media (hover:hover){.mpvbtn[data-v="si"]:hover{background:var(--green);border-color:var(--green);color:var(--navy)}.mpvbtn[data-v="no"]:hover{background:var(--ink);color:var(--card)}}
+.mpvt{display:none;align-items:center;flex-wrap:wrap;gap:4px 14px;margin:0;font-weight:700;font-size:.88rem;line-height:1.35}
+.mpv.done .mpvq,.mpv.done .mpvb{display:none}
+.mpv.done .mpvt{display:flex}
+.mpvl{padding:8px 0;background:none;border:0;color:var(--gt);font:800 .88rem/1.2 Montserrat,"Montserrat Fallback",system-ui,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.mpvl[hidden]{display:none}
 @keyframes fbin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.fbk.done .fbt{animation:fbin .25s ease-out}
-@media (max-width:600px){.fbk{flex-direction:column;align-items:stretch;margin:16px 0 0}.fbb .fbv{flex:1}}
+.mpv.done .mpvt{animation:fbin .25s ease-out}
+@media (max-width:600px){.mpv{flex-direction:column;align-items:stretch;margin:14px 0 0}.mpvb .mpvbtn{flex:1}}
 a[data-ig][hidden]{display:none!important}
 .igw{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:16px;color:rgba(255,255,255,.8);font-weight:700;font-size:.95rem;text-decoration:none;white-space:nowrap;transition:color .2s}
 .igw:hover{color:var(--green)}
@@ -1145,7 +1145,7 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 <p class="tip"><b>TIP:</b> Arrastra la línea o escribe tu nota mínima y la tabla se ajusta.</p>
 <section id="cb"></section>
 <section id="sim" hidden aria-label="Simulador de notas"><button type="button" id="simt" aria-expanded="false" aria-controls="simb"><span><b>¿Y si saco…?</b><small>Prueba notas en lo que falta sin cambiar las tuyas</small></span><i class="smc" aria-hidden="true"></i></button><div id="simb" hidden><p class="simi"><span class="tag m">Simulación</span><span>Mueve los deslizadores. Tus notas reales no cambian hasta que toques “Usar”.</span></p><div id="simr"></div><div class="simo"><div><span class="simk">Promedio simulado</span><div id="simv" aria-live="polite"></div></div><b id="simn"></b></div></div></section>
-<section class="fbk" id="fbk" hidden aria-label="Valoración de la calculadora"><p class="fbq" id="fbq">¿Te ayudó a planificar tus notas?</p><div class="fbb" id="fbb"><button type="button" class="fbv" data-v="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg><span>Sí</span></button><button type="button" class="fbv" data-v="no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg><span>No mucho</span></button></div><p class="fbt" id="fbt" role="status" aria-live="polite"><span id="fbm"></span><button type="button" class="fbl" id="fbl" hidden>Escribir un comentario</button></p></section>
+<section class="mpv" id="mpv" hidden aria-label="Valoración de la calculadora"><p class="mpvq" id="mpvq">¿Te ayudó a planificar tus notas?</p><div class="mpvb" id="mpvb"><button type="button" class="mpvbtn" data-v="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg><span>Sí</span></button><button type="button" class="mpvbtn" data-v="no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg><span>No mucho</span></button></div><p class="mpvt" id="mpvt" role="status" aria-live="polite"><span id="mpvm"></span><button type="button" class="mpvl" id="mpvl" hidden>Escribir un comentario</button></p></section>
 <a class="igc" data-ig="resultado" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span class="igt"><b><span class="igf">¿Te sirvió? Síguenos para estar al tanto de nuevas actualizaciones</span><span class="igk">¿Te sirvió? ¡Síguenos!</span></b><small class="igu">@myponderup</small></span></a>
 </main>
 <section class="faq" id="faq"><div class="wrap">
@@ -2211,17 +2211,17 @@ if(FI_ACTIVO){const t=document.querySelector("#v-pick .t2");if(t)t.textContent="
 const FB_KEY="mp-fb",seenFbView=new Set();
 const fbGet=()=>{try{const o=JSON.parse(localStorage.getItem(FB_KEY)||"{}");return o&&typeof o==="object"?o:{}}catch(_){return{}}};
 const fbSet=(k,v)=>{try{const o=fbGet();o[k]=v;localStorage.setItem(FB_KEY,JSON.stringify(o))}catch(_){}};
-function fbPaint(v){const b=$("fbk");if(!b)return;b.classList.toggle("done",!!v);
- if(v){$("fbm").textContent=v==="si"?"¡Gracias! Nos alegra que te haya servido.":"Gracias por decirlo. Cuéntanos qué faltó para mejorarlo.";$("fbl").hidden=v!=="no"}}
-function fbSync(){try{const b=$("fbk");if(!b||!S)return;const has=leaves(S.root).length>pend().length;b.hidden=!has;if(has)fbPaint(fbGet()[cur])}catch(_){}}
+function fbPaint(v){const b=$("mpv");if(!b)return;b.classList.toggle("done",!!v);
+ if(v){$("mpvm").textContent=v==="si"?"¡Gracias! Nos alegra que te haya servido.":"Gracias por decirlo. Cuéntanos qué faltó para mejorarlo.";$("mpvl").hidden=v!=="no"}}
+function fbSync(){try{const b=$("mpv");if(!b||!S)return;const has=leaves(S.root).length>pend().length;b.hidden=!has;if(has)fbPaint(fbGet()[cur])}catch(_){}}
 document.addEventListener("click",e=>{const t=e.target;if(!t||!t.closest)return;
- const v=t.closest(".fbv");
+ const v=t.closest(".mpvbtn");
  if(v){if(!S||fbGet()[cur])return;const val=v.dataset.v==="si"?"si":"no",L=leaves(S.root),n=pend().length;
   fbSet(cur,val);fbPaint(val);
   track("resultado_util",{curso:cur,nombre:C[cur].n,valor:val,ingresadas:L.length-n,total:L.length,completo:n===0,estado:outlook().k});return}
- if(t.closest("#fbl")){track("resultado_util_comentar",{curso:cur});const m=$("sgm");
+ if(t.closest("#mpvl")){track("resultado_util_comentar",{curso:cur});const m=$("sgm");
   if(m){m.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{try{m.focus({preventScroll:true})}catch(_){}},500)}}});
-if("IntersectionObserver" in window){const b=$("fbk");
+if("IntersectionObserver" in window){const b=$("mpv");
  if(b)new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting&&!b.hidden&&S&&!seenFbView.has(cur)){seenFbView.add(cur);if(!fbGet()[cur])track("valoracion_vista",{curso:cur})}}),{threshold:.6}).observe(b)}
 
 /* Si hay notas guardadas, se vuelve directo al curso donde estaba el alumno */
