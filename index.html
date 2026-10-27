@@ -1073,6 +1073,8 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 @media (max-width:760px){.fc.fcx{grid-template-areas:"lg" "cm" "co"}.fcx>.fl:last-child{align-self:start}}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
+window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.getItem("mp-int")==="1"||/^(localhost|127\.0\.0\.1)$/.test(h)||/^[a-z0-9-]+-[a-z0-9]{9}-[a-z0-9-]+\.vercel\.app$/.test(h))return null}catch(_){}return e});</script>
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
