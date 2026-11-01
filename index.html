@@ -1344,16 +1344,19 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
  .hero .strip:hover i{transform:scaleY(2.2)}
  .hero .strip i:hover{flex:4}
 }
-/* texto del curso: cada letra salta cuando el cursor pasa por encima (el movimiento lo hace el JS con hopLetter(); aquí solo la estructura) */
+/* Nombre del curso: solo la letra por la que pasa el cursor salta (lo anima el JS con hopLetter(); aqui solo la estructura).
+   El brillo sigue siendo UNO solo para todo el titulo: --sp (0 a 1) avanza una vez en .t2 y cada letra lo dibuja en su lugar usando
+   su posicion dentro del titulo (--ox) y el ancho total (--tw), que mide el JS en measureLetters(). */
+@property --sp{syntax:"<number>";inherits:true;initial-value:0}
 .hero h1 .lw{display:inline-block;white-space:nowrap}
 .hero h1 .ltr{display:inline-block;will-change:transform;cursor:default}
-/* El brillo del titulo verde pasa a cada letra (el recorte con degradado no sigue a las letras que se mueven), con un desfase para que viaje como una ola */
+@keyframes tshine2{0%,55%{--sp:0}100%{--sp:1}}
 @supports (-webkit-background-clip:text) or (background-clip:text){
 .hero h1 .t2.lt{background:none;-webkit-text-fill-color:currentColor}
-.hero h1 .t2.mr.lt{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i,0)*120ms)}
-.hero h1 .t2.lt .ltr{background-image:linear-gradient(100deg,transparent 42%,#fff 50%,transparent 58%),linear-gradient(var(--green),var(--green));background-size:250% 100%,100% 100%;background-repeat:no-repeat;background-position:120% 0,0 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:tshine 5s ease-in-out infinite;animation-delay:calc(1.6s + var(--k,0)*70ms)}
+.hero h1 .t2.mr.lt{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards,tshine2 5s ease-in-out infinite;animation-delay:calc(var(--i,0)*120ms),1.6s}
+.hero h1 .t2.lt .ltr{background-image:linear-gradient(100deg,transparent 42%,#fff 50%,transparent 58%),linear-gradient(var(--green),var(--green));background-size:calc(var(--tw,0px)*2.5) 100%,100% 100%;background-repeat:no-repeat;background-position:calc(var(--tw,0px)*(2.1*var(--sp) - 1.8) - var(--ox,0px)) 0,0 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 }
-@media (prefers-reduced-motion:reduce){.hero h1 .t2.lt .ltr{animation:none}}
+@media (prefers-reduced-motion:reduce){.hero h1 .t2.mr.lt{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i,0)*120ms)}}
 
 /* Nota mínima: aviso "Máximo 20" (igual al de las notas) y celda de la tabla de combinaciones con hover propio */
 .minl{position:relative}
@@ -1787,31 +1790,39 @@ function setCourse(k){
  update();
 }
 
-/* ===== Titulo del curso: cada letra salta al pasar el cursor =====
+/* ===== Nombre del curso: cada letra salta al pasar el cursor por ella =====
    setLetters() parte el texto en palabras (que no se cortan a la mitad) y letras. El texto completo queda oculto para lectores de pantalla.
-   hopLetter() anima con la Web Animations API, asi no choca con el brillo (CSS) de las letras verdes. La letra tocada salta mas, las vecinas menos. */
+   hopLetter() anima con la Web Animations API, asi no choca con el brillo (CSS). Solo salta la letra tocada.
+   measureLetters() guarda en cada letra su posicion dentro del titulo para que el brillo cruce todo el titulo como uno solo. */
 const escL=x=>String(x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function measureLetters(el){
+ const L=el&&el._L;if(!L||!L.length)return;
+ let mn=1e9,mx=-1e9;L.forEach(e=>{mn=Math.min(mn,e.offsetLeft);mx=Math.max(mx,e.offsetLeft+e.offsetWidth)});
+ if(!(mx>mn))return;
+ el.style.setProperty("--tw",(mx-mn)+"px");L.forEach(e=>e.style.setProperty("--ox",(e.offsetLeft-mn)+"px"))}
+const lettersEls=new Set();
 function setLetters(el,text){
  if(!el)return;
  el.classList.add("lt");let k=0;
- el.innerHTML=`<span class="sgv">${escL(text)}</span><span aria-hidden="true">`+text.split(" ").map(w=>`<span class="lw">`+[...w].map(ch=>`<span class="ltr" style="--k:${k++}">${escL(ch)}</span>`).join("")+`</span>`).join(" ")+`</span>`;
- el._L=[...el.querySelectorAll(".ltr")]}
-function hopLetter(L,i,a,delay){
- const e=L[i];if(!e||e._h)return;e._h=1;
- const s=i%2?1:-1,t1=e.closest(".t1")!==null;
- const kf=[
+ el.innerHTML=`<span class="sgv">${escL(text)}</span><span aria-hidden="true">`+text.split(" ").map(w=>`<span class="lw">`+[...w].map(ch=>`<span class="ltr">${escL(ch)}</span>`).join("")+`</span>`).join(" ")+`</span>`;
+ el._L=[...el.querySelectorAll(".ltr")];
+ if(!lettersEls.has(el)){lettersEls.add(el);if(window.ResizeObserver)new ResizeObserver(()=>measureLetters(el)).observe(el)}
+ measureLetters(el)}
+function hopLetter(e){
+ if(!e||e._h)return;e._h=1;
+ const s=Math.random()<.5?1:-1;
+ const an=e.animate([
   {transform:"translateY(0) rotate(0) scale(1)",easing:"cubic-bezier(.2,.8,.3,1)"},
-  {offset:.3,transform:`translateY(${-.26*a}em) rotate(${8*a*s}deg) scale(${1+.16*a})`,filter:`brightness(${1+.45*a}) drop-shadow(0 0 ${.3*a}em rgba(0,240,60,.7))`,...(t1?{color:"#00F03C"}:{}),easing:"cubic-bezier(.4,0,.3,1)"},
-  {offset:.62,transform:`translateY(${.05*a}em) rotate(${-3*a*s}deg) scale(1)`,easing:"ease-out"},
-  {transform:"translateY(0) rotate(0) scale(1)"}];
- const run=()=>{const an=e.animate(kf,{duration:680});const end=()=>{e._h=0};an.onfinish=end;an.oncancel=end};
- delay?setTimeout(run,delay):run()}
+  {offset:.3,transform:`translateY(-.26em) rotate(${8*s}deg) scale(1.16)`,filter:"brightness(1.45) drop-shadow(0 0 .3em rgba(0,240,60,.7))",easing:"cubic-bezier(.4,0,.3,1)"},
+  {offset:.62,transform:`translateY(.05em) rotate(${-3*s}deg) scale(1)`,easing:"ease-out"},
+  {transform:"translateY(0) rotate(0) scale(1)"}],{duration:680});
+ const end=()=>{e._h=0};an.onfinish=end;an.oncancel=end}
 {const mqR=window.matchMedia?matchMedia("(prefers-reduced-motion: reduce)"):{matches:false};
- document.querySelectorAll("#v-tool .hero h1 .t1,#v-fi .hero h1 .t1,#v-fi .hero h1 .t2").forEach(el=>setLetters(el,el.textContent.trim()));
+ document.querySelectorAll("#v-fi .hero h1 .t2").forEach(el=>setLetters(el,el.textContent.trim()));
+ const remeasure=()=>lettersEls.forEach(measureLetters);
+ window.addEventListener("resize",remeasure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(remeasure);
  document.querySelectorAll(".hero h1").forEach(h=>h.addEventListener("pointerover",e=>{
-  if(mqR.matches)return;const g=e.target.closest&&e.target.closest(".ltr");if(!g)return;
-  const line=g.closest(".t1,.t2"),L=line&&line._L;if(!L)return;const i=L.indexOf(g);if(i<0)return;
-  hopLetter(L,i,1,0);hopLetter(L,i-1,.5,45);hopLetter(L,i+1,.5,45);hopLetter(L,i-2,.22,90);hopLetter(L,i+2,.22,90)}))}
+  if(mqR.matches)return;const g=e.target.closest&&e.target.closest(".ltr");if(g)hopLetter(g)}))}
 
 /* ===== Simulador "¿Y si saco...?": prueba notas en lo pendiente sin tocar las reales ===== */
 function simR(){
