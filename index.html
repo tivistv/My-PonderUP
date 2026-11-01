@@ -96,7 +96,8 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     a Formspree o Resend; la direccion de Formspree ya NO esta en este archivo (vive en la variable de entorno FORMSPREE_ENDPOINT).
   - Analiticas: PostHog (constantes PH_KEY y PH_REGION al inicio del script). Eventos con track(nombre, datos): pantalla, empezar_click,
     curso_elegido, primera_nota, nota_ingresada, calculo_actualizado, combos_vistos, resumen_visto, faq_abierta, compartir_*, sugerencia_*,
-    tema_cambiado, nota_escribiendo, nota_fuera_de_rango, meta_cambiada, instagram_click (lugar: resultado|pie), etc. Nunca se envian los valores de las notas. Las grabaciones enmascaran todos los campos.
+    tema_cambiado, nota_escribiendo, nota_fuera_de_rango, meta_cambiada, instagram_click (lugar: resultado|pie), etc. Todos los eventos llevan tema_actual (claro|oscuro) para saber que modo ve cada visita, no solo quien toca el interruptor.
+    Nunca se envian los valores de las notas. Las grabaciones enmascaran todos los campos.
   - Rendimiento: la fuente Montserrat (variable, solo latin, 38 KB) se sirve desde /fonts/ con preload y una fuente de respaldo con las mismas
     medidas ("Montserrat Fallback") para que el texto no salte al cargar. El logo de bienvenida tiene preload y prioridad alta; los demas logos
     prioridad baja. PostHog y favicon se cargan al final (idle()). vercel.json da cache de 365 dias a /fonts y agrega cabeceras de seguridad.
@@ -1637,8 +1638,8 @@ const track=(n,p)=>{if(!PH_KEY)return;try{if(phOn)posthog.capture(n,p);else if(p
  const lite=()=>{phLite=true;if(DNT){phQ.length=0;return}liteSend("$pageview");phQ.splice(0).forEach(([n,p])=>liteSend(n,p));window.addEventListener("pagehide",()=>liteSend("$pageleave"),{once:true})};
  const start=host=>{posthog.init(PH_KEY,{api_host:host,ui_host:PH_REGION==="eu"?"https://eu.posthog.com":"https://us.posthog.com",person_profiles:"identified_only",capture_pageview:true,capture_pageleave:true,autocapture:true,
    capture_heatmaps:true,respect_dnt:true,disable_surveys:true,session_recording:{maskAllInputs:true,maskTextSelector:"#sgm"},
-   /* Se completan en TODOS los eventos (tambien el primer $pageview): interno, visitante y etapa actuales, sin depender de valores guardados de visitas anteriores */
-   before_send:e=>{try{if(e&&e.properties)Object.assign(e.properties,{app:"myponderup",interno:INT,etapa:ETAPA},VIS)}catch(_){}return e}});
+   /* Se completan en TODOS los eventos (tambien el primer $pageview): interno, visitante, etapa y tema_actual (claro|oscuro, el que se ve en ese momento), sin depender de valores guardados de visitas anteriores */
+   before_send:e=>{try{if(e&&e.properties)Object.assign(e.properties,{app:"myponderup",interno:INT,etapa:ETAPA,tema_actual:document.documentElement.dataset.theme==="dark"?"oscuro":"claro"},VIS)}catch(_){}return e}});
    posthog.register(Object.assign({app:"myponderup",pantalla_ancho:window.innerWidth,interno:INT,etapa:ETAPA},VIS));
    phOn=true;phQ.splice(0).forEach(([n,p])=>posthog.capture(n,p))};
  const load=(src,host,next)=>{const sc=document.createElement("script");sc.async=true;sc.src=src;
