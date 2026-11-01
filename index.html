@@ -962,19 +962,21 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 #v-pick .pl button{background:rgba(255,255,255,.1)}
 /* ===== "Elige tu curso": hover satisfactorio en las tarjetas =====
    Al pasar el cursor: la tarjeta sube con un rebote suave, un brillo del color del curso sigue al cursor,
-   la franja de abajo se hace más gruesa, aparece una flecha y el fondo de la tarjeta se oscurece (las demás no cambian).
+   la franja de abajo se hace más gruesa, aparece una flecha y el fondo de la tarjeta se oscurece y las demás bajan de intensidad.
    Al hacer clic se "hunde" un poco. Solo con mouse (hover:hover); en celular queda el efecto de presionar. */
-#v-pick .pl button{position:relative;overflow:hidden;isolation:isolate;box-shadow:0 0 0 0 rgba(0,0,0,0),inset 0 0 0 0 var(--s);transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s cubic-bezier(.2,.7,.2,1),background .2s,opacity .25s}
+#v-pick .pl button{position:relative;overflow:hidden;isolation:isolate;box-shadow:0 0 0 0 rgba(0,0,0,0),inset 0 0 0 0 var(--s);transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s cubic-bezier(.2,.7,.2,1),background .2s,opacity .25s,filter .25s}
 #v-pick .pl button::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(170px circle at var(--mx,22%) var(--my,30%),color-mix(in srgb,var(--s) 26%,transparent),transparent 72%)}
 #v-pick .pl button::after{content:"";position:absolute;top:18px;right:18px;width:9px;height:9px;border-top:3px solid #fff;border-right:3px solid #fff;pointer-events:none;opacity:0;transform:translateX(-12px) rotate(45deg);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .2s}
 #v-pick .pl small{transition:color .2s}
 @media (hover:hover){
  /* Sin movimiento real del mouse no hay efecto (la clase .is-hov la pone el script de abajo): asi, si el cursor queda quieto sobre una tarjeta al cargar, no se enciende sola */
  #v-pick .pl button:not(:disabled):hover{background:rgba(255,255,255,.1);transform:none}
- #v-pick .pl button:not(:disabled).is-hov,#v-pick .pl button:not(:disabled):focus-visible{background:rgba(2,10,30,.46);transform:translateY(-4px);box-shadow:0 16px 26px -12px rgba(0,0,0,.65),inset 0 -4px 0 0 var(--s);transition:transform .38s cubic-bezier(.34,1.56,.64,1),box-shadow .3s cubic-bezier(.2,.7,.2,1),background .2s,opacity .25s}
+ #v-pick .pl button:not(:disabled).is-hov,#v-pick .pl button:not(:disabled):focus-visible{background:rgba(2,10,30,.46);transform:translateY(-4px);box-shadow:0 16px 26px -12px rgba(0,0,0,.65),inset 0 -4px 0 0 var(--s);transition:transform .38s cubic-bezier(.34,1.56,.64,1),box-shadow .3s cubic-bezier(.2,.7,.2,1),background .2s,opacity .25s,filter .25s}
  #v-pick .pl button:not(:disabled).is-hov::before,#v-pick .pl button:not(:disabled):focus-visible::before{opacity:1}
  #v-pick .pl button:not(:disabled).is-hov::after,#v-pick .pl button:not(:disabled):focus-visible::after{opacity:1;transform:translateX(0) rotate(45deg)}
  #v-pick .pl button:not(:disabled).is-hov small,#v-pick .pl button:not(:disabled):focus-visible small{color:#fff}
+ /* las demás tarjetas se oscurecen mientras una está encendida (solo con movimiento real del mouse, por eso ya no salta al cargar). Se usa filter y no opacity porque la animación de entrada (.rv) controla la opacidad y retrasaba el efecto hasta que terminaba */
+ #plist:has(.pl button.is-hov) .pl button:not(.is-hov):not(:focus-visible){filter:brightness(.5)}
 }
 #v-pick .pl button:focus-visible{outline:2px solid #fff;outline-offset:3px}
 #v-pick .pl button:not(:disabled):active{transform:translateY(-1px) scale(.975);box-shadow:0 6px 14px -8px rgba(0,0,0,.6),inset 0 -6px 0 0 var(--s);transition-duration:.08s}
