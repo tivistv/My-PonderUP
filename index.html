@@ -1095,9 +1095,56 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 .gi.sk{animation:gishake .42s cubic-bezier(.36,.07,.19,.97)}
 .gi.bad::after{content:attr(data-msg);position:absolute;top:calc(100% + 6px);left:50%;z-index:4;white-space:nowrap;padding:5px 9px;background:var(--rt);color:#fff;border-radius:2px;font:800 .68rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.02em;pointer-events:none;animation:badin .24s cubic-bezier(.34,1.56,.64,1) both}
 .gi.bad::before{content:"";position:absolute;top:calc(100% + 1px);left:50%;z-index:4;margin-left:-5px;border:5px solid transparent;border-top:0;border-bottom-color:var(--rt);pointer-events:none}
-/* ===== Cambio de pantalla: fundido corto (solo opacidad, para no mover los fondos fijos) ===== */
-@keyframes vin{from{opacity:0}to{opacity:1}}
-.vin{animation:vin .26s ease-out}
+/* ===== Pulido de hovers y estados (lenguaje común) =====
+   Sobre un puntero: el verde de la marca responde (texto, franja o relleno). Tarjetas y botones suben un poco;
+   al presionar, todo se hunde. Los hovers solo se activan con mouse (hover:hover). */
+::selection{background:var(--green);color:var(--navy)}
+
+/* Desplegable de cursos (dentro de la calculadora) */
+#cbtn{transition:background .2s}
+#cbtn .chev{translate:0 0;transition:transform .2s,margin .2s,translate .2s}
+#clist{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent}
+#clist button[data-c],#clist button[data-fi]{transition:background .18s,padding-left .2s cubic-bezier(.2,.7,.2,1),box-shadow .2s}
+@media (hover:hover){
+ #cbtn:hover{background:rgba(255,255,255,.15)}
+ #cbtn:hover .chev{translate:0 2px}
+ #clist button[data-c]:not(:disabled):hover,#clist button[data-c]:not(:disabled):focus-visible,#clist button[data-fi]:hover,#clist button[data-fi]:focus-visible{background:rgba(255,255,255,.09);padding-left:19px;box-shadow:inset 4px 0 0 var(--green)}
+}
+
+/* Casillas de nota: al pasar el cursor pasan de línea punteada a sólida, para invitar a escribir */
+@media (hover:hover){.gi:not(.bad):not(:focus-within):hover{border-style:solid;border-color:var(--ink);background:var(--fld)}}
+
+/* Tarjeta del promedio: la franja lateral toma el color del estado (aprobando, en riesgo o sin nota) */
+#sum{transition:border-color .35s,box-shadow .35s;box-shadow:0 8px 20px -14px rgba(6,31,71,.45)}
+#sum:has(#big.rd){border-left-color:var(--rt)}
+#sum:has(#big.wn){border-left-color:#FFC400}
+#sum:has(#big.na){border-left-color:var(--mut)}
+
+/* Preguntas frecuentes */
+.qa summary .pm{transition:transform .35s cubic-bezier(.3,1.3,.5,1),scale .2s}
+@media (hover:hover){.qa summary:hover .q{color:var(--green)}.qa summary:hover .pm{scale:1.12}}
+
+/* Pie: los enlaces de cursos se corren un poco y se pintan de verde */
+.fl button[data-c],.fl button[data-pick],.fl button[data-fi]{transition:color .15s,translate .2s cubic-bezier(.2,.7,.2,1)}
+@media (hover:hover){.fl button[data-c]:hover,.fl button[data-pick]:hover,.fl button[data-fi]:hover{color:var(--green);translate:4px 0}}
+
+/* Compartir mi resultado: sube como los demás botones principales */
+.rib{transition:filter .25s ease,transform .2s,background .25s ease,color .25s ease,box-shadow .25s}
+@media (hover:hover){.rib:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,240,60,.3)}}
+
+/* Simulador: la cabecera se tiñe suave y la flecha toma el verde */
+#simt{transition:background .2s}
+.smc{transition:transform .4s cubic-bezier(.2,.7,.2,1),margin-top .4s cubic-bezier(.2,.7,.2,1),border-color .2s}
+@media (hover:hover){#simt:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}#simt:hover .smc{border-color:var(--gt)}}
+
+/* Botón de tema: crece un poco y su halo se aviva (usa scale para no chocar con la flotación) */
+.tg{transition:scale .2s cubic-bezier(.34,1.56,.64,1),box-shadow .25s}
+@media (hover:hover){.tg:hover{scale:1.07;box-shadow:0 8px 22px rgba(6,31,71,.4),0 0 0 7px rgba(0,240,60,.26)}}
+.tg:active{scale:.94}
+
+/* Presionar: todos los botones principales se hunden un poco */
+.btn:not(:disabled):active,.rib:active,.shb:active,.mpvbtn:active,.addc:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){.tg:hover,.tg:active,.qa summary:hover .pm,.fl button[data-c]:hover,.fl button[data-pick]:hover,.fl button[data-fi]:hover,#cbtn:hover .chev{scale:none;translate:none}.btn:not(:disabled):active,.rib:active,.shb:active,.mpvbtn:active,.addc:active,.rib:hover{transform:none}}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -1476,7 +1523,7 @@ const chk=()=>{const mOn=view==="tool"&&bodyIn&&!sumIn&&!faqIn,fm=$("fimini"),
  $("mini").classList.toggle("on",mOn);
  $("tgw").classList.toggle("off",!tOn);
  $("tgw").classList.toggle("low",!(mOn||(fm&&fm.classList.contains("on"))))};
-function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});if(window.__vsh){const nv=$("v-"+v);if(nv){nv.classList.remove("vin");void nv.offsetWidth;nv.classList.add("vin")}}window.__vsh=1;chk();fchk();trackCombo()}
+function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
 /* "Agrega tu curso": recuerda desde donde se abrio para volver al mismo lugar */
 function updUpLabels(){const t=upFrom==="tool"&&cur,s=document.querySelector("#upback span"),g=$("upgo");if(s)s.textContent=t?"← Volver a mi curso":"← Volver a cursos";if(g)g.textContent=t?"Volver a mi curso":"Volver a cursos"}
