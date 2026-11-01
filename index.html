@@ -162,7 +162,9 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     Nombres: titulo_letra_salto, bienvenida_titulo, franja_bienvenida, franja_curso, bienvenida_inclinar_logo, bienvenida_estrellitas, bienvenida_explosion, boton_onda, boton_empezar,
     bienvenida_instagram, tarjeta_elegir_curso, tarjeta_nota_brillo, paso_agregar_curso, tabla_resaltado, tabla_fila_marcada, menu_cursos_fila, menu_cursos_despliegue, faq_resaltado, faq_despliegue,
     botones_barra, boton_compartir_resultado, tema_interruptor, tema_interruptor_hover, logo_encabezado, pie_logo, pie_instagram, pie_comentarios, pie_titulos, simulador_resaltado,
-    simulador_despliegue, buscador_lista, subir_zona_arrastre, barra_nota_minima, barra_agua, confeti_aprobar, nota_temblor.
+    simulador_despliegue, buscador_lista, subir_zona_arrastre, barra_nota_minima, barra_agua, confeti_aprobar, nota_temblor,
+    (ronda 5) nota_minima_temblor, boton_principal_hover, subir_zona_icono, valoracion_botones, valoracion_gracias, pie_enlaces_curso, barra_marcador_hover, menu_cursos_boton,
+    zona_barra_pop, aviso_emergente, mini_resumen_aparece y mini_resumen_fi_aparece (estas dos solo una vez por visita).
     Las animaciones que corren solas (aurora, brillo de barras, flotar) no se pueden medir porque no dependen de la persona.
 =====================================================================
 -->
@@ -1796,12 +1798,12 @@ function paintBars(){
   let f;if(g.ch){const L=sl(g,true),t=L.reduce((a,x)=>a+x.w,0)||1;f=L.filter(x=>!isP(x.id)).reduce((a,x)=>a+x.w,0)/t*100}else f=isP(g.id)?0:100;
   e.style.setProperty("--f",f+"%");const b=document.querySelector(`.blk[data-b="${i}"]`);if(b){b.style.setProperty("--f",f+"%");const c=b.querySelector(".cnt");if(c){const L=leaves(g),n=L.filter(l=>!isP(l.id)).length;c.textContent=n+" de "+L.length;c.classList.toggle("full",n===L.length)}}});
  document.querySelectorAll("input.g").forEach(i=>{const r=i.closest(".row,.bh");if(r)r.classList.toggle("dn",!isP(i.dataset.id))});
- document.querySelectorAll("#zb .zs").forEach(e=>{const was=e.classList.contains("pd"),now=e.dataset.ids.split(",").some(isP);e.classList.toggle("pd",now);if(was&&!now){e.classList.remove("pop");void e.offsetWidth;e.classList.add("pop")}})}
-let faqNear=false,bodyIn=false,fiBodyIn=false,bodySee=false,fiBodySee=false;
+ document.querySelectorAll("#zb .zs").forEach(e=>{const was=e.classList.contains("pd"),now=e.dataset.ids.split(",").some(isP);e.classList.toggle("pd",now);if(was&&!now){e.classList.remove("pop");void e.offsetWidth;e.classList.add("pop");anim("zona_barra_pop")}})}
+let faqNear=false,bodyIn=false,fiBodyIn=false,bodySee=false,fiBodySee=false,miniAn=false,fiMiniAn=false;
 /* bodyIn / fiBodyIn: el contenido claro/oscuro ya ocupa buena parte de la pantalla (para la barra "Mi promedio hasta ahora"). bodySee / fiBodySee: se ve aunque sea un poco de ese contenido; el interruptor solo se oculta cuando el azul tapa toda la pantalla. */
 const chk=()=>{const mOn=view==="tool"&&bodyIn&&!sumIn&&!faqIn,fm=$("fimini"),
  tOn=view==="tool"?bodySee:view==="fi"?fiBodySee:false;
- $("mini").classList.toggle("on",mOn);
+ if(mOn&&!miniAn&&!$("mini").classList.contains("on")){miniAn=true;anim("mini_resumen_aparece")}$("mini").classList.toggle("on",mOn);
  $("tgw").classList.toggle("off",!tOn);
  $("tgw").classList.toggle("low",!(mOn||(fm&&fm.classList.contains("on"))))};
 function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
@@ -2155,11 +2157,11 @@ const chkImgs=()=>document.querySelectorAll("img[data-fb]").forEach(i=>{if(i.com
 document.querySelectorAll("img[data-fb]").forEach(i=>i.addEventListener("error",()=>fbImg(i)));chkImgs();window.addEventListener("load",chkImgs);
 /* Preguntas: abrir y cerrar con animación suave */
 document.querySelectorAll(".qa").forEach(d=>{
- const sm=d.querySelector("summary"),an=d.querySelector(".ans"),inner=an.firstElementChild;let anim=null,anim2=null;
+ const sm=d.querySelector("summary"),an=d.querySelector(".ans"),inner=an.firstElementChild;let fa=null,fa2=null;
  sm.addEventListener("click",e=>{
   e.preventDefault();
-  const mid=!!anim,h0=mid?an.getBoundingClientRect().height:0,o0=mid?+getComputedStyle(an).opacity:0;
-  if(anim){anim.cancel();anim2&&anim2.cancel();anim=anim2=null}
+  const mid=!!fa,h0=mid?an.getBoundingClientRect().height:0,o0=mid?+getComputedStyle(an).opacity:0;
+  if(fa){fa.cancel();fa2&&fa2.cancel();fa=fa2=null}
   const open=!d.open||d.classList.contains("closing");if(open)anim("faq_despliegue");if(open)track("faq_abierta",{pregunta:((d.querySelector(".q")||{}).textContent||"").slice(0,80)});
   if(RM){d.classList.remove("closing");d.open=open;return}
   d.classList.remove("closing");d.open=true;
@@ -2168,10 +2170,10 @@ document.querySelectorAll(".qa").forEach(d=>{
   if(!open)d.classList.add("closing");
   const a=open?[{height:(mid?h0:0)+"px",opacity:mid?o0:0},{height:full+"px",opacity:1}]:[{height:(mid?h0:full)+"px",opacity:mid?o0:1},{height:"0px",opacity:0}];
   const o={duration:open?460:340,easing:open?"cubic-bezier(.2,.7,.2,1)":"cubic-bezier(.4,0,.2,1)"};
-  anim=an.animate(a,o);
-  if(inner)anim2=inner.animate(open?[{transform:"translateY(-10px)",opacity:0},{transform:"none",opacity:1}]:[{transform:"none",opacity:1},{transform:"translateY(-8px)",opacity:0}],o);
-  const me=anim;
-  me.onfinish=()=>{if(anim!==me)return;anim=anim2=null;an.style.overflow="";if(!open){d.open=false;d.classList.remove("closing")}};
+  fa=an.animate(a,o);
+  if(inner)fa2=inner.animate(open?[{transform:"translateY(-10px)",opacity:0},{transform:"none",opacity:1}]:[{transform:"none",opacity:1},{transform:"translateY(-8px)",opacity:0}],o);
+  const me=fa;
+  me.onfinish=()=>{if(fa!==me)return;fa=fa2=null;an.style.overflow="";if(!open){d.open=false;d.classList.remove("closing")}};
  });
 });
 /* Favicon: lo centra en un lienzo cuadrado sin estirarlo */
@@ -2218,7 +2220,7 @@ function load(){try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(!j|
  return (C[j.cur]&&wg(j.cur))?j.cur:(KS.find(wg)||null)}catch(_){return null}}
 
 /* ===== Compartir ===== */
-function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2600)}
+function toast(m){anim("aviso_emergente");const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2600)}
 async function doShare(o){track("compartir_click",{origen:o});
  const url=location.origin+location.pathname+"?utm_source=share",d={title:"My PonderUP",text:"Calcula tu ponderado y mira qué notas necesitas para aprobar.",url};
  if(navigator.share&&window.matchMedia&&matchMedia("(pointer:coarse)").matches){try{await navigator.share(d);track("compartir_ok",{origen:o,metodo:"nativo"});return}catch(e){if(e&&e.name==="AbortError")return}}
@@ -2506,7 +2508,7 @@ const FS={first:null,car:"",rows:[],ca:"",bon:{}};
 let fiUid=0,fiSumIn=false,fiFaqIn=false,FI_LIST=[];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const unp=s=>s.split(";").map(x=>{const a=x.split("|");return[a[0],+a[1],a[2],+a[3],+a[4]]}); /* [nombre, créditos, código, horas T, horas P] */
-function fchk(){const m=$("fimini");if(m)m.classList.toggle("on",view==="fi"&&FS.first!==null&&!fiSumIn&&!fiFaqIn);chk()}
+function fchk(){const m=$("fimini"),on=view==="fi"&&FS.first!==null&&!fiSumIn&&!fiFaqIn;if(m&&on&&!fiMiniAn&&!m.classList.contains("on")){fiMiniAn=true;anim("mini_resumen_fi_aparece")}if(m)m.classList.toggle("on",on);chk()}
 function fiCarOpts(){const k=Object.keys(PLN).sort((a,b)=>PLN[a].n.localeCompare(PLN[b].n,"es"));
  $("fi-car").innerHTML='<option value="">Elige tu carrera…</option>'+k.map(x=>`<option value="${x}">${esc(PLN[x].n)}</option>`).join("")}
 function fiAddOpts(){
@@ -2612,7 +2614,7 @@ function fbSync(){try{const b=$("mpv");if(!b||!S)return;const has=leaves(S.root)
 document.addEventListener("click",e=>{const t=e.target;if(!t||!t.closest)return;
  const v=t.closest(".mpvbtn");
  if(v){if(!S||fbGet()[cur])return;const val=v.dataset.v==="si"?"si":"no",L=leaves(S.root),n=pend().length;
-  fbSet(cur,val);fbPaint(val);
+  fbSet(cur,val);fbPaint(val);anim("valoracion_gracias");
   track("resultado_util",{curso:cur,nombre:C[cur].n,valor:val,ingresadas:L.length-n,total:L.length,completo:n===0,estado:outlook().k});return}
  if(t.closest("#mpvl")){track("resultado_util_comentar",{curso:cur});const m=$("sgm");
   if(m){m.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{try{m.focus({preventScroll:true})}catch(_){}},500)}}});
@@ -2626,7 +2628,7 @@ setCourse(back||"mat");
 showView(back?"tool":"welcome");
 </script>
 <script>/* Nota fuera de rango: mensaje, temblor (se reinicia en cada intento) y vibración corta en celulares que la soportan */
-window.badFx=function(gi,t,mx){anim("nota_temblor");var v=parseFloat(String(t.value).replace(",","."));gi.setAttribute("data-msg",v<0?"Mínimo 0":"Máximo "+mx);gi.classList.remove("sk");void gi.offsetWidth;gi.classList.add("sk");clearTimeout(gi._sk);gi._sk=setTimeout(function(){gi.classList.remove("sk")},460);try{if(navigator.vibrate)navigator.vibrate(22)}catch(_){}};
+window.badFx=function(gi,t,mx){anim(gi&&gi.classList&&gi.classList.contains("minl")?"nota_minima_temblor":"nota_temblor");var v=parseFloat(String(t.value).replace(",","."));gi.setAttribute("data-msg",v<0?"Mínimo 0":"Máximo "+mx);gi.classList.remove("sk");void gi.offsetWidth;gi.classList.add("sk");clearTimeout(gi._sk);gi._sk=setTimeout(function(){gi.classList.remove("sk")},460);try{if(navigator.vibrate)navigator.vibrate(22)}catch(_){}};
 </script>
 <script>/* "Elige tu curso": el brillo de cada tarjeta sigue al cursor (solo mouse; la lista se vuelve a dibujar, por eso se escucha en #plist) */
 (function(){var pl=document.getElementById("plist");if(!pl)return;
@@ -2756,11 +2758,11 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
  /* [selector, nombre en PostHog, tambien cuenta al tocar] (el primero que coincida) */
  const HV=[
   ["#v-welcome .wtop","bienvenida_titulo",1],["#v-welcome .strip","franja_bienvenida",1],[".hero .strip","franja_curso",1],
-  ["#v-welcome #go","boton_empezar",0],["#v-welcome .igw","bienvenida_instagram",0],["#v-pick .pl button","tarjeta_elegir_curso",0],
-  [".blk","tarjeta_nota_brillo",1],[".upst li","paso_agregar_curso",1],[".sc tbody td","tabla_resaltado",0],["#clist button[data-c]","menu_cursos_fila",0],
-  [".qa summary","faq_resaltado",0],[".shb,.bkc,.addc,.fup","botones_barra",0],[".rib","boton_compartir_resultado",0],[".tg","tema_interruptor_hover",0],
+  ["#v-welcome #go","boton_empezar",0],[".btn","boton_principal_hover",0],["#v-welcome .igw","bienvenida_instagram",0],["#v-pick .pl button","tarjeta_elegir_curso",0],
+  [".blk","tarjeta_nota_brillo",1],[".upst li","paso_agregar_curso",1],[".upd","subir_zona_icono",0],[".sc tbody td","tabla_resaltado",0],["#clist button[data-c]","menu_cursos_fila",0],
+  [".qa summary","faq_resaltado",0],[".shb,.bkc,.addc,.fup,.shf","botones_barra",0],[".mpvbtn","valoracion_botones",0],[".rib","boton_compartir_resultado",0],[".tg","tema_interruptor_hover",0],
   [".logo","logo_encabezado",0],["footer .lg-f","pie_logo",1],["footer .fl a.ig","pie_instagram",0],["footer .fl.fcm","pie_comentarios",0],
-  ["footer .fl","pie_titulos",1],["#simt","simulador_resaltado",0]];
+  ["footer .fl button","pie_enlaces_curso",1],["footer .fl","pie_titulos",1],["#simt","simulador_resaltado",0],["#mk","barra_marcador_hover",0],["#cbtn","menu_cursos_boton",0]];
  const find=t=>{for(const h of HV){const el=t.closest(h[0]);if(el)return[h,el]}return null};
  document.addEventListener("pointerover",e=>{
   if(e.pointerType==="touch")return;const t=e.target;if(!t||!t.closest)return;
