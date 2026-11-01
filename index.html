@@ -1456,6 +1456,14 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
  footer .fl.tapfx>b{letter-spacing:.2em}
  footer .fl.tapfx>b::after{background:linear-gradient(90deg,var(--green),transparent)}
 }
+/* ===== Celular: luz verde de los bloques de notas. Una capa propia que se enciende al tocar, sigue al dedo durante el scroll y se apaga despacio ===== */
+@media (hover:none){
+ .blk{position:relative}
+ .blk::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1s ease;background:radial-gradient(260px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.2),transparent 65%)}
+ .blk.tapfx{background-image:none}
+ .blk.tapfx::after{opacity:1;transition:opacity .15s ease}
+ .blk{transition:transform .8s cubic-bezier(.2,.7,.2,1),box-shadow .8s ease}
+}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -2898,7 +2906,7 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
   const st=t.closest(".strip");
   if(st){flash(st,900);let best=null,bd=1e9;[...st.children].forEach(i=>{const r=i.getBoundingClientRect(),d=e.clientX<r.left?r.left-e.clientX:e.clientX>r.right?e.clientX-r.right:0;if(d<bd){bd=d;best=i}});if(best)flash(best,900)}
   const w=t.closest("#v-welcome .wtop");if(w)flash(w,1300);
-  const b=t.closest(".blk,.upst li");
+  const b=t.closest(".upst li");
   if(b){const r=b.getBoundingClientRect();b.style.setProperty("--gx",(e.clientX-r.left)+"px");b.style.setProperty("--gy",(e.clientY-r.top)+"px");flash(b,650)}
   const lf=t.closest("footer .lg-f");if(lf)flash(lf,700);
   const fl=t.closest("footer .fl");if(fl)flash(fl,900)
@@ -2913,6 +2921,23 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
  /* La tabla se vuelve a dibujar con cada cambio de notas (por ejemplo al salir de una casilla): se vuelve a marcar la fila elegida */
  const cb=document.getElementById("cb");
  if(cb&&window.MutationObserver)new MutationObserver(()=>{if(!cb.querySelector(".sc"))hlSel=null;if(hlSel)hlPaint()}).observe(cb,{childList:true});
+})();
+</script>
+<script>
+/* Bloques de notas en celular: la luz verde se enciende bajo el dedo, lo SIGUE mientras haces scroll (touchmove + scroll vuelven a buscar el bloque bajo el dedo) y se apaga un momento despues de soltar */
+(function(){
+ var tree=document.getElementById("tree");if(!tree||!window.matchMedia||!matchMedia("(hover:none)").matches||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ var cur=null,tx=0,ty=0,down=false,raf=0,off=0;
+ function clr(){if(cur){cur.classList.remove("tapfx");cur=null}}
+ function at(){raf=0;if(!down)return;var el=document.elementFromPoint(tx,ty),b=el&&el.closest&&el.closest(".blk");if(!b||!tree.contains(b))return;
+  var r=b.getBoundingClientRect();b.style.setProperty("--gx",(tx-r.left)+"px");b.style.setProperty("--gy",(ty-r.top)+"px");
+  if(cur!==b){clr();b.classList.add("tapfx");cur=b;try{anim("tarjeta_nota_brillo",{via:"toque"})}catch(_){}}}
+ function kick(){if(!raf)raf=requestAnimationFrame(at)}
+ document.addEventListener("touchstart",function(e){var t=e.touches[0];if(!t||!tree.contains(e.target))return;clearTimeout(off);down=true;tx=t.clientX;ty=t.clientY;at()},{passive:true});
+ document.addEventListener("touchmove",function(e){if(!down)return;var t=e.touches[0];if(!t)return;tx=t.clientX;ty=t.clientY;kick()},{passive:true});
+ window.addEventListener("scroll",function(){if(down)kick()},{passive:true});
+ var end=function(){if(!down)return;down=false;clearTimeout(off);off=setTimeout(clr,1100)};
+ document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});
 })();
 </script>
 </body>
