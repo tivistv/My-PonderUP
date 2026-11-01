@@ -1151,7 +1151,7 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
    Se apaga solo con prefers-reduced-motion. Cursor y foco en la bienvenida: solo con mouse (hover:hover y pointer:fine). */
 #v-welcome .wc{position:relative;z-index:1}
 .wel-spot{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s;background:radial-gradient(circle 320px at var(--mx,50%) var(--my,50%),rgba(0,240,60,.16),rgba(10,92,255,.09) 45%,transparent 72%)}
-html.cx-fine #v-welcome:hover .wel-spot{opacity:1}
+html.cx-fine #v-welcome:hover .wel-spot,#v-welcome.tdown .wel-spot{opacity:1}
 /* particulas del cursor (estrellitas y puntos) */
 .cx-layer{position:fixed;inset:0;z-index:9998;pointer-events:none;overflow:hidden}
 .cx-p{position:absolute;width:var(--s,10px);height:var(--s,10px);margin:calc(var(--s,10px)/-2) 0 0 calc(var(--s,10px)/-2);background:var(--c,#fff);border-radius:50%;animation:cxp var(--t,.8s) cubic-bezier(.15,.7,.3,1) forwards;box-shadow:0 0 8px var(--c,#fff)}
@@ -1350,6 +1350,7 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
 @property --sp{syntax:"<number>";inherits:true;initial-value:0}
 .hero h1 .lw{display:inline-block;white-space:nowrap}
 .hero h1 .ltr{display:inline-block;will-change:transform;cursor:default}
+.hero h1 .t2.lt{touch-action:pan-y}
 @keyframes tshine2{0%,55%{--sp:0}100%{--sp:1}}
 @supports (-webkit-background-clip:text) or (background-clip:text){
 .hero h1 .t2.lt{background:none;-webkit-text-fill-color:currentColor}
@@ -1370,6 +1371,29 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
  .sc tbody tr:hover td:hover{background-color:color-mix(in srgb,#00F03C 55%,var(--card));color:var(--navy)}
  .sc tbody tr:hover td:first-child:hover{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
  .sc tbody tr:hover td:last-child:hover{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
+}
+/* ===== Celular / pantalla tactil: versiones "al tocar" de varios efectos que en PC salen al pasar el cursor =====
+   El JS (bloque "AL TOCAR" al final) pone la clase .tapfx unos instantes en el elemento tocado; aqui se repite el mismo efecto del hover. */
+@media (hover:none){
+ #v-welcome .wtop.tapfx .t1{letter-spacing:.27em}
+ #v-welcome .strip.tapfx i{transform:scaleY(2.4)}
+ .hero .strip.tapfx i{transform:scaleY(2.2)}
+ .strip i.tapfx{flex:4}
+ .blk{transition:transform .25s,box-shadow .25s}
+ .blk.tapfx{transform:translateY(-2px);box-shadow:0 10px 24px rgba(6,31,71,.14)}
+ .blk.tapfx,.upst li.tapfx{background-image:radial-gradient(240px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.14),transparent 65%)}
+ .upst li.tapfx{transform:translateY(-3px);background-color:rgba(255,255,255,.13)}
+ .sc tbody tr{transition:background-color .2s}
+ .sc td{transition:background-color .18s,color .18s}
+ .sc tbody tr.hl{background-color:color-mix(in srgb,#00F03C 14%,transparent)}
+ .sc tbody tr.hl td:first-child{background-color:color-mix(in srgb,#00F03C 14%,var(--card));box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 14%,var(--card))}
+ .sc tbody tr.hl td.hc{background-color:color-mix(in srgb,#00F03C 55%,var(--card));color:var(--navy)}
+ .sc tbody tr.hl td.hc:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
+ .sc tbody tr.hl td.hc:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
+ footer .lg-f{transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+ footer .lg-f.tapfx{transform:rotate(-2deg) scale(1.04)}
+ footer .fl.tapfx>b{letter-spacing:.2em}
+ footer .fl.tapfx>b::after{background:linear-gradient(90deg,var(--green),transparent)}
 }
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
@@ -1822,7 +1846,9 @@ function hopLetter(e){
  const remeasure=()=>lettersEls.forEach(measureLetters);
  window.addEventListener("resize",remeasure);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(remeasure);
  document.querySelectorAll(".hero h1").forEach(h=>h.addEventListener("pointerover",e=>{
-  if(mqR.matches)return;const g=e.target.closest&&e.target.closest(".ltr");if(g)hopLetter(g)}))}
+  if(mqR.matches)return;const g=e.target.closest&&e.target.closest(".ltr");if(g)hopLetter(g)}));
+ document.querySelectorAll(".hero h1").forEach(h=>h.addEventListener("pointermove",e=>{
+  if(e.pointerType!=="touch"||mqR.matches)return;const g=document.elementFromPoint(e.clientX,e.clientY);if(g&&g.classList&&g.classList.contains("ltr"))hopLetter(g)},{passive:true}))}
 
 /* ===== Simulador "¿Y si saco...?": prueba notas en lo pendiente sin tocar las reales ===== */
 function simR(){
@@ -2584,6 +2610,7 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
  const RM=matchMedia("(prefers-reduced-motion: reduce)"),FINE=matchMedia("(hover:hover) and (pointer:fine)").matches;
  const COL=["#00F03C","#0A5CFF","#F000F0","#ffffff"],rnd=(a,b)=>a+Math.random()*(b-a);
  const layer=document.createElement("div");layer.className="cx-layer";layer.setAttribute("aria-hidden","true");document.body.appendChild(layer);
+ const spot=document.createElement("div");spot.className="wel-spot";spot.setAttribute("aria-hidden","true");W.insertBefore(spot,W.firstChild);
  const vis=()=>!W.hidden;
  function part(x,y,o){
   if(RM.matches||layer.childElementCount>80)return;
@@ -2618,6 +2645,7 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
    W.style.setProperty("--tx",tx.toFixed(4));W.style.setProperty("--ty",ty.toFixed(4));W.style.setProperty("--ls",ls.toFixed(4));
    if(Math.abs(tx-ttx)>.002||Math.abs(ty-tty)>.002||Math.abs(ls-tls)>.002)raf=requestAnimationFrame(step)};
   const upd=e=>{
+   W.style.setProperty("--mx",e.clientX+"px");W.style.setProperty("--my",e.clientY+"px");W.classList.add("tdown");
    px=e.clientX;py=e.clientY;ttx=(px/innerWidth-.5)*2;tty=(py/innerHeight-.5)*2;
    tls=1;if(logo){const r=logo.getBoundingClientRect();if(px>r.left&&px<r.right&&py>r.top&&py<r.bottom)tls=1.06}
    if(!raf)raf=requestAnimationFrame(step)};
@@ -2625,13 +2653,12 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
   document.addEventListener("pointermove",e=>{
    if(e.pointerType!=="touch"||!down||!vis())return;upd(e);
    if(Math.hypot(e.clientX-lx,e.clientY-ly)>30){lx=e.clientX;ly=e.clientY;trail(e.clientX,e.clientY)}},{passive:true});
-  const end=e=>{if(e.pointerType!=="touch"||!down)return;down=false;ttx=0;tty=0;tls=1;if(!raf)raf=requestAnimationFrame(step)};
+  const end=e=>{if(e.pointerType!=="touch"||!down)return;down=false;W.classList.remove("tdown");ttx=0;tty=0;tls=1;if(!raf)raf=requestAnimationFrame(step)};
   document.addEventListener("pointerup",end,{passive:true});document.addEventListener("pointercancel",end,{passive:true});
  }
  if(!FINE)return;
  /* ---- solo con mouse: cursor propio, inclinacion, foco, iman ---- */
  document.documentElement.classList.add("cx-fine");
- const spot=document.createElement("div");spot.className="wel-spot";spot.setAttribute("aria-hidden","true");W.insertBefore(spot,W.firstChild);
  const dot=document.createElement("div"),ring=document.createElement("div");
  dot.className="cx-cur cx-dot";ring.className="cx-cur cx-ring";dot.setAttribute("aria-hidden","true");ring.setAttribute("aria-hidden","true");
  document.body.append(ring,dot);
@@ -2683,6 +2710,34 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
  document.addEventListener("focusout",function(e){var t=e.target;if(!t||t.id!=="pm")return;
   var l=t.closest(".minl");if(!l||!l.classList.contains("bad"))return;
   t.value="20";setTimeout(function(){l.classList.remove("bad")},900)});
+})();
+</script>
+<script>
+/* ===== AL TOCAR (celular): versiones tactiles de varios efectos de hover =====
+   Franjas de colores (se estiran), "Bienvenido a", tarjetas de notas y pasos (suben con brillo donde tocas), tabla de combinaciones
+   (la fila tocada se resalta y se queda marcada hasta que toques otra), logo y titulos del pie. En el nombre del curso las letras
+   saltan al tocarlas o al deslizar el dedo por encima. Solo con el dedo (pointerType touch); se apaga con "reducir movimiento". */
+(function(){
+ const RMq=window.matchMedia?matchMedia("(prefers-reduced-motion: reduce)"):{matches:false};
+ const flash=(el,ms)=>{el.classList.remove("tapfx");void el.offsetWidth;el.classList.add("tapfx");clearTimeout(el._tf);el._tf=setTimeout(()=>el.classList.remove("tapfx"),ms||700)};
+ document.addEventListener("pointerdown",e=>{
+  if(e.pointerType!=="touch"||RMq.matches)return;
+  const t=e.target;if(!t||!t.closest)return;
+  const st=t.closest(".strip");
+  if(st){flash(st,900);let best=null,bd=1e9;[...st.children].forEach(i=>{const r=i.getBoundingClientRect(),d=e.clientX<r.left?r.left-e.clientX:e.clientX>r.right?e.clientX-r.right:0;if(d<bd){bd=d;best=i}});if(best)flash(best,900)}
+  const w=t.closest("#v-welcome .wtop");if(w)flash(w,1300);
+  const b=t.closest(".blk,.upst li");
+  if(b){const r=b.getBoundingClientRect();b.style.setProperty("--gx",(e.clientX-r.left)+"px");b.style.setProperty("--gy",(e.clientY-r.top)+"px");flash(b,650)}
+  const lf=t.closest("footer .lg-f");if(lf)flash(lf,700);
+  const fl=t.closest("footer .fl");if(fl)flash(fl,900);
+  const td=t.closest(".sc td");
+  if(td){const tr=td.parentNode;hlSel={r:tr.rowIndex,c:td.cellIndex};hlPaint()}
+ },{passive:true});
+ /* La tabla se vuelve a dibujar con cada cambio de notas (por ejemplo al salir de una casilla); se recuerda la fila tocada y se vuelve a marcar */
+ let hlSel=null;
+ function hlPaint(){const tb=document.querySelector("#cb .sc tbody");if(!tb)return;tb.querySelectorAll("tr.hl").forEach(x=>x.classList.remove("hl"));tb.querySelectorAll("td.hc").forEach(x=>x.classList.remove("hc"));
+  if(!hlSel)return;const tr=tb.parentNode.rows[hlSel.r];if(!tr||tr.cells.length<=hlSel.c||tr.cells[hlSel.c].tagName!=="TD")return;tr.classList.add("hl");tr.cells[hlSel.c].classList.add("hc")}
+ const cb=document.getElementById("cb");if(cb&&window.MutationObserver)new MutationObserver(()=>{if(hlSel)hlPaint()}).observe(cb,{childList:true});
 })();
 </script>
 </body>
