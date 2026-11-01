@@ -1326,6 +1326,9 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
 /* ===== Celular: el icono de Instagram de "¿Te sirvió?" es el mismo que en PC; el dedo inclina el logo en la bienvenida ===== */
 @media (max-width:600px){.igc svg{width:28px;height:28px;padding:0;background:none;color:inherit}}
 #v-welcome{touch-action:none}
+
+/* Simulador "¿Y si saco…?": franja magenta (antes azul) */
+#sim{border-left-color:#F000F0}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -1767,7 +1770,8 @@ function simU(){
  const P=pend(),sv=S.sim||{},u={};P.forEach(l=>u[l.id]=(sv[l.id]||0)*20/(l.mx||20));
  const v=ev(S.root,full(u)),ok=pass(v),g=Math.abs(S.rf?rnd(v)-S.pm:v-S.pm),near=g<.005;
  $("simn").textContent=S.rf?rnd(v):fmt(v);$("simn").className=ok?"gn":"rd";
- $("simv").innerHTML=`<span class="tag ${ok?"y":"n"}">${ok?"Aprobarías":"Desaprobarías"}</span><span class="sst">${ok?(near?`Justo en la nota mínima de ${S.pm}.`:`Superas la mínima (${S.pm}) por ${fmt(g)}.`):`Te faltan ${fmt(g)} para llegar a ${S.pm}.`}</span>`}
+ const st=ok?(near?`Justo en la nota mínima de ${S.pm}.`:""):`Te faltan ${fmt(g)} para llegar a ${S.pm}.`;
+ $("simv").innerHTML=`<span class="tag ${ok?"y":"n"}">${ok?"Aprobarías":"Desaprobarías"}</span>`+(st?`<span class="sst">${st}</span>`:"")}
 $("simt").addEventListener("click",()=>{simOpen=!simOpen;if(simOpen&&!seenSim.has(cur)){seenSim.add(cur);track("simulador_abierto",{curso:cur,pendientes:pend().length})}simR()});
 $("sim").addEventListener("input",e=>{const t=e.target;if(!t.dataset||!t.dataset.sid)return;(S.sim||(S.sim={}))[t.dataset.sid]=+t.value;const o=t.parentNode.querySelector("output");if(o)o.textContent=fmt(+t.value);simU()});
 $("sim").addEventListener("click",e=>{const b=e.target.closest("button[data-use]");if(!b)return;
