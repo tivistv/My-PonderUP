@@ -167,6 +167,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     (ronda 5) nota_minima_temblor, boton_principal_hover, subir_zona_icono, valoracion_botones, valoracion_gracias, pie_enlaces_curso, barra_marcador_hover, menu_cursos_boton,
     zona_barra_pop, aviso_emergente, mini_resumen_aparece y mini_resumen_fi_aparece (estas dos solo una vez por visita).
     Ronda 6: pie_lineas_cursor (entra el cursor al pie) y pie_lineas_onda (clic en el pie). tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
+    La propiedad nombre de curso_elegido, primera_nota y resultado_util lleva el nombre completo (cname), p. ej. "Nivelación en Matemáticas"; la propiedad curso sigue siendo la clave corta (mat, len, inf...).
     Las animaciones que corren solas (aurora, brillo de barras, flotar) no se pueden medir porque no dependen de la persona.
 =====================================================================
 -->
@@ -1787,7 +1788,7 @@ rce:{n:"Religiones, Culturas y Economía",pre:"",gp:2,rf:1,i:"Trabajos pesa 50% 
  {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
 };
 const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
-const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g);
+const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
 const isP=id=>{const g=S.g[id];return g===undefined||g===""||isNaN(+g)};
@@ -2103,7 +2104,7 @@ function trackCalc(){clearTimeout(calcTm);calcTm=setTimeout(()=>{if(!S)return;co
 document.addEventListener("change",e=>{const t=e.target;if(!t||!t.classList)return;
  if(t.classList.contains("g")&&t.value!==""){const L=leaves(S.root),n=L.filter(l=>!isP(l.id)).length;
   track("nota_ingresada",{curso:cur,evaluacion:t.dataset.id,ingresadas:n,total:L.length});
-  if(!seenFirst.has(cur)){seenFirst.add(cur);track("primera_nota",{curso:cur,nombre:C[cur].n});setEtapa("con_notas")}trackCalc()}
+  if(!seenFirst.has(cur)){seenFirst.add(cur);track("primera_nota",{curso:cur,nombre:cname(cur)});setEtapa("con_notas")}trackCalc()}
  else if(t.dataset&&t.dataset.r)track("redondeo_cambiado",{curso:cur,evaluacion:t.dataset.r,activo:t.checked});
  else if(t.id==="rf")track("redondeo_final_cambiado",{curso:cur,activo:t.checked});
  else if(t.id==="pm"){track("nota_minima_cambiada",{curso:cur,valor:S.pm});trackCalc()}});
@@ -2121,7 +2122,7 @@ document.addEventListener("click",e=>{
  else if(b.id==="home"){track("volver_inicio");closeList();showView("welcome")}
  else if(b.id==="cbtn"){const o=$("clist").hidden;if(o){anim("menu_cursos_despliegue");track("menu_cursos_abierto",{curso:cur})}$("clist").hidden=!o;b.setAttribute("aria-expanded",String(o))}
  else if(b.dataset.fi){closeList();showView("fi")}
- else if(b.dataset.c){track("curso_elegido",{curso:b.dataset.c,nombre:C[b.dataset.c].n,grupo:["nivelacion","curso","sello_up"][gof(b.dataset.c)],origen:b.dataset.p?"pantalla_elegir":b.dataset.f?"pie":"menu"});setCourse(b.dataset.c);if(b.dataset.p)showView("tool");else if(b.dataset.f)window.scrollTo({top:0})}
+ else if(b.dataset.c){track("curso_elegido",{curso:b.dataset.c,nombre:cname(b.dataset.c),grupo:["nivelacion","curso","sello_up"][gof(b.dataset.c)],origen:b.dataset.p?"pantalla_elegir":b.dataset.f?"pie":"menu"});setCourse(b.dataset.c);if(b.dataset.p)showView("tool");else if(b.dataset.f)window.scrollTo({top:0})}
  else if(b.id==="rs"){track("curso_restablecido",{curso:cur});ST[cur]=null;setCourse(cur)}});
 /* Notas: Enter (o "Siguiente" del teclado del celular) pasa a la siguiente; Shift+Enter vuelve a la anterior; en la ultima cierra el teclado y lleva al resumen */
 const nCoarse=window.matchMedia?matchMedia("(pointer:coarse)"):{matches:false};
@@ -2626,7 +2627,7 @@ document.addEventListener("click",e=>{const t=e.target;if(!t||!t.closest)return;
  const v=t.closest(".mpvbtn");
  if(v){if(!S||fbGet()[cur])return;const val=v.dataset.v==="si"?"si":"no",L=leaves(S.root),n=pend().length;
   fbSet(cur,val);fbPaint(val);anim("valoracion_gracias");
-  track("resultado_util",{curso:cur,nombre:C[cur].n,valor:val,ingresadas:L.length-n,total:L.length,completo:n===0,estado:outlook().k});return}
+  track("resultado_util",{curso:cur,nombre:cname(cur),valor:val,ingresadas:L.length-n,total:L.length,completo:n===0,estado:outlook().k});return}
  if(t.closest("#mpvl")){track("resultado_util_comentar",{curso:cur});const m=$("sgm");
   if(m){m.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{try{m.focus({preventScroll:true})}catch(_){}},500)}}});
 if("IntersectionObserver" in window){const b=$("mpv");
