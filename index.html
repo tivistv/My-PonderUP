@@ -942,6 +942,24 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 #v-pick::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 90% 70% at 30% 45%,rgba(2,10,30,.5),rgba(2,10,30,.18) 75%),linear-gradient(180deg,rgba(2,10,30,.18),rgba(2,10,30,.4))}
 #v-pick .gt,#v-pick .pl button,#v-pick .wt{text-shadow:0 1px 10px rgba(2,10,30,.45)}
 #v-pick .pl button{background:rgba(255,255,255,.1)}
+/* ===== "Elige tu curso": hover satisfactorio en las tarjetas =====
+   Al pasar el cursor: la tarjeta sube con un rebote suave, un brillo del color del curso sigue al cursor,
+   la franja de abajo se hace más gruesa, aparece una flecha y las demás tarjetas bajan de intensidad.
+   Al hacer clic se "hunde" un poco. Solo con mouse (hover:hover); en celular queda el efecto de presionar. */
+#v-pick .pl button{position:relative;overflow:hidden;isolation:isolate;box-shadow:0 0 0 0 rgba(0,0,0,0),inset 0 0 0 0 var(--s);transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s cubic-bezier(.2,.7,.2,1),background .2s,opacity .25s}
+#v-pick .pl button::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(170px circle at var(--mx,22%) var(--my,30%),color-mix(in srgb,var(--s) 26%,transparent),transparent 72%)}
+#v-pick .pl button::after{content:"";position:absolute;top:18px;right:18px;width:9px;height:9px;border-top:3px solid #fff;border-right:3px solid #fff;pointer-events:none;opacity:0;transform:translateX(-12px) rotate(45deg);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .2s}
+#v-pick .pl small{transition:color .2s}
+@media (hover:hover){
+ #v-pick .pl button:not(:disabled):hover,#v-pick .pl button:not(:disabled):focus-visible{background:rgba(255,255,255,.16);transform:translateY(-4px);box-shadow:0 16px 26px -12px rgba(0,0,0,.65),inset 0 -4px 0 0 var(--s);transition:transform .38s cubic-bezier(.34,1.56,.64,1),box-shadow .3s cubic-bezier(.2,.7,.2,1),background .2s,opacity .25s}
+ #v-pick .pl button:not(:disabled):hover::before,#v-pick .pl button:not(:disabled):focus-visible::before{opacity:1}
+ #v-pick .pl button:not(:disabled):hover::after,#v-pick .pl button:not(:disabled):focus-visible::after{opacity:1;transform:translateX(0) rotate(45deg)}
+ #v-pick .pl button:not(:disabled):hover small,#v-pick .pl button:not(:disabled):focus-visible small{color:#fff}
+ #plist:has(.pl button:not(:disabled):hover) .pl button:not(:hover){opacity:.68}
+}
+#v-pick .pl button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#v-pick .pl button:not(:disabled):active{transform:translateY(-1px) scale(.975);box-shadow:0 6px 14px -8px rgba(0,0,0,.6),inset 0 -6px 0 0 var(--s);transition-duration:.08s}
+@media (prefers-reduced-motion:reduce){#v-pick .pl button:not(:disabled):hover,#v-pick .pl button:not(:disabled):focus-visible,#v-pick .pl button:not(:disabled):active{transform:none}#v-pick .pl button::after{transform:rotate(45deg)}}
 
 /* PC: el bloque grande "Agrega tu curso" va arriba a la derecha y se queda a la vista al bajar */
 @media (min-width:1100px){
@@ -2231,6 +2249,11 @@ const back=load();
 if(back)track("progreso_restaurado",{curso:back});
 setCourse(back||"mat");
 showView(back?"tool":"welcome");
+</script>
+<script>/* "Elige tu curso": el brillo de cada tarjeta sigue al cursor (solo mouse; la lista se vuelve a dibujar, por eso se escucha en #plist) */
+(function(){var pl=document.getElementById("plist");if(!pl)return;
+pl.addEventListener("pointermove",function(e){if(e.pointerType!=="mouse")return;var b=e.target.closest&&e.target.closest(".pl button");if(!b||b.disabled)return;var r=b.getBoundingClientRect();b.style.setProperty("--mx",(e.clientX-r.left)+"px");b.style.setProperty("--my",(e.clientY-r.top)+"px")},{passive:true});
+pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.closest(".pl button");if(b&&!b.contains(e.relatedTarget)){b.style.removeProperty("--mx");b.style.removeProperty("--my")}})})();
 </script>
 </body>
 </html>
