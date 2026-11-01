@@ -2713,7 +2713,7 @@ var tStop=function(){tDown=false;tEnd()};
 pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchcancel",tStop,{passive:true});
 })();
 </script>
-<script>/* Pie de pagina: campo de notas. Es la escala de la pagina hecha fondo: una cuadricula de numeros del 0 al 20 muy tenues. El fondo del pie queda limpio. Solo cuando el cursor (o el dedo) pasa por una zona aparecen ahi numeros del 0 al 20: cuentan hacia arriba hasta 20 y se encienden en blanco, mas grandes mientras estas cerca; al alejarte se apagan y vuelven a su valor. Un clic o toque lanza una ola de 20 que cruza el pie. Sin colores: blanco sobre el azul del pie. Sin "reducir movimiento" no aparece. El dibujo solo corre mientras hay cursor o dedo en el pie, o numeros volviendo a su sitio. */
+<script>/* Pie de pagina: campo de notas. Es la escala de la pagina hecha fondo: una cuadricula de numeros del 0 al 20 muy tenues. El fondo del pie queda limpio. Solo cuando el cursor (o el dedo) pasa por una zona aparecen ahi numeros del 0 al 20: cuentan hacia arriba hasta 20 y se encienden en un blanco tenue, apenas mas grandes mientras estas cerca; al alejarte se apagan y vuelven a su valor. Un clic o toque lanza una ola de 20 que cruza el pie. Sin colores: blanco sobre el azul del pie. Sin "reducir movimiento" no aparece. El dibujo solo corre mientras hay cursor o dedo en el pie, o numeros volviendo a su sitio. */
 (function(){
  if(!window.matchMedia||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
  var R=190,TOP=20,WAVE_MS=1200,FONT=' Montserrat,"Montserrat Fallback",Arial,sans-serif';
@@ -2745,8 +2745,8 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
    for(i=0;i<act.length;i+=5){
     x=act[i];y=act[i+1];var val=act[i+2],b=act[i+3],ww=act[i+4],n=Math.round(val),e=Math.max(0,Math.min(1,(val-b)/(TOP-b))),m=ww>.05?Math.min(1,ww*1.5):0;
     /* blanco, cada vez mas opaco */
-    cx.fillStyle="rgba(255,255,255,"+Math.min(.9,1.15*e+.25*m).toFixed(3)+")";
-    cx.font=(e>.55?"800 ":"700 ")+(12+Math.round(7*e))+"px"+FONT;
+    cx.fillStyle="rgba(255,255,255,"+Math.min(.34,.45*e+.1*m).toFixed(3)+")";
+    cx.font="600 "+(12+Math.round(2*e))+"px"+FONT;
     cx.fillText(n,x,y)
    }
    return busy||waves.length>0
