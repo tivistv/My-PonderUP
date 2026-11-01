@@ -150,6 +150,20 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     Eventos valoracion_vista, resultado_util (valor si|no) y resultado_util_comentar (el "No mucho" lleva al cuadro de comentarios #sgm).
   - Visitante nuevo/recurrente (constante VIS): localStorage mp-vis (primera visita y n de visitas = sesiones). Propiedades en TODOS los eventos: visitante, visitas,
     dias_desde_primera_visita. before_send en posthog.init tambien fija app, interno y etapa en el primer $pageview.
+
+12) ANIMACIONES, TABLA Y MEDICION (ronda 4)
+  - Titulo del curso (#ctitle): cada letra es un <span class="ltr"> (setLetters()); solo salta la letra tocada (hopLetter(), Web Animations API). "Calcula tu ponderado de" no se anima.
+    El brillo es uno solo para todo el titulo: la propiedad --sp (0 a 1) la anima .t2 y cada letra lo dibuja segun su posicion (--ox) y el ancho total (--tw, measureLetters()).
+  - Version tactil de varios hovers: clase .tapfx unos instantes (bloque final "AL TOCAR"). Franjas, "Bienvenido a", tarjetas, logo y titulos del pie.
+  - Tabla de combinaciones: tocar o hacer clic en una nota deja la fila resaltada (.hl) y la celda (.hc) hasta tocar/hacer clic FUERA de las celdas. Mover el dedo (scroll) o arrastrar NO la quita:
+    solo cuenta un toque corto (menos de 10 px de movimiento). Se vuelve a marcar sola cuando la tabla se redibuja.
+  - Indicadores de animaciones: UN evento "animacion" con propiedades nombre, dispositivo (mouse|tactil), via (hover|toque|clic, si aplica), vista y curso. Funcion anim(nombre,extra),
+    maximo una vez cada 8 s por animacion y 60 por visita. En PostHog: Trends > evento "animacion" > desglosar por "nombre" (y por "dispositivo").
+    Nombres: titulo_letra_salto, bienvenida_titulo, franja_bienvenida, franja_curso, bienvenida_inclinar_logo, bienvenida_estrellitas, bienvenida_explosion, boton_onda, boton_empezar,
+    bienvenida_instagram, tarjeta_elegir_curso, tarjeta_nota_brillo, paso_agregar_curso, tabla_resaltado, tabla_fila_marcada, menu_cursos_fila, menu_cursos_despliegue, faq_resaltado, faq_despliegue,
+    botones_barra, boton_compartir_resultado, tema_interruptor, tema_interruptor_hover, logo_encabezado, pie_logo, pie_instagram, pie_comentarios, pie_titulos, simulador_resaltado,
+    simulador_despliegue, buscador_lista, subir_zona_arrastre, barra_nota_minima, barra_agua, confeti_aprobar, nota_temblor.
+    Las animaciones que corren solas (aurora, brillo de barras, flotar) no se pueden medir porque no dependen de la persona.
 =====================================================================
 -->
 <meta charset="utf-8">
@@ -1382,6 +1396,14 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
  .sc tbody tr.hl td.hc:first-child{--cs:color-mix(in srgb,#00F03C 55%,var(--card))}
  .sc tbody tr.hl td.hc:last-child{box-shadow:300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))!important}
 }
+/* Fila tocada o clicada en la tabla de combinaciones: se queda resaltada hasta tocar fuera (lo maneja el JS "AL TOCAR", clases .hl y .hc) */
+.sc tbody tr{transition:background-color .2s}
+.sc td{transition:background-color .18s,color .18s}
+.sc tbody tr.hl{background-color:color-mix(in srgb,#00F03C 14%,transparent)}
+.sc tbody tr.hl td:first-child{background-color:color-mix(in srgb,#00F03C 14%,var(--card));box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 14%,var(--card))}
+.sc tbody tr.hl td.hc{background-color:color-mix(in srgb,#00F03C 55%,var(--card));color:var(--navy)}
+.sc tbody tr.hl td.hc:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
+.sc tbody tr.hl td.hc:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
 /* ===== Celular / pantalla tactil: versiones "al tocar" de varios efectos que en PC salen al pasar el cursor =====
    El JS (bloque "AL TOCAR" al final) pone la clase .tapfx unos instantes en el elemento tocado; aqui se repite el mismo efecto del hover. */
 @media (hover:none){
@@ -1393,13 +1415,6 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
  .blk.tapfx{transform:translateY(-2px);box-shadow:0 10px 24px rgba(6,31,71,.14)}
  .blk.tapfx,.upst li.tapfx{background-image:radial-gradient(240px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.14),transparent 65%)}
  .upst li.tapfx{transform:translateY(-3px);background-color:rgba(255,255,255,.13)}
- .sc tbody tr{transition:background-color .2s}
- .sc td{transition:background-color .18s,color .18s}
- .sc tbody tr.hl{background-color:color-mix(in srgb,#00F03C 14%,transparent)}
- .sc tbody tr.hl td:first-child{background-color:color-mix(in srgb,#00F03C 14%,var(--card));box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 14%,var(--card))}
- .sc tbody tr.hl td.hc{background-color:color-mix(in srgb,#00F03C 55%,var(--card));color:var(--navy)}
- .sc tbody tr.hl td.hc:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
- .sc tbody tr.hl td.hc:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
  footer .lg-f{transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
  footer .lg-f.tapfx{transform:rotate(-2deg) scale(1.04)}
  footer .fl.tapfx>b{letter-spacing:.2em}
@@ -1631,6 +1646,12 @@ const track=(n,p)=>{if(!PH_KEY)return;try{if(phOn)posthog.capture(n,p);else if(p
  /* PostHog se carga cuando la pagina ya termino de cargar y el navegador esta libre; los eventos mientras tanto quedan en cola */
  if(document.readyState==="complete")idle(go);else window.addEventListener("load",()=>idle(go),{once:true});
  window.addEventListener("error",e=>{if(phErr++<5)track("error_js",{mensaje:String(e.message).slice(0,120)})})})();
+/* Indicador de animaciones: UN solo evento "animacion" con la propiedad "nombre" (en PostHog: Trends > evento animacion > desglosar por nombre).
+   Sirve para ver cuales se usan mas. Para no llenar PostHog, cada animacion cuenta como maximo una vez cada 8 s por visita y hay un tope de 60 por visita;
+   es decir, se mide "en cuantos momentos distintos" la persona la activo, no cuantas veces repitio el gesto. dispositivo: mouse | tactil. Nunca incluye notas. */
+const ANIM_T={};let ANIM_C=0;
+function anim(n,extra){try{const now=Date.now();if(ANIM_C>=60||(ANIM_T[n]||0)+8000>now)return;ANIM_T[n]=now;ANIM_C++;
+ track("animacion",Object.assign({nombre:n,dispositivo:matchMedia("(hover:none)").matches?"tactil":"mouse",vista:view,curso:cur||""},extra||{}))}catch(_){}}
 const seenFirst=new Set(),seenCombo=new Set(),seenSec=new Set(),seenTyp=new Set(),seenBad=new Set();let calcTm=0,pmT=0;
 const trackCombo=()=>{if(view==="tool"&&cur&&!seenCombo.has(cur)&&$("cb").innerHTML.indexOf("<table")>-1){seenCombo.add(cur);track("combos_vistos",{curso:cur,pendientes:pend().length})}};
 const rnd=x=>Math.floor(x+.5+1e-9),fmt=x=>String(Math.round((x+1e-9)*100)/100);
@@ -1843,7 +1864,7 @@ function setLetters(el,text){
  if(!lettersEls.has(el)){lettersEls.add(el);if(window.ResizeObserver)new ResizeObserver(()=>measureLetters(el)).observe(el)}
  measureLetters(el)}
 function hopLetter(e){
- if(!e||e._h)return;e._h=1;
+if(!e||e._h)return;e._h=1;anim("titulo_letra_salto");
  const s=Math.random()<.5?1:-1;
  const an=e.animate([
   {transform:"translateY(0) rotate(0) scale(1)",easing:"cubic-bezier(.2,.8,.3,1)"},
@@ -1884,7 +1905,7 @@ function simU(){
  $("simn").textContent=S.rf?rnd(v):fmt(v);$("simn").className=ok?"gn":"rd";
  const st=ok?(near?`Justo en la nota mínima de ${S.pm}.`:""):`Te faltan ${fmt(g)} para llegar a ${S.pm}.`;
  $("simv").innerHTML=`<span class="tag ${ok?"y":"n"}">${ok?"Aprobarías":"Desaprobarías"}</span>`+(st?`<span class="sst">${st}</span>`:"")}
-$("simt").addEventListener("click",()=>{simOpen=!simOpen;if(simOpen&&!seenSim.has(cur)){seenSim.add(cur);track("simulador_abierto",{curso:cur,pendientes:pend().length})}simR()});
+$("simt").addEventListener("click",()=>{simOpen=!simOpen;if(simOpen)anim("simulador_despliegue");if(simOpen&&!seenSim.has(cur)){seenSim.add(cur);track("simulador_abierto",{curso:cur,pendientes:pend().length})}simR()});
 $("sim").addEventListener("input",e=>{const t=e.target;if(!t.dataset||!t.dataset.sid)return;(S.sim||(S.sim={}))[t.dataset.sid]=+t.value;const o=t.parentNode.querySelector("output");if(o)o.textContent=fmt(+t.value);simU()});
 $("sim").addEventListener("click",e=>{const b=e.target.closest("button[data-use]");if(!b)return;
  const id=b.dataset.use,v=(S.sim||{})[id],inpt=[...document.querySelectorAll("#tree input.g")].find(x=>x.dataset.id===id);if(!inpt||v===undefined)return;
@@ -1906,7 +1927,7 @@ function setNum(el,txt){
 const FLIM=3,fexp=new Set();
 let prevOk=null,prevA=null,prevK=null,simOpen=false;const seenEst=new Set(),seenSim=new Set();
 function burst(){
- if(RM)return;const r=document.createElement("div");r.className="cf";r.setAttribute("aria-hidden","true");
+ if(RM)return;anim("confeti_aprobar");const r=document.createElement("div");r.className="cf";r.setAttribute("aria-hidden","true");
  const cols=["#00F03C","#0A5CFF","#F000F0","#ffffff"];
  for(let i=0;i<26;i++){const p=document.createElement("i"),an=Math.random()*Math.PI*2,dist=50+Math.random()*90;
   p.style.cssText=`--x:${Math.cos(an)*dist}px;--y:${Math.sin(an)*dist-40}px;--r:${Math.round(Math.random()*540-270)}deg;--c:${cols[i%4]};--s:${6+Math.round(Math.random()*6)}px;--d:${Math.round(Math.random()*90)}ms`;r.appendChild(p)}
@@ -2001,7 +2022,7 @@ const waterTo=(()=>{
   if(!W||(mq&&mq.matches)){T=v;rest();return}
   if(v===T&&!on)return;
   T=v;
-  if(!on){on=true;last=0;acc=0;
+  if(!on){on=true;last=0;acc=0;anim("barra_agua");
    const m=(getComputedStyle(pb).backgroundColor||"").match(/[\d.]+/g);trk=m&&m.length>=3&&(m.length<4||+m[3]>.99)?[+m[0],+m[1],+m[2]]:null;
    pf.classList.add("pf-agua");draw();raf=requestAnimationFrame(frame)}}
 })();
@@ -2085,7 +2106,7 @@ document.addEventListener("click",e=>{
  else if(b.id==="pickback"){track("volver_inicio");closeList();showView("welcome")}
  else if(b.id==="uphome"){closeList();showView("welcome")}
  else if(b.id==="home"){track("volver_inicio");closeList();showView("welcome")}
- else if(b.id==="cbtn"){const o=$("clist").hidden;if(o)track("menu_cursos_abierto",{curso:cur});$("clist").hidden=!o;b.setAttribute("aria-expanded",String(o))}
+ else if(b.id==="cbtn"){const o=$("clist").hidden;if(o){anim("menu_cursos_despliegue");track("menu_cursos_abierto",{curso:cur})}$("clist").hidden=!o;b.setAttribute("aria-expanded",String(o))}
  else if(b.dataset.fi){closeList();showView("fi")}
  else if(b.dataset.c){track("curso_elegido",{curso:b.dataset.c,nombre:C[b.dataset.c].n,grupo:["nivelacion","curso","sello_up"][gof(b.dataset.c)],origen:b.dataset.p?"pantalla_elegir":b.dataset.f?"pie":"menu"});setCourse(b.dataset.c);if(b.dataset.p)showView("tool");else if(b.dataset.f)window.scrollTo({top:0})}
  else if(b.id==="rs"){track("curso_restablecido",{curso:cur});ST[cur]=null;setCourse(cur)}});
@@ -2098,7 +2119,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeList();
  const t=e.target;if(e.key==="Enter"&&!e.isComposing&&t&&t.matches){if(t.matches("#tree input.g")){e.preventDefault();nextNota(t,e.shiftKey?-1:1)}else if(t.id==="pm"){e.preventDefault();t.blur()}}});
 $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+GR.map(([t,g])=>`<section class="pg"><h2 class="gt">${t}<i>${inG(g).length}</i></h2><div class="pl">${inG(g).map(x=>{const i=KS.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`}).join("")}</div></section>`).join("");
 const pb=document.querySelector("#sum .pbar");let drag=false,raf=0;
-const setPm=v=>{v=Math.max(0,Math.min(20,Math.round(v)));if(v===S.pm)return;S.pm=v;trackCalc();clearTimeout(pmT);pmT=setTimeout(()=>track("meta_cambiada",{curso:cur,valor:S.pm,via:"barra"}),1200);$("pm").value=v;if(!raf)raf=requestAnimationFrame(()=>{raf=0;update()})};
+const setPm=v=>{v=Math.max(0,Math.min(20,Math.round(v)));if(v===S.pm)return;S.pm=v;anim("barra_nota_minima");trackCalc();clearTimeout(pmT);pmT=setTimeout(()=>track("meta_cambiada",{curso:cur,valor:S.pm,via:"barra"}),1200);$("pm").value=v;if(!raf)raf=requestAnimationFrame(()=>{raf=0;update()})};
 const fromX=x=>{const r=pb.getBoundingClientRect();return r.width?(x-r.left)/r.width*20:S.pm};
 /* Mouse: arrastra al instante. Dedo: tambien al instante, pero con dos candados para que un scroll nunca mueva la nota minima:
    1) si la pantalla se esta moviendo (scroll o inercia) la barra no responde a ese toque;
@@ -2139,7 +2160,7 @@ document.querySelectorAll(".qa").forEach(d=>{
   e.preventDefault();
   const mid=!!anim,h0=mid?an.getBoundingClientRect().height:0,o0=mid?+getComputedStyle(an).opacity:0;
   if(anim){anim.cancel();anim2&&anim2.cancel();anim=anim2=null}
-  const open=!d.open||d.classList.contains("closing");if(open)track("faq_abierta",{pregunta:((d.querySelector(".q")||{}).textContent||"").slice(0,80)});
+  const open=!d.open||d.classList.contains("closing");if(open)anim("faq_despliegue");if(open)track("faq_abierta",{pregunta:((d.querySelector(".q")||{}).textContent||"").slice(0,80)});
   if(RM){d.classList.remove("closing");d.open=open;return}
   d.classList.remove("closing");d.open=true;
   const full=an.offsetHeight;
@@ -2164,7 +2185,7 @@ document.querySelectorAll(".qa").forEach(d=>{
  const apply=()=>{const d=isDark();root.dataset.theme=d?"dark":"light";tg.setAttribute("aria-checked",String(d))};
  const store=()=>{try{if(saved)localStorage.setItem("mp-theme",saved);else localStorage.removeItem("mp-theme")}catch(_){}};
  apply();
- tg.addEventListener("click",()=>{const d=root.dataset.theme!=="dark";saved=d?"dark":"light";store();apply();toast(d?"Modo oscuro":"Modo claro");track("tema_cambiado",{tema:d?"oscuro":"claro",modo:"manual"})});
+ tg.addEventListener("click",()=>{const d=root.dataset.theme!=="dark";saved=d?"dark":"light";store();apply();anim("tema_interruptor");toast(d?"Modo oscuro":"Modo claro");track("tema_cambiado",{tema:d?"oscuro":"claro",modo:"manual"})});
 
  if(mq&&mq.addEventListener)mq.addEventListener("change",()=>{if(!saved)apply()})}
 const fo=new IntersectionObserver(es=>es.forEach(e=>{if(e.target.id==="faq"){faqNear=e.isIntersecting;chk()}}),{rootMargin:"0px 0px 170px 0px"});fo.observe($("faq"));
@@ -2392,6 +2413,7 @@ function bqA(root,raw,msg){
  clearTimeout(root._bt);
  root._bt=setTimeout(()=>{all.forEach(e=>{e.style.transition="";e.style.transform="";e.style.opacity=""});root.style.transition="";root.style.height="";root.style.overflow=""},340)}
 function bqU(i){
+ anim("buscador_lista");
  const pick=i.id==="bqp",root=pick?$("plist"):i.closest("#clist");if(!root)return;
  i.parentNode.querySelector(".bqk").classList.toggle("bqv",!!i.value);
  if(pick)root.classList.add("bqd");
@@ -2445,7 +2467,7 @@ $("cbtn").addEventListener("click",()=>setTimeout(()=>{const l=$("clist");if(!l.
   render()};
  const b64=file=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]||"");r.onerror=()=>no(r.error);r.readAsDataURL(file)});
  inp.addEventListener("change",()=>{add([...inp.files]);inp.value=""});
- ["dragenter","dragover"].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.add("dg")}));
+ ["dragenter","dragover"].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.add("dg");anim("subir_zona_arrastre")}));
  ["dragleave","drop"].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.remove("dg")}));
  dz.addEventListener("drop",e=>{if(e.dataTransfer&&e.dataTransfer.files)add([...e.dataTransfer.files])});
  ul.addEventListener("click",e=>{const b=e.target.closest("button[data-rm]");if(!b)return;files.splice(+b.dataset.rm,1);say("");render()});
@@ -2604,7 +2626,7 @@ setCourse(back||"mat");
 showView(back?"tool":"welcome");
 </script>
 <script>/* Nota fuera de rango: mensaje, temblor (se reinicia en cada intento) y vibración corta en celulares que la soportan */
-window.badFx=function(gi,t,mx){var v=parseFloat(String(t.value).replace(",","."));gi.setAttribute("data-msg",v<0?"Mínimo 0":"Máximo "+mx);gi.classList.remove("sk");void gi.offsetWidth;gi.classList.add("sk");clearTimeout(gi._sk);gi._sk=setTimeout(function(){gi.classList.remove("sk")},460);try{if(navigator.vibrate)navigator.vibrate(22)}catch(_){}};
+window.badFx=function(gi,t,mx){anim("nota_temblor");var v=parseFloat(String(t.value).replace(",","."));gi.setAttribute("data-msg",v<0?"Mínimo 0":"Máximo "+mx);gi.classList.remove("sk");void gi.offsetWidth;gi.classList.add("sk");clearTimeout(gi._sk);gi._sk=setTimeout(function(){gi.classList.remove("sk")},460);try{if(navigator.vibrate)navigator.vibrate(22)}catch(_){}};
 </script>
 <script>/* "Elige tu curso": el brillo de cada tarjeta sigue al cursor (solo mouse; la lista se vuelve a dibujar, por eso se escucha en #plist) */
 (function(){var pl=document.getElementById("plist");if(!pl)return;
@@ -2627,9 +2649,9 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
   const p=document.createElement("i");p.className="cx-p"+(o.st?" st":"");
   p.style.cssText=`left:${x}px;top:${y}px;--s:${o.s}px;--c:${o.c};--dx:${o.dx}px;--dy:${o.dy}px;--r:${o.r}deg;--t:${o.t}s`;
   p.addEventListener("animationend",()=>p.remove());layer.appendChild(p)}
- function trail(x,y){const c=COL[(Math.random()*4)|0];part(x,y,{st:Math.random()<.6,s:rnd(8,16),c,dx:rnd(-18,18),dy:rnd(10,34),r:rnd(-120,120),t:rnd(.6,1)})}
+ function trail(x,y){anim("bienvenida_estrellitas");const c=COL[(Math.random()*4)|0];part(x,y,{st:Math.random()<.6,s:rnd(8,16),c,dx:rnd(-18,18),dy:rnd(10,34),r:rnd(-120,120),t:rnd(.6,1)})}
  function burst(x,y){
-  if(RM.matches)return;
+  if(RM.matches)return;anim("bienvenida_explosion");
   const r=document.createElement("i");r.className="cx-rip";r.style.cssText=`left:${x}px;top:${y}px;--c:${COL[(Math.random()*3)|0]}`;r.addEventListener("animationend",()=>r.remove());layer.appendChild(r);
   for(let i=0;i<16;i++){const a=(i/16)*Math.PI*2+rnd(-.2,.2),d=rnd(40,100);
    part(x,y,{st:i%2===0,s:rnd(7,15),c:COL[i%4],dx:Math.cos(a)*d,dy:Math.sin(a)*d,r:rnd(-300,300),t:rnd(.6,.95)})}}
@@ -2637,7 +2659,7 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
  /* ondas en botones (todas las pantallas) */
  document.addEventListener("pointerdown",e=>{
   const b=e.target.closest&&e.target.closest(".btn,.rib");
-  if(b&&!b.disabled&&!RM.matches){const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height)*2,s=document.createElement("span");
+  if(b&&!b.disabled&&!RM.matches){anim("boton_onda");const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height)*2,s=document.createElement("span");
    s.className="cx-rpl";s.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;
    s.addEventListener("animationend",()=>s.remove());b.appendChild(s)}
   if(vis())burst(e.clientX,e.clientY)},{passive:true});
@@ -2655,7 +2677,7 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
    W.style.setProperty("--tx",tx.toFixed(4));W.style.setProperty("--ty",ty.toFixed(4));W.style.setProperty("--ls",ls.toFixed(4));
    if(Math.abs(tx-ttx)>.002||Math.abs(ty-tty)>.002||Math.abs(ls-tls)>.002)raf=requestAnimationFrame(step)};
   const upd=e=>{
-   W.style.setProperty("--mx",e.clientX+"px");W.style.setProperty("--my",e.clientY+"px");W.classList.add("tdown");
+   anim("bienvenida_inclinar_logo");W.style.setProperty("--mx",e.clientX+"px");W.style.setProperty("--my",e.clientY+"px");W.classList.add("tdown");
    px=e.clientX;py=e.clientY;ttx=(px/innerWidth-.5)*2;tty=(py/innerHeight-.5)*2;
    tls=1;if(logo){const r=logo.getBoundingClientRect();if(px>r.left&&px<r.right&&py>r.top&&py<r.bottom)tls=1.06}
    if(!raf)raf=requestAnimationFrame(step)};
@@ -2697,7 +2719,7 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
   mx=e.clientX;my=e.clientY;
   if(!vis()){setOn(false);return}
   if(!inside){inside=true;rx=mx;ry=my;lx=mx;ly=my}
-  dot.style.transform=`translate3d(${mx}px,${my}px,0)`;setOn(true);
+  dot.style.transform=`translate3d(${mx}px,${my}px,0)`;setOn(true);anim("bienvenida_inclinar_logo");
   W.style.setProperty("--mx",mx+"px");W.style.setProperty("--my",my+"px");
   const h=!!(e.target.closest&&e.target.closest("a,button"));dot.classList.toggle("hov",h);ring.classList.toggle("hov",h);
   if(Math.hypot(mx-lx,my-ly)>30){lx=mx;ly=my;trail(mx,my)}
@@ -2723,32 +2745,55 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
 })();
 </script>
 <script>
-/* ===== AL TOCAR (celular): versiones tactiles de varios efectos de hover =====
-   Franjas de colores (se estiran), "Bienvenido a", tarjetas de notas y pasos (suben con brillo donde tocas), tabla de combinaciones
-   (la fila tocada se resalta y se queda marcada hasta que toques otra), logo y titulos del pie. En el nombre del curso las letras
-   saltan al tocarlas o al deslizar el dedo por encima. Solo con el dedo (pointerType touch); se apaga con "reducir movimiento". */
+/* ===== AL TOCAR (celular), FILA RESALTADA DE LA TABLA e INDICADORES DE ANIMACION =====
+   1) Versiones tactiles de varios efectos de hover (franjas, "Bienvenido a", tarjetas, logo y titulos del pie): clase .tapfx unos instantes.
+   2) Tabla de combinaciones: al tocar o hacer clic en una nota, esa fila queda resaltada; solo se quita al tocar o hacer clic FUERA de las celdas.
+      Mover el dedo (scroll) o arrastrar el mouse NO la quita: solo cuenta un toque corto y casi sin movimiento (si el navegador cancela el gesto por scroll, no se hace nada).
+   3) Indicadores: cada animacion de hover/toque manda el evento "animacion" (nombre + via) a PostHog con anim(). */
 (function(){
  const RMq=window.matchMedia?matchMedia("(prefers-reduced-motion: reduce)"):{matches:false};
  const flash=(el,ms)=>{el.classList.remove("tapfx");void el.offsetWidth;el.classList.add("tapfx");clearTimeout(el._tf);el._tf=setTimeout(()=>el.classList.remove("tapfx"),ms||700)};
+ /* [selector, nombre en PostHog, tambien cuenta al tocar] (el primero que coincida) */
+ const HV=[
+  ["#v-welcome .wtop","bienvenida_titulo",1],["#v-welcome .strip","franja_bienvenida",1],[".hero .strip","franja_curso",1],
+  ["#v-welcome #go","boton_empezar",0],["#v-welcome .igw","bienvenida_instagram",0],["#v-pick .pl button","tarjeta_elegir_curso",0],
+  [".blk","tarjeta_nota_brillo",1],[".upst li","paso_agregar_curso",1],[".sc tbody td","tabla_resaltado",0],["#clist button[data-c]","menu_cursos_fila",0],
+  [".qa summary","faq_resaltado",0],[".shb,.bkc,.addc,.fup","botones_barra",0],[".rib","boton_compartir_resultado",0],[".tg","tema_interruptor_hover",0],
+  [".logo","logo_encabezado",0],["footer .lg-f","pie_logo",1],["footer .fl a.ig","pie_instagram",0],["footer .fl.fcm","pie_comentarios",0],
+  ["footer .fl","pie_titulos",1],["#simt","simulador_resaltado",0]];
+ const find=t=>{for(const h of HV){const el=t.closest(h[0]);if(el)return[h,el]}return null};
+ document.addEventListener("pointerover",e=>{
+  if(e.pointerType==="touch")return;const t=e.target;if(!t||!t.closest)return;
+  const f=find(t);if(!f)return;if(e.relatedTarget&&f[1].contains(e.relatedTarget))return;
+  anim(f[0][1],{via:"hover"})},{passive:true});
+ let hlSel=null,down=null;
+ function hlPaint(){const tb=document.querySelector("#cb .sc tbody");if(!tb)return;tb.querySelectorAll("tr.hl").forEach(x=>x.classList.remove("hl"));tb.querySelectorAll("td.hc").forEach(x=>x.classList.remove("hc"));
+  if(!hlSel)return;const tr=tb.parentNode.rows[hlSel.r];if(!tr||tr.cells.length<=hlSel.c||tr.cells[hlSel.c].tagName!=="TD")return;tr.classList.add("hl");tr.cells[hlSel.c].classList.add("hc")}
  document.addEventListener("pointerdown",e=>{
-  if(e.pointerType!=="touch"||RMq.matches)return;
   const t=e.target;if(!t||!t.closest)return;
+  const td=t.closest(".sc td");
+  if(e.isPrimary)down={id:e.pointerId,x:e.clientX,y:e.clientY,t:Date.now(),td:!!td,r:td?td.parentNode.rowIndex:-1,c:td?td.cellIndex:-1};
+  if(e.pointerType!=="touch")return;
+  const f=find(t);if(f&&f[0][2])anim(f[0][1],{via:"toque"});
+  if(RMq.matches)return;
   const st=t.closest(".strip");
   if(st){flash(st,900);let best=null,bd=1e9;[...st.children].forEach(i=>{const r=i.getBoundingClientRect(),d=e.clientX<r.left?r.left-e.clientX:e.clientX>r.right?e.clientX-r.right:0;if(d<bd){bd=d;best=i}});if(best)flash(best,900)}
   const w=t.closest("#v-welcome .wtop");if(w)flash(w,1300);
   const b=t.closest(".blk,.upst li");
   if(b){const r=b.getBoundingClientRect();b.style.setProperty("--gx",(e.clientX-r.left)+"px");b.style.setProperty("--gy",(e.clientY-r.top)+"px");flash(b,650)}
   const lf=t.closest("footer .lg-f");if(lf)flash(lf,700);
-  const fl=t.closest("footer .fl");if(fl)flash(fl,900);
-  const td=t.closest(".sc td");
-  if(td){const tr=td.parentNode,same=hlSel&&hlSel.r===tr.rowIndex&&hlSel.c===td.cellIndex;hlSel=same?null:{r:tr.rowIndex,c:td.cellIndex};hlPaint()}
+  const fl=t.closest("footer .fl");if(fl)flash(fl,900)
+ },{passive:true});
+ document.addEventListener("pointerup",e=>{
+  const d=down;down=null;if(!d||d.id!==e.pointerId)return;
+  if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>10||Date.now()-d.t>900)return;
+  if(d.td){hlSel={r:d.r,c:d.c};hlPaint();anim("tabla_fila_marcada",{via:e.pointerType==="touch"?"toque":"clic"})}
   else if(hlSel){hlSel=null;hlPaint()}
  },{passive:true});
- /* La tabla se vuelve a dibujar con cada cambio de notas (por ejemplo al salir de una casilla); se recuerda la fila tocada y se vuelve a marcar */
- let hlSel=null;
- function hlPaint(){const tb=document.querySelector("#cb .sc tbody");if(!tb)return;tb.querySelectorAll("tr.hl").forEach(x=>x.classList.remove("hl"));tb.querySelectorAll("td.hc").forEach(x=>x.classList.remove("hc"));
-  if(!hlSel)return;const tr=tb.parentNode.rows[hlSel.r];if(!tr||tr.cells.length<=hlSel.c||tr.cells[hlSel.c].tagName!=="TD")return;tr.classList.add("hl");tr.cells[hlSel.c].classList.add("hc")}
- const cb=document.getElementById("cb");if(cb&&window.MutationObserver)new MutationObserver(()=>{if(hlSel)hlPaint()}).observe(cb,{childList:true});
+ document.addEventListener("pointercancel",()=>{down=null},{passive:true});
+ /* La tabla se vuelve a dibujar con cada cambio de notas (por ejemplo al salir de una casilla): se vuelve a marcar la fila elegida */
+ const cb=document.getElementById("cb");
+ if(cb&&window.MutationObserver)new MutationObserver(()=>{if(!cb.querySelector(".sc"))hlSel=null;if(hlSel)hlPaint()}).observe(cb,{childList:true});
 })();
 </script>
 </body>
