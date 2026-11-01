@@ -167,7 +167,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     (ronda 5) nota_minima_temblor, boton_principal_hover, subir_zona_icono, valoracion_botones, valoracion_gracias, pie_enlaces_curso, barra_marcador_hover, menu_cursos_boton,
     zona_barra_pop, aviso_emergente, mini_resumen_aparece y mini_resumen_fi_aparece (estas dos solo una vez por visita).
     Ronda 6: pie_cursor_lente (entra el cursor al pie; ahi el cursor lleva una lente que deja en blanco y negro e invierte lo que tiene debajo).
-    Ronda 7: pie_notas_cursor (entra el cursor o el dedo al pie) y pie_notas_ola (clic o toque en el pie): campo de numeros del 0 al 20 que sube hacia 20 cerca del cursor. tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
+    Ronda 7: pie_notas_cursor (entra el cursor o el dedo al pie) y pie_notas_ola (clic o toque en el pie): campo de numeros del 0 al 20 que sube hacia 20 cerca del cursor; en blanco, y solo la ola del clic se tine de verde. tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
     La propiedad nombre de curso_elegido, primera_nota y resultado_util lleva el nombre completo (cname), p. ej. "Nivelación en Matemáticas"; la propiedad curso sigue siendo la clave corta (mat, len, inf...).
     Las animaciones que corren solas (aurora, brillo de barras, flotar) no se pueden medir porque no dependen de la persona.
 =====================================================================
@@ -2737,10 +2737,10 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
  document.documentElement.addEventListener("mouseleave",leave);
 })();
 </script>
-<script>/* Pie de pagina: campo de notas. Es la escala de la pagina hecha fondo: una cuadricula de numeros del 0 al 20 muy tenues. Cerca del cursor (o del dedo) cada numero cuenta hacia arriba hasta 20 y se enciende: magenta mientras esta bajo 11, azul hasta 15 y verde desde 16. Al alejarte vuelven a su valor. Un clic o toque lanza una ola de 20 que cruza el pie. Sin "reducir movimiento" no aparece. El dibujo solo corre mientras hay cursor o dedo en el pie, o numeros volviendo a su sitio. */
+<script>/* Pie de pagina: campo de notas. Es la escala de la pagina hecha fondo: una cuadricula de numeros del 0 al 20 muy tenues. Cerca del cursor (o del dedo) cada numero cuenta hacia arriba hasta 20 y se vuelve blanco y mas grande. Al alejarte vuelven a su valor. Un clic o toque lanza una ola de 20 que cruza el pie y es lo unico que se tine de verde. Todo lo demas es blanco sobre el azul del pie. Sin "reducir movimiento" no aparece. El dibujo solo corre mientras hay cursor o dedo en el pie, o numeros volviendo a su sitio. */
 (function(){
  if(!window.matchMedia||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
- var R=190,PASS=11,TOP=20,WAVE_MS=1200,FONT=' Montserrat,"Montserrat Fallback",Arial,sans-serif';
+ var R=190,TOP=20,WAVE_MS=1200,FONT=' Montserrat,"Montserrat Fallback",Arial,sans-serif';
  var rnd=function(i){var t=Math.sin(i*127.1+311.7)*43758.5453;return t-Math.floor(t)};
  var note=function(n){try{if(typeof anim==="function")anim(n)}catch(_){}};
  document.querySelectorAll("footer").forEach(function(ft){
@@ -2752,7 +2752,7 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
    if(!W||!B)return false;
    cx.clearRect(0,0,W,H);
    waves=waves.filter(function(v){return now-v.t<WAVE_MS});
-   cx.textAlign="center";cx.textBaseline="middle";cx.font="600 12px"+FONT;cx.fillStyle="rgba(190,205,255,.085)";
+   cx.textAlign="center";cx.textBaseline="middle";cx.font="600 12px"+FONT;cx.fillStyle="rgba(255,255,255,.07)";
    var act=[],i,j,k,x,y,dx,dy,d,f,g,w,wi,v,busy=false,tgt;
    for(j=0;j<rows;j++)for(i=0;i<cols;i++){
     k=j*cols+i;x=i*GAP+((j&1)?GAP/2:0);y=j*GAP+GAP/2;
@@ -2763,13 +2763,13 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
     g=Math.max(f,w);
     tgt=B[k]+(TOP-B[k])*g;
     V[k]+=(tgt-V[k])*.2;
-    if(g>.01||Math.abs(V[k]-B[k])>.05){busy=true;act.push(x,y,V[k],B[k])}
+    if(g>.01||Math.abs(V[k]-B[k])>.05){busy=true;act.push(x,y,V[k],B[k],w)}
     else{V[k]=B[k];cx.fillText(B[k],x,y)}
    }
-   for(i=0;i<act.length;i+=4){
-    x=act[i];y=act[i+1];var val=act[i+2],b=act[i+3],n=Math.round(val),e=Math.max(0,Math.min(1,(val-b)/(TOP-b))),c;
-    c=n>=16?"0,240,60":n>=PASS?"110,155,255":"240,40,240";
-    cx.fillStyle="rgba("+c+","+(.1+.65*e).toFixed(3)+")";
+   for(i=0;i<act.length;i+=5){
+    x=act[i];y=act[i+1];var val=act[i+2],b=act[i+3],ww=act[i+4],n=Math.round(val),e=Math.max(0,Math.min(1,(val-b)/(TOP-b))),m=ww>.05?Math.min(1,ww*1.5):0;
+    /* blanco; con la ola pasa a verde (0,240,60) */
+    cx.fillStyle="rgba("+Math.round(255-255*m)+","+Math.round(255-15*m)+","+Math.round(255-195*m)+","+(.1+.5*e+.2*m).toFixed(3)+")";
     cx.font=(e>.55?"800 ":"700 ")+(12+Math.round(7*e))+"px"+FONT;
     cx.fillText(n,x,y)
    }
