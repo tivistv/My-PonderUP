@@ -1347,9 +1347,6 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
 /* texto del curso: las dos líneas se deslizan una detrás de otra */
 .hero h1 .t1,.hero h1 .t2{transition:translate .5s cubic-bezier(.34,1.56,.64,1)}
 @media (hover:hover){.hero h1:hover .t1{translate:6px 0}.hero h1:hover .t2{translate:14px 0}}
-/* "Ingresa tus notas": se desliza y se dibuja una línea de colores debajo */
-.body h2.it{position:relative;width:fit-content;max-width:100%;transition:translate .45s cubic-bezier(.34,1.56,.64,1)}
-@media (hover:hover){.body h2.it:hover{translate:8px 0}}
 
 /* Nota mínima: aviso "Máximo 20" (igual al de las notas) y celda de la tabla de combinaciones con hover propio */
 .minl{position:relative}
@@ -1359,8 +1356,10 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
 .minl.bad::before{content:"";position:absolute;top:calc(100% + 3px);right:18px;z-index:4;border:5px solid transparent;border-top:0;border-bottom-color:var(--rt);pointer-events:none}
 @keyframes cxbad{from{opacity:0;transform:translateY(-4px) scale(.9)}to{opacity:1;transform:none}}
 @media (hover:hover){
- .sc tbody td:not(:first-child):not(:last-child){transition:background-color .18s,color .18s,transform .25s cubic-bezier(.34,1.56,.64,1)}
- .sc tbody td:not(:first-child):not(:last-child):hover{background-color:color-mix(in srgb,#00F03C 55%,var(--card));color:var(--navy);font-weight:800;transform:scale(1.14);border-radius:4px}
+ .sc tbody td{transition:background-color .18s,color .18s}
+ .sc tbody tr:hover td:hover{background-color:color-mix(in srgb,#00F03C 55%,var(--card));color:var(--navy)}
+ .sc tbody tr:hover td:first-child:hover{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
+ .sc tbody tr:hover td:last-child:hover{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
 }
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
