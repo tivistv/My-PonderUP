@@ -166,8 +166,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     simulador_despliegue, buscador_lista, subir_zona_arrastre, barra_nota_minima, barra_agua, confeti_aprobar, nota_temblor,
     (ronda 5) nota_minima_temblor, boton_principal_hover, subir_zona_icono, valoracion_botones, valoracion_gracias, pie_enlaces_curso, barra_marcador_hover, menu_cursos_boton,
     zona_barra_pop, aviso_emergente, mini_resumen_aparece y mini_resumen_fi_aparece (estas dos solo una vez por visita).
-    Ronda 6: pie_cursor_lente (entra el cursor al pie; ahi el cursor lleva una lente que deja en blanco y negro e invierte lo que tiene debajo).
-    Ronda 7: pie_notas_cursor (entra el cursor o el dedo al pie) y pie_notas_ola (clic o toque en el pie): campo de numeros del 0 al 20 que sube hacia 20 cerca del cursor; en blanco, y solo la ola del clic se tine de verde. tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
+    Ronda 7: pie_notas_cursor (entra el cursor o el dedo al pie) y pie_notas_ola (clic o toque en el pie): campo de numeros del 0 al 20 que solo aparece cerca del cursor o del dedo, donde cuenta hacia 20; en blanco, sin colores. tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
     La propiedad nombre de curso_elegido, primera_nota y resultado_util lleva el nombre completo (cname), p. ej. "Nivelación en Matemáticas"; la propiedad curso sigue siendo la clave corta (mat, len, inf...).
     Las animaciones que corren solas (aurora, brillo de barras, flotar) no se pueden medir porque no dependen de la persona.
 =====================================================================
@@ -1369,15 +1368,10 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
  footer .fl a.ig:hover::after{border-color:var(--green);transform:translateX(3px) rotate(45deg)}
 }
 
-/* ===== PIE v5: cursor lente y cuadro de comentarios con el lenguaje del resto de la pagina ===== */
-/* Lente del cursor: deja en blanco y negro e invierte lo que hay debajo. La crea el script del pie (solo mouse). */
-.fl-lens{position:fixed;left:0;top:0;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;pointer-events:none;z-index:9999;opacity:0;transition:opacity .2s ease;-webkit-backdrop-filter:grayscale(1) invert(1);backdrop-filter:grayscale(1) invert(1);box-shadow:0 0 0 1px rgba(255,255,255,.9),0 0 0 2px rgba(0,0,0,.35);transform:translate3d(-200px,-200px,0)}
-.fl-lens{will-change:transform}
-.fl-lens.on{opacity:1}
-@media (forced-colors:active){.fl-lens{display:none}}
-@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.fl-lens{background:#fff;mix-blend-mode:difference}}
-@media (prefers-reduced-motion:reduce){.fl-lens{transition:none}}
-/* Pie: campo de notas. Un canvas detras del contenido (lo crea el script del pie) con numeros del 0 al 20 muy tenues; cerca del cursor o del dedo suben hacia 20 y se encienden. */
+/* ===== PIE v5: pie mas oscuro, campo de notas y cuadro de comentarios con el lenguaje del resto de la pagina ===== */
+/* Pie mas oscuro: el azul baja un tono y los brillos de las esquinas se suavizan */
+footer{background:radial-gradient(560px 280px at 6% 0,rgba(10,92,255,.1),transparent 70%),radial-gradient(520px 260px at 98% 100%,rgba(0,240,60,.035),transparent 70%),#031229}
+/* Pie: campo de notas. Un canvas detras del contenido (lo crea el script del pie) en reposo esta vacio; solo cerca del cursor o del dedo aparecen numeros del 0 al 20 que suben hacia 20 y se encienden. */
 footer>.fl-nt{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s}
 footer>.fl-nt.on{opacity:1}
 footer>.wrap{position:relative;z-index:1}
@@ -2714,30 +2708,7 @@ var tStop=function(){tDown=false;tEnd()};
 pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchcancel",tStop,{passive:true});
 })();
 </script>
-<script>/* Pie de pagina: cursor "lente". Un circulo que sigue al mouse dentro del pie y deja en blanco y negro, e invierte, lo que tiene debajo (letras, fondo, botones). Crece sobre lo que se puede tocar, se achica sobre los campos de texto (para escribir y seleccionar con precision) y tambien al hacer clic. Solo con mouse; el cursor normal se queda encima para apuntar con precision. */
-(function(){
- if(!window.matchMedia||!matchMedia("(hover:hover) and (pointer:fine)").matches||!document.querySelector("footer"))return;
- var el=document.createElement("div");el.className="fl-lens";el.setAttribute("aria-hidden","true");document.body.appendChild(el);
- var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,x=0,y=0,tx=0,ty=0,s=1,ts=1,raf=0,inF=false,seen=false,tick=0;
- var note=function(n){try{if(typeof anim==="function")anim(n)}catch(_){}};
- function draw(){raf=0;var k=reduce?1:.28;x+=(tx-x)*k;y+=(ty-y)*k;s+=(ts-s)*(reduce?1:.2);el.style.transform="translate3d("+x+"px,"+y+"px,0) scale("+s+")";if(inF&&(Math.abs(tx-x)>.1||Math.abs(ty-y)>.1||Math.abs(ts-s)>.005))raf=requestAnimationFrame(draw)}
- function kick(){if(!raf)raf=requestAnimationFrame(draw)}
- function leave(){inF=false;seen=false;el.classList.remove("on")}
- document.addEventListener("pointermove",function(e){
-  if(e.pointerType!=="mouse")return;
-  var t=e.target;if(!t||!t.closest||!t.closest("footer")){if(inF)leave();return}
-  tx=e.clientX;ty=e.clientY;
-  if(!inF){inF=true;x=tx;y=ty;el.classList.add("on");if(!seen){seen=true;note("pie_cursor_lente")}}
-  ts=t.closest("textarea,input,select")?.6:t.closest("a,button,label,summary,[role=button]")?1.55:1;
-  kick()},{passive:true});
- document.addEventListener("pointerdown",function(e){if(inF&&e.pointerType==="mouse"){ts=.8;kick()}});
- document.addEventListener("pointerup",function(){if(inF){ts=1;kick()}});
- /* al desplazar la pagina con el mouse quieto, si el pie ya no esta debajo del cursor la lente se va */
- window.addEventListener("scroll",function(){if(!inF||tick)return;tick=requestAnimationFrame(function(){tick=0;var t=document.elementFromPoint(tx,ty);if(!t||!t.closest("footer"))leave()})},{passive:true});
- document.documentElement.addEventListener("mouseleave",leave);
-})();
-</script>
-<script>/* Pie de pagina: campo de notas. Es la escala de la pagina hecha fondo: una cuadricula de numeros del 0 al 20 muy tenues. Cerca del cursor (o del dedo) cada numero cuenta hacia arriba hasta 20 y se vuelve blanco y mas grande. Al alejarte vuelven a su valor. Un clic o toque lanza una ola de 20 que cruza el pie y es lo unico que se tine de verde. Todo lo demas es blanco sobre el azul del pie. Sin "reducir movimiento" no aparece. El dibujo solo corre mientras hay cursor o dedo en el pie, o numeros volviendo a su sitio. */
+<script>/* Pie de pagina: campo de notas. Es la escala de la pagina hecha fondo: una cuadricula de numeros del 0 al 20 muy tenues. El fondo del pie queda limpio. Solo cuando el cursor (o el dedo) pasa por una zona aparecen ahi numeros del 0 al 20: cuentan hacia arriba hasta 20 y se encienden en blanco, mas grandes mientras estas cerca; al alejarte se apagan y vuelven a su valor. Un clic o toque lanza una ola de 20 que cruza el pie. Sin colores: blanco sobre el azul del pie. Sin "reducir movimiento" no aparece. El dibujo solo corre mientras hay cursor o dedo en el pie, o numeros volviendo a su sitio. */
 (function(){
  if(!window.matchMedia||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
  var R=190,TOP=20,WAVE_MS=1200,FONT=' Montserrat,"Montserrat Fallback",Arial,sans-serif';
@@ -2752,7 +2723,7 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
    if(!W||!B)return false;
    cx.clearRect(0,0,W,H);
    waves=waves.filter(function(v){return now-v.t<WAVE_MS});
-   cx.textAlign="center";cx.textBaseline="middle";cx.font="600 12px"+FONT;cx.fillStyle="rgba(255,255,255,.07)";
+   cx.textAlign="center";cx.textBaseline="middle";cx.font="600 12px"+FONT;
    var act=[],i,j,k,x,y,dx,dy,d,f,g,w,wi,v,busy=false,tgt;
    for(j=0;j<rows;j++)for(i=0;i<cols;i++){
     k=j*cols+i;x=i*GAP+((j&1)?GAP/2:0);y=j*GAP+GAP/2;
@@ -2764,12 +2735,12 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
     tgt=B[k]+(TOP-B[k])*g;
     V[k]+=(tgt-V[k])*.2;
     if(g>.01||Math.abs(V[k]-B[k])>.05){busy=true;act.push(x,y,V[k],B[k],w)}
-    else{V[k]=B[k];cx.fillText(B[k],x,y)}
+    else{V[k]=B[k]}
    }
    for(i=0;i<act.length;i+=5){
     x=act[i];y=act[i+1];var val=act[i+2],b=act[i+3],ww=act[i+4],n=Math.round(val),e=Math.max(0,Math.min(1,(val-b)/(TOP-b))),m=ww>.05?Math.min(1,ww*1.5):0;
-    /* blanco; con la ola pasa a verde (0,240,60) */
-    cx.fillStyle="rgba("+Math.round(255-255*m)+","+Math.round(255-15*m)+","+Math.round(255-195*m)+","+(.1+.5*e+.2*m).toFixed(3)+")";
+    /* blanco, cada vez mas opaco */
+    cx.fillStyle="rgba(255,255,255,"+Math.min(.9,1.15*e+.25*m).toFixed(3)+")";
     cx.font=(e>.55?"800 ":"700 ")+(12+Math.round(7*e))+"px"+FONT;
     cx.fillText(n,x,y)
    }
