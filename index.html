@@ -1372,6 +1372,16 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
  .sc tbody tr:hover td:first-child:hover{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
  .sc tbody tr:hover td:last-child:hover{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
 }
+/* ===== Celular: tabla sin sombras entre columnas fijas ===== */
+@media (max-width:600px){
+ .sc th:first-child,.sc td:first-child,.sc tbody tr.hl td:first-child{box-shadow:-300px 0 0 0 var(--cs,var(--card))!important}
+ .sc th:first-child{--cs:var(--thbg,var(--navy))}
+ .sc th:last-child{box-shadow:300px 0 0 0 var(--green)!important}
+ .sc td:last-child,.sc tbody tr:hover td:last-child:hover{box-shadow:300px 0 0 0 color-mix(in srgb,#00F03C 20%,var(--card))!important}
+ .sc tbody tr.hl td:first-child{--cs:color-mix(in srgb,#00F03C 14%,var(--card))}
+ .sc tbody tr.hl td.hc:first-child{--cs:color-mix(in srgb,#00F03C 55%,var(--card))}
+ .sc tbody tr.hl td.hc:last-child{box-shadow:300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))!important}
+}
 /* ===== Celular / pantalla tactil: versiones "al tocar" de varios efectos que en PC salen al pasar el cursor =====
    El JS (bloque "AL TOCAR" al final) pone la clase .tapfx unos instantes en el elemento tocado; aqui se repite el mismo efecto del hover. */
 @media (hover:none){
@@ -2731,7 +2741,8 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
   const lf=t.closest("footer .lg-f");if(lf)flash(lf,700);
   const fl=t.closest("footer .fl");if(fl)flash(fl,900);
   const td=t.closest(".sc td");
-  if(td){const tr=td.parentNode;hlSel={r:tr.rowIndex,c:td.cellIndex};hlPaint()}
+  if(td){const tr=td.parentNode,same=hlSel&&hlSel.r===tr.rowIndex&&hlSel.c===td.cellIndex;hlSel=same?null:{r:tr.rowIndex,c:td.cellIndex};hlPaint()}
+  else if(hlSel){hlSel=null;hlPaint()}
  },{passive:true});
  /* La tabla se vuelve a dibujar con cada cambio de notas (por ejemplo al salir de una casilla); se recuerda la fila tocada y se vuelve a marcar */
  let hlSel=null;
