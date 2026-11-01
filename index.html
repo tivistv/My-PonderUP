@@ -1322,6 +1322,10 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
  footer .fl a.ig:hover svg{color:var(--green);transform:scale(1.08);animation:none}
  footer .fl a.ig:hover::after{border-color:var(--green);transform:translateX(3px) rotate(45deg)}
 }
+
+/* ===== Celular: el icono de Instagram de "¿Te sirvió?" es el mismo que en PC; el dedo inclina el logo en la bienvenida ===== */
+@media (max-width:600px){.igc svg{width:28px;height:28px;padding:0;background:none;color:inherit}}
+#v-welcome{touch-action:none}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -2524,6 +2528,26 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
  if(FINE)document.addEventListener("pointermove",e=>{
   const t=e.target.closest&&e.target.closest(".blk,.upst li");
   if(t){const r=t.getBoundingClientRect();t.style.setProperty("--gx",(e.clientX-r.left)+"px");t.style.setProperty("--gy",(e.clientY-r.top)+"px")}},{passive:true});
+ /* ---- celular / pantalla tactil: el dedo inclina el logo igual que el mouse (al soltar vuelve suave al centro) ---- */
+ {
+  let px=0,py=0,ttx=0,tty=0,tx=0,ty=0,ls=1,tls=1,raf=0,down=false,lx=0,ly=0;
+  const logo=W.querySelector(".lgw");
+  const step=()=>{
+   raf=0;if(!vis()||RM.matches)return;
+   tx+=(ttx-tx)*.14;ty+=(tty-ty)*.14;ls+=(tls-ls)*.14;
+   W.style.setProperty("--tx",tx.toFixed(4));W.style.setProperty("--ty",ty.toFixed(4));W.style.setProperty("--ls",ls.toFixed(4));
+   if(Math.abs(tx-ttx)>.002||Math.abs(ty-tty)>.002||Math.abs(ls-tls)>.002)raf=requestAnimationFrame(step)};
+  const upd=e=>{
+   px=e.clientX;py=e.clientY;ttx=(px/innerWidth-.5)*2;tty=(py/innerHeight-.5)*2;
+   tls=1;if(logo){const r=logo.getBoundingClientRect();if(px>r.left&&px<r.right&&py>r.top&&py<r.bottom)tls=1.06}
+   if(!raf)raf=requestAnimationFrame(step)};
+  document.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch"||!vis())return;down=true;lx=e.clientX;ly=e.clientY;upd(e)},{passive:true});
+  document.addEventListener("pointermove",e=>{
+   if(e.pointerType!=="touch"||!down||!vis())return;upd(e);
+   if(Math.hypot(e.clientX-lx,e.clientY-ly)>30){lx=e.clientX;ly=e.clientY;trail(e.clientX,e.clientY)}},{passive:true});
+  const end=e=>{if(e.pointerType!=="touch"||!down)return;down=false;ttx=0;tty=0;tls=1;if(!raf)raf=requestAnimationFrame(step)};
+  document.addEventListener("pointerup",end,{passive:true});document.addEventListener("pointercancel",end,{passive:true});
+ }
  if(!FINE)return;
  /* ---- solo con mouse: cursor propio, inclinacion, foco, iman ---- */
  document.documentElement.classList.add("cx-fine");
