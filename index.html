@@ -1464,13 +1464,15 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
  .blk.tapfx::after{opacity:1;transition:opacity .15s ease}
  .blk{transition:transform .8s cubic-bezier(.2,.7,.2,1),box-shadow .8s ease}
 }
+/* Barra de estado del iPhone (hora y bateria): en inicio, "Elige tu curso" y "Agrega tu curso" toda la pantalla es azul, asi que el fondo de la pagina tambien lo es; si no, iOS tinta la barra con el gris claro de abajo. Dentro del curso la barra azul fija ya lo resuelve. */
+body.dk,body:has(#v-welcome:not([hidden])),body:has(#v-pick:not([hidden])),body:has(#v-up:not([hidden])){background:var(--navy)}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
 window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.getItem("mp-int")==="1"||/^(localhost|127\.0\.0\.1)$/.test(h)||/^[a-z0-9-]+-[a-z0-9]{9}-[a-z0-9-]+\.vercel\.app$/.test(h))return null}catch(_){}return e});</script>
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body>
+<body class="dk">
 
 <div id="v-welcome" class="wel"><div class="wrap wc">
 <div class="wt wtop"><span class="t1 mr" style="--i:1">Bienvenido a</span></div>
@@ -1848,7 +1850,7 @@ const chk=()=>{const mOn=view==="tool"&&bodyIn&&!sumIn&&!faqIn,fm=$("fimini"),
  if(mOn&&!miniAn&&!$("mini").classList.contains("on")){miniAn=true;anim("mini_resumen_aparece")}$("mini").classList.toggle("on",mOn);
  $("tgw").classList.toggle("off",!tOn);
  $("tgw").classList.toggle("low",!(mOn||(fm&&fm.classList.contains("on"))))};
-function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
+function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;document.body.classList.toggle("dk",v==="welcome"||v==="pick"||v==="up");track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
 /* "Agrega tu curso": recuerda desde donde se abrio para volver al mismo lugar */
 function updUpLabels(){const t=upFrom==="tool"&&cur,s=document.querySelector("#upback span"),g=$("upgo");if(s)s.textContent=t?"← Volver a mi curso":"← Volver a cursos";if(g)g.textContent=t?"Volver a mi curso":"Volver a cursos"}
