@@ -1145,6 +1145,72 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 /* Presionar: todos los botones principales se hunden un poco */
 .btn:not(:disabled):active,.rib:active,.shb:active,.mpvbtn:active,.addc:active{transform:scale(.97)}
 @media (prefers-reduced-motion:reduce){.tg:hover,.tg:active,.qa summary:hover .pm,.fl button[data-c]:hover,.fl button[data-pick]:hover,.fl button[data-fi]:hover,#cbtn:hover .chev{scale:none;translate:none}.btn:not(:disabled):active,.rib:active,.shb:active,.mpvbtn:active,.addc:active,.rib:hover{transform:none}}
+
+/* ===== EFECTOS DE CURSOR Y HOVER (bienvenida + resto) =====
+   Todo lo de aqui es visual. El JS que lo mueve esta en el bloque "EFECTOS DE CURSOR" al final del body.
+   Se apaga solo con prefers-reduced-motion. Cursor y foco en la bienvenida: solo con mouse (hover:hover y pointer:fine). */
+#v-welcome .wc{position:relative;z-index:1}
+.wel-spot{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s;background:radial-gradient(circle 320px at var(--mx,50%) var(--my,50%),rgba(0,240,60,.16),rgba(10,92,255,.09) 45%,transparent 72%)}
+html.cx-fine #v-welcome:hover .wel-spot{opacity:1}
+/* particulas del cursor (estrellitas y puntos) */
+.cx-layer{position:fixed;inset:0;z-index:9998;pointer-events:none;overflow:hidden}
+.cx-p{position:absolute;width:var(--s,10px);height:var(--s,10px);margin:calc(var(--s,10px)/-2) 0 0 calc(var(--s,10px)/-2);background:var(--c,#fff);border-radius:50%;animation:cxp var(--t,.8s) cubic-bezier(.15,.7,.3,1) forwards;box-shadow:0 0 8px var(--c,#fff)}
+.cx-p.st{border-radius:0;clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);box-shadow:none}
+@keyframes cxp{0%{transform:translate(0,0) scale(1) rotate(0);opacity:1}100%{transform:translate(var(--dx,0),var(--dy,20px)) scale(0) rotate(var(--r,90deg));opacity:0}}
+.cx-rip{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;border:2px solid var(--c,#00F03C);animation:cxr .65s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes cxr{from{transform:scale(.3);opacity:.9}to{transform:scale(5.5);opacity:0}}
+/* cursor propio: punto exacto + aro que lo sigue con retraso */
+.cx-cur{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;opacity:0;transition:opacity .25s;will-change:transform}
+.cx-cur.on{opacity:1}
+.cx-dot::before{content:"";display:block;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#00F03C;box-shadow:0 0 12px 2px rgba(0,240,60,.7);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.cx-ring::before{content:"";display:block;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:2px solid rgba(0,240,60,.85);background:rgba(0,240,60,.04);transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .25s,border-color .25s}
+.cx-ring.hov::before{transform:scale(1.7);background:rgba(0,240,60,.16);border-color:#fff}
+.cx-ring.dn::before{transform:scale(.7);background:rgba(0,240,60,.3)}
+.cx-dot.hov::before{transform:scale(.4)}
+html.cx-fine #v-welcome,html.cx-fine #v-welcome *{cursor:none!important}
+/* el logo se inclina hacia el cursor, el halo y los anillos se mueven a otro ritmo (profundidad) */
+#v-welcome .lg-v{transform:perspective(900px) rotateY(calc(var(--tx,0)*12deg)) rotateX(calc(var(--ty,0)*-12deg)) scale(var(--ls,1));will-change:transform}
+#v-welcome .halo{translate:calc(var(--tx,0)*-22px) calc(var(--ty,0)*-22px)}
+#v-welcome .rg{translate:calc(var(--tx,0)*-34px) calc(var(--ty,0)*-34px)}
+#v-welcome .wtop{translate:calc(var(--tx,0)*10px) calc(var(--ty,0)*6px)}
+#v-welcome .wbot{translate:calc(var(--tx,0)*-8px) calc(var(--ty,0)*-6px)}
+/* titulo y franja de colores */
+#v-welcome .wtop .t1{transition:letter-spacing .6s cubic-bezier(.2,.7,.2,1)}
+@media (hover:hover){#v-welcome .wtop:hover .t1{letter-spacing:.27em}}
+#v-welcome .strip{box-sizing:content-box;padding:12px 0;background-clip:content-box}
+#v-welcome .strip i{transition:flex .45s cubic-bezier(.3,1.4,.5,1),transform .3s}
+@media (hover:hover){
+ #v-welcome .strip:hover i{transform:scaleY(2.4)}
+ #v-welcome .strip i:hover{flex:4}
+}
+/* boton Empezar: flecha que aparece, sin tocar su brillo ni su hover actual */
+#go{transition:transform .2s,box-shadow .2s,letter-spacing .3s}
+@media (hover:hover){#go:hover{letter-spacing:.09em;box-shadow:0 12px 28px rgba(0,240,60,.45),0 0 0 6px rgba(0,240,60,.18)}}
+/* Instagram */
+.igw svg{transition:transform .4s cubic-bezier(.3,1.6,.5,1)}
+.igw .igu{background:linear-gradient(currentColor,currentColor) 0 100%/0 2px no-repeat;transition:background-size .3s}
+@media (hover:hover){.igw:hover svg{transform:rotate(-14deg) scale(1.3)}.igw:hover .igu{background-size:100% 2px}}
+/* ondas al hacer clic en botones */
+.rib{position:relative;overflow:hidden}
+.cx-rpl{position:absolute;border-radius:50%;background:rgba(255,255,255,.55);transform:scale(0);animation:cxrp .6s ease-out forwards;pointer-events:none}
+@keyframes cxrp{to{transform:scale(1);opacity:0}}
+/* resto de pantallas: brillo que sigue al cursor en tarjetas, filas, logo, campos */
+@media (hover:hover){
+ .blk:hover,.upst li:hover{background-image:radial-gradient(240px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.14),transparent 65%)}
+ .sc tbody tr{transition:background-color .2s}
+ .sc tbody tr:hover{background-color:color-mix(in srgb,#00F03C 14%,transparent)}
+ .logo .lg-h,.logo .lg-f{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+ .logo:hover .lg-h,.logo:hover .lg-f{transform:scale(1.06) rotate(-1.5deg)}
+ .shb,.bkc,.addc{transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .2s,color .2s,filter .2s}
+ .shb:hover,.addc:hover{transform:translateY(-2px)}
+}
+input:not([type="checkbox"]):not([type="radio"]):focus,textarea:focus{box-shadow:0 0 0 4px rgba(0,240,60,.22);transition:box-shadow .25s}
+@media (prefers-reduced-motion:reduce){
+ #v-welcome .lg-v{transform:none}
+ #v-welcome .halo,#v-welcome .rg,#v-welcome .wtop,#v-welcome .wbot{translate:none}
+ .cx-layer,.cx-cur,.wel-spot{display:none!important}
+ html.cx-fine #v-welcome,html.cx-fine #v-welcome *{cursor:auto!important}
+}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -2313,6 +2379,83 @@ window.badFx=function(gi,t,mx){var v=parseFloat(String(t.value).replace(",",".")
 (function(){var pl=document.getElementById("plist");if(!pl)return;
 pl.addEventListener("pointermove",function(e){if(e.pointerType!=="mouse")return;var b=e.target.closest&&e.target.closest(".pl button");if(!b||b.disabled)return;var r=b.getBoundingClientRect();b.style.setProperty("--mx",(e.clientX-r.left)+"px");b.style.setProperty("--my",(e.clientY-r.top)+"px")},{passive:true});
 pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.closest(".pl button");if(b&&!b.contains(e.relatedTarget)){b.style.removeProperty("--mx");b.style.removeProperty("--my")}})})();
+</script>
+<script>
+/* ===== EFECTOS DE CURSOR =====
+   Solo visual. Bienvenida: cursor propio (punto + aro), estrellitas al mover, explosion al hacer clic (tambien al tocar en celular),
+   inclinacion 3D del logo hacia el cursor, foco de luz, boton Empezar "magnetico". Resto de pantallas: ondas en botones y brillo en tarjetas. */
+(function(){
+ const W=document.getElementById("v-welcome");if(!W||!window.matchMedia)return;
+ const RM=matchMedia("(prefers-reduced-motion: reduce)"),FINE=matchMedia("(hover:hover) and (pointer:fine)").matches;
+ const COL=["#00F03C","#0A5CFF","#F000F0","#ffffff"],rnd=(a,b)=>a+Math.random()*(b-a);
+ const layer=document.createElement("div");layer.className="cx-layer";layer.setAttribute("aria-hidden","true");document.body.appendChild(layer);
+ const vis=()=>!W.hidden;
+ function part(x,y,o){
+  if(RM.matches||layer.childElementCount>80)return;
+  const p=document.createElement("i");p.className="cx-p"+(o.st?" st":"");
+  p.style.cssText=`left:${x}px;top:${y}px;--s:${o.s}px;--c:${o.c};--dx:${o.dx}px;--dy:${o.dy}px;--r:${o.r}deg;--t:${o.t}s`;
+  p.addEventListener("animationend",()=>p.remove());layer.appendChild(p)}
+ function trail(x,y){const c=COL[(Math.random()*4)|0];part(x,y,{st:Math.random()<.6,s:rnd(8,16),c,dx:rnd(-18,18),dy:rnd(10,34),r:rnd(-120,120),t:rnd(.6,1)})}
+ function burst(x,y){
+  if(RM.matches)return;
+  const r=document.createElement("i");r.className="cx-rip";r.style.cssText=`left:${x}px;top:${y}px;--c:${COL[(Math.random()*3)|0]}`;r.addEventListener("animationend",()=>r.remove());layer.appendChild(r);
+  for(let i=0;i<16;i++){const a=(i/16)*Math.PI*2+rnd(-.2,.2),d=rnd(40,100);
+   part(x,y,{st:i%2===0,s:rnd(7,15),c:COL[i%4],dx:Math.cos(a)*d,dy:Math.sin(a)*d,r:rnd(-300,300),t:rnd(.6,.95)})}}
+ /* ondas en botones (todas las pantallas) */
+ document.addEventListener("pointerdown",e=>{
+  const b=e.target.closest&&e.target.closest(".btn,.rib");
+  if(b&&!b.disabled&&!RM.matches){const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height)*2,s=document.createElement("span");
+   s.className="cx-rpl";s.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;
+   s.addEventListener("animationend",()=>s.remove());b.appendChild(s)}
+  if(vis())burst(e.clientX,e.clientY)},{passive:true});
+ /* brillo que sigue al cursor en tarjetas */
+ if(FINE)document.addEventListener("pointermove",e=>{
+  const t=e.target.closest&&e.target.closest(".blk,.upst li");
+  if(t){const r=t.getBoundingClientRect();t.style.setProperty("--gx",(e.clientX-r.left)+"px");t.style.setProperty("--gy",(e.clientY-r.top)+"px")}},{passive:true});
+ if(!FINE)return;
+ /* ---- solo con mouse: cursor propio, inclinacion, foco, iman ---- */
+ document.documentElement.classList.add("cx-fine");
+ const spot=document.createElement("div");spot.className="wel-spot";spot.setAttribute("aria-hidden","true");W.insertBefore(spot,W.firstChild);
+ const dot=document.createElement("div"),ring=document.createElement("div");
+ dot.className="cx-cur cx-dot";ring.className="cx-cur cx-ring";dot.setAttribute("aria-hidden","true");ring.setAttribute("aria-hidden","true");
+ document.body.append(ring,dot);
+ const go=document.getElementById("go"),logo=W.querySelector(".lgw");
+ let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my,tx=0,ty=0,ls=1,gx=0,gy=0,lx=mx,ly=my,raf=0,inside=false;
+ function setOn(v){dot.classList.toggle("on",v);ring.classList.toggle("on",v)}
+ function frame(){
+  raf=0;
+  if(!vis()||RM.matches){setOn(false);return}
+  const ttx=inside?(mx/innerWidth-.5)*2:0,tty=inside?(my/innerHeight-.5)*2:0;
+  rx+=(mx-rx)*.2;ry+=(my-ry)*.2;tx+=(ttx-tx)*.08;ty+=(tty-ty)*.08;
+  ring.style.transform=`translate3d(${rx}px,${ry}px,0)`;
+  let tls=1;if(inside&&logo){const r=logo.getBoundingClientRect();if(mx>r.left&&mx<r.right&&my>r.top&&my<r.bottom)tls=1.06}
+  ls+=(tls-ls)*.12;
+  let tgx=0,tgy=0;
+  if(inside&&go){const r=go.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=mx-cx,dy=my-cy;
+   if(Math.hypot(dx,dy)<Math.max(r.width,r.height)*.9){tgx=dx*.22;tgy=dy*.3}}
+  gx+=(tgx-gx)*.18;gy+=(tgy-gy)*.18;
+  if(go)go.style.translate=(Math.abs(gx)+Math.abs(gy)>.05)?`${gx.toFixed(2)}px ${gy.toFixed(2)}px`:"";
+  W.style.setProperty("--tx",tx.toFixed(4));W.style.setProperty("--ty",ty.toFixed(4));W.style.setProperty("--ls",ls.toFixed(4));
+  const settled=Math.abs(rx-mx)<.3&&Math.abs(ry-my)<.3&&Math.abs(tx-ttx)<.002&&Math.abs(ty-tty)<.002&&Math.abs(ls-tls)<.002&&Math.abs(gx-tgx)<.05&&Math.abs(gy-tgy)<.05;
+  if(!settled)raf=requestAnimationFrame(frame)}
+ const kick=()=>{if(!raf)raf=requestAnimationFrame(frame)};
+ document.addEventListener("pointermove",e=>{
+  if(e.pointerType==="touch")return;
+  mx=e.clientX;my=e.clientY;
+  if(!vis()){setOn(false);return}
+  if(!inside){inside=true;rx=mx;ry=my;lx=mx;ly=my}
+  dot.style.transform=`translate3d(${mx}px,${my}px,0)`;setOn(true);
+  W.style.setProperty("--mx",mx+"px");W.style.setProperty("--my",my+"px");
+  const h=!!(e.target.closest&&e.target.closest("a,button"));dot.classList.toggle("hov",h);ring.classList.toggle("hov",h);
+  if(Math.hypot(mx-lx,my-ly)>30){lx=mx;ly=my;trail(mx,my)}
+  kick()},{passive:true});
+ document.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch"&&vis())ring.classList.add("dn")},{passive:true});
+ document.addEventListener("pointerup",()=>ring.classList.remove("dn"),{passive:true});
+ document.documentElement.addEventListener("pointerleave",()=>{inside=false;setOn(false);kick()});
+ document.documentElement.addEventListener("pointerenter",()=>{inside=true;kick()});
+ /* al cambiar de pantalla el cursor propio se apaga y la bienvenida vuelve a su posicion */
+ new MutationObserver(()=>{if(!vis()){setOn(false);if(go)go.style.translate=""}else kick()}).observe(W,{attributes:true,attributeFilter:["hidden"]});
+})();
 </script>
 </body>
 </html>
