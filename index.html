@@ -1089,6 +1089,15 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 .fl a.ig,.fl a.ig span{white-space:nowrap}
 .fl a.ig .igu{display:inline;margin:0}
 @media (max-width:760px){.fc.fcx{grid-template-areas:"lg" "cm" "co"}.fcx>.fl:last-child{align-self:start}}
+/* ===== Nota fuera de rango: temblor corto + mensaje claro bajo la casilla ===== */
+@keyframes gishake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-5px)}40%,60%{transform:translateX(5px)}}
+@keyframes badin{from{opacity:0;transform:translate(-50%,-4px) scale(.9)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+.gi.sk{animation:gishake .42s cubic-bezier(.36,.07,.19,.97)}
+.gi.bad::after{content:attr(data-msg);position:absolute;top:calc(100% + 6px);left:50%;z-index:4;white-space:nowrap;padding:5px 9px;background:var(--rt);color:#fff;border-radius:2px;font:800 .68rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.02em;pointer-events:none;animation:badin .24s cubic-bezier(.34,1.56,.64,1) both}
+.gi.bad::before{content:"";position:absolute;top:calc(100% + 1px);left:50%;z-index:4;margin-left:-5px;border:5px solid transparent;border-top:0;border-bottom-color:var(--rt);pointer-events:none}
+/* ===== Cambio de pantalla: fundido corto (solo opacidad, para no mover los fondos fijos) ===== */
+@keyframes vin{from{opacity:0}to{opacity:1}}
+.vin{animation:vin .26s ease-out}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -1467,7 +1476,7 @@ const chk=()=>{const mOn=view==="tool"&&bodyIn&&!sumIn&&!faqIn,fm=$("fimini"),
  $("mini").classList.toggle("on",mOn);
  $("tgw").classList.toggle("off",!tOn);
  $("tgw").classList.toggle("low",!(mOn||(fm&&fm.classList.contains("on"))))};
-function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
+function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});if(window.__vsh){const nv=$("v-"+v);if(nv){nv.classList.remove("vin");void nv.offsetWidth;nv.classList.add("vin")}}window.__vsh=1;chk();fchk();trackCombo()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
 /* "Agrega tu curso": recuerda desde donde se abrio para volver al mismo lugar */
 function updUpLabels(){const t=upFrom==="tool"&&cur,s=document.querySelector("#upback span"),g=$("upgo");if(s)s.textContent=t?"← Volver a mi curso":"← Volver a cursos";if(g)g.textContent=t?"Volver a mi curso":"Volver a cursos"}
@@ -1703,7 +1712,7 @@ function update(){
 const nd=t=>{let v=t.value.replace(/,/g,".").replace(/[^0-9.]/g,"");const i=v.indexOf(".");if(i>=0)v=v.slice(0,i+1)+v.slice(i+1).replace(/\./g,"");
  if(v!==t.value){const p=t.selectionStart,d=t.value.length-v.length;t.value=v;try{const q=Math.max(0,(p==null?v.length:p)-d);t.setSelectionRange(q,q)}catch(_){}}return v};
 const h=e=>{const t=e.target,id=t.dataset.id;
- if(t.classList.contains("g")){S.g[id]=nd(t);if(e.type==="input"&&t.value!==""&&!seenTyp.has(cur)){seenTyp.add(cur);track("nota_escribiendo",{curso:cur})}const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);const bd=f&&(+t.value>(idx[id].mx||20)||+t.value<0);gi.classList.toggle("bad",bd);if(bd){const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}t.style.width=f?(t.value.length+.6)+"ch":""}}
+ if(t.classList.contains("g")){S.g[id]=nd(t);if(e.type==="input"&&t.value!==""&&!seenTyp.has(cur)){seenTyp.add(cur);track("nota_escribiendo",{curso:cur})}const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);const bd=f&&(+t.value>(idx[id].mx||20)||+t.value<0);gi.classList.toggle("bad",bd);if(bd&&typeof badFx==="function")badFx(gi,t,idx[id].mx||20);if(bd){const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}t.style.width=f?(t.value.length+.6)+"ch":""}}
  else if(t.dataset.r)idx[t.dataset.r].r=t.checked?1:0;
  else if(t.id==="rf")S.rf=t.checked;
  else if(t.id==="pm")S.pm=Math.max(0,Math.min(20,+nd(t)||0));
@@ -2249,6 +2258,9 @@ const back=load();
 if(back)track("progreso_restaurado",{curso:back});
 setCourse(back||"mat");
 showView(back?"tool":"welcome");
+</script>
+<script>/* Nota fuera de rango: mensaje, temblor (se reinicia en cada intento) y vibración corta en celulares que la soportan */
+window.badFx=function(gi,t,mx){var v=parseFloat(String(t.value).replace(",","."));gi.setAttribute("data-msg",v<0?"Mínimo 0":"Máximo "+mx);gi.classList.remove("sk");void gi.offsetWidth;gi.classList.add("sk");clearTimeout(gi._sk);gi._sk=setTimeout(function(){gi.classList.remove("sk")},460);try{if(navigator.vibrate)navigator.vibrate(22)}catch(_){}};
 </script>
 <script>/* "Elige tu curso": el brillo de cada tarjeta sigue al cursor (solo mouse; la lista se vuelve a dibujar, por eso se escucha en #plist) */
 (function(){var pl=document.getElementById("plist");if(!pl)return;
