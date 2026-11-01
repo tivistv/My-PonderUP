@@ -166,7 +166,8 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     simulador_despliegue, buscador_lista, subir_zona_arrastre, barra_nota_minima, barra_agua, confeti_aprobar, nota_temblor,
     (ronda 5) nota_minima_temblor, boton_principal_hover, subir_zona_icono, valoracion_botones, valoracion_gracias, pie_enlaces_curso, barra_marcador_hover, menu_cursos_boton,
     zona_barra_pop, aviso_emergente, mini_resumen_aparece y mini_resumen_fi_aparece (estas dos solo una vez por visita).
-    Ronda 6: pie_cursor_lente (entra el cursor al pie; ahi el cursor lleva una lente que deja en blanco y negro e invierte lo que tiene debajo). tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
+    Ronda 6: pie_cursor_lente (entra el cursor al pie; ahi el cursor lleva una lente que deja en blanco y negro e invierte lo que tiene debajo).
+    Ronda 7: pie_notas_cursor (entra el cursor o el dedo al pie) y pie_notas_ola (clic o toque en el pie): campo de numeros del 0 al 20 que sube hacia 20 cerca del cursor. tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
     La propiedad nombre de curso_elegido, primera_nota y resultado_util lleva el nombre completo (cname), p. ej. "Nivelación en Matemáticas"; la propiedad curso sigue siendo la clave corta (mat, len, inf...).
     Las animaciones que corren solas (aurora, brillo de barras, flotar) no se pueden medir porque no dependen de la persona.
 =====================================================================
@@ -1376,6 +1377,11 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
 @media (forced-colors:active){.fl-lens{display:none}}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.fl-lens{background:#fff;mix-blend-mode:difference}}
 @media (prefers-reduced-motion:reduce){.fl-lens{transition:none}}
+/* Pie: campo de notas. Un canvas detras del contenido (lo crea el script del pie) con numeros del 0 al 20 muy tenues; cerca del cursor o del dedo suben hacia 20 y se encienden. */
+footer>.fl-nt{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s}
+footer>.fl-nt.on{opacity:1}
+footer>.wrap{position:relative;z-index:1}
+@media (prefers-reduced-motion:reduce){footer>.fl-nt{display:none}}
 /* Cuadro de comentarios y sugerencias: bloque cuadrado de la pagina (fondo solido, borde fino, franja verde a la izquierda), titulo en mayusculas y campo solido, en vez de la tarjeta translucida. Al pasar el cursor se oscurece, como las tarjetas de curso. */
 footer .fc .fl.fcm{background:#0d2145;background-image:none;border:1px solid #233a66;border-left:6px solid var(--green);box-shadow:none;transition:background-color .2s}
 footer .fc .fl.fcm>b{display:block;margin:0 0 12px;font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:#fff}
@@ -2729,6 +2735,70 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
  /* al desplazar la pagina con el mouse quieto, si el pie ya no esta debajo del cursor la lente se va */
  window.addEventListener("scroll",function(){if(!inF||tick)return;tick=requestAnimationFrame(function(){tick=0;var t=document.elementFromPoint(tx,ty);if(!t||!t.closest("footer"))leave()})},{passive:true});
  document.documentElement.addEventListener("mouseleave",leave);
+})();
+</script>
+<script>/* Pie de pagina: campo de notas. Es la escala de la pagina hecha fondo: una cuadricula de numeros del 0 al 20 muy tenues. Cerca del cursor (o del dedo) cada numero cuenta hacia arriba hasta 20 y se enciende: magenta mientras esta bajo 11, azul hasta 15 y verde desde 16. Al alejarte vuelven a su valor. Un clic o toque lanza una ola de 20 que cruza el pie. Sin "reducir movimiento" no aparece. El dibujo solo corre mientras hay cursor o dedo en el pie, o numeros volviendo a su sitio. */
+(function(){
+ if(!window.matchMedia||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ var R=190,PASS=11,TOP=20,WAVE_MS=1200,FONT=' Montserrat,"Montserrat Fallback",Arial,sans-serif';
+ var rnd=function(i){var t=Math.sin(i*127.1+311.7)*43758.5453;return t-Math.floor(t)};
+ var note=function(n){try{if(typeof anim==="function")anim(n)}catch(_){}};
+ document.querySelectorAll("footer").forEach(function(ft){
+  var cv=document.createElement("canvas"),cx=cv.getContext&&cv.getContext("2d");
+  if(!cx)return;
+  cv.className="fl-nt";cv.setAttribute("aria-hidden","true");ft.insertBefore(cv,ft.firstChild);
+  var W=0,H=0,GAP=42,cols=0,rows=0,B=null,V=null,mx=0,my=0,inside=false,entered=false,raf=0,waves=[];
+  function paint(now){
+   if(!W||!B)return false;
+   cx.clearRect(0,0,W,H);
+   waves=waves.filter(function(v){return now-v.t<WAVE_MS});
+   cx.textAlign="center";cx.textBaseline="middle";cx.font="600 12px"+FONT;cx.fillStyle="rgba(190,205,255,.085)";
+   var act=[],i,j,k,x,y,dx,dy,d,f,g,w,wi,v,busy=false,tgt;
+   for(j=0;j<rows;j++)for(i=0;i<cols;i++){
+    k=j*cols+i;x=i*GAP+((j&1)?GAP/2:0);y=j*GAP+GAP/2;
+    f=0;
+    if(inside){dx=mx-x;dy=my-y;d=Math.sqrt(dx*dx+dy*dy);if(d<R)f=Math.pow(1-d/R,1.4)}
+    w=0;
+    for(wi=0;wi<waves.length;wi++){v=waves[wi];dx=x-v.x;dy=y-v.y;d=(Math.sqrt(dx*dx+dy*dy)-(now-v.t)*.8)/60;w=Math.max(w,Math.exp(-d*d)*(1-(now-v.t)/WAVE_MS))}
+    g=Math.max(f,w);
+    tgt=B[k]+(TOP-B[k])*g;
+    V[k]+=(tgt-V[k])*.2;
+    if(g>.01||Math.abs(V[k]-B[k])>.05){busy=true;act.push(x,y,V[k],B[k])}
+    else{V[k]=B[k];cx.fillText(B[k],x,y)}
+   }
+   for(i=0;i<act.length;i+=4){
+    x=act[i];y=act[i+1];var val=act[i+2],b=act[i+3],n=Math.round(val),e=Math.max(0,Math.min(1,(val-b)/(TOP-b))),c;
+    c=n>=16?"0,240,60":n>=PASS?"110,155,255":"240,40,240";
+    cx.fillStyle="rgba("+c+","+(.1+.65*e).toFixed(3)+")";
+    cx.font=(e>.55?"800 ":"700 ")+(12+Math.round(7*e))+"px"+FONT;
+    cx.fillText(n,x,y)
+   }
+   return busy||waves.length>0
+  }
+  function frame(t){raf=0;if(paint(t)||inside)raf=requestAnimationFrame(frame)}
+  function kick(){if(!raf)raf=requestAnimationFrame(frame)}
+  function size(){
+   var r=ft.getBoundingClientRect();if(!r.width||!r.height)return;
+   var dpr=Math.min(2,window.devicePixelRatio||1),k;
+   W=r.width;H=r.height;GAP=W<640?46:42;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cx.setTransform(dpr,0,0,dpr,0,0);
+   cols=Math.ceil(W/GAP)+2;rows=Math.ceil(H/GAP)+1;
+   B=new Uint8Array(cols*rows);V=new Float32Array(cols*rows);
+   for(k=0;k<B.length;k++){B[k]=Math.floor(rnd(k)*11);V[k]=B[k]}
+   paint(performance.now());cv.classList.add("on")}
+  function at(cx0,cy0){var r=ft.getBoundingClientRect();mx=cx0-r.left;my=cy0-r.top}
+  function enter(){inside=true;if(!entered){entered=true;note("pie_notas_cursor")}if(!W)size()}
+  function wave(){waves.push({x:mx,y:my,t:performance.now()});if(waves.length>4)waves.shift();note("pie_notas_ola")}
+  ft.addEventListener("pointermove",function(e){if(e.pointerType!=="mouse")return;at(e.clientX,e.clientY);enter();kick()},{passive:true});
+  ft.addEventListener("pointerleave",function(e){if(e.pointerType!=="mouse")return;inside=false;entered=false;kick()});
+  ft.addEventListener("pointerdown",function(e){if(e.pointerType!=="mouse"||e.button!==0)return;at(e.clientX,e.clientY);enter();wave();kick()});
+  /* celular: el dedo hace de cursor; al soltar los numeros vuelven despacio */
+  function touchAt(e){var t=e.touches&&e.touches[0];if(!t)return false;at(t.clientX,t.clientY);return true}
+  ft.addEventListener("touchstart",function(e){if(!touchAt(e))return;clearTimeout(ft._te);enter();wave();kick()},{passive:true});
+  ft.addEventListener("touchmove",function(e){if(!touchAt(e))return;enter();kick()},{passive:true});
+  var end=function(){clearTimeout(ft._te);ft._te=setTimeout(function(){inside=false;entered=false;kick()},500)};
+  ft.addEventListener("touchend",end,{passive:true});ft.addEventListener("touchcancel",end,{passive:true});
+  if(window.ResizeObserver)new ResizeObserver(size).observe(ft);else{window.addEventListener("resize",size);size()}
+ })
 })();
 </script>
 <script>
