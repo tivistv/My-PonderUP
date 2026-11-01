@@ -1174,10 +1174,21 @@ html.cx-fine #v-welcome,html.cx-fine #v-welcome *{cursor:none!important}
 #v-welcome .rg{translate:calc(var(--tx,0)*-34px) calc(var(--ty,0)*-34px)}
 #v-welcome .wtop{translate:calc(var(--tx,0)*10px) calc(var(--ty,0)*6px)}
 #v-welcome .wbot{translate:calc(var(--tx,0)*-8px) calc(var(--ty,0)*-6px)}
+/* Bienvenida de una sola pantalla: sin scroll, todo visible */
+html:has(#v-welcome:not([hidden])),html:has(#v-welcome:not([hidden])) body{overflow:hidden;height:100%}
+#v-welcome:not([hidden]){height:100vh;height:100svh;min-height:0;overflow:hidden}
+#v-welcome .wc{height:100%;min-height:0;padding-top:clamp(14px,3.5vh,40px);padding-bottom:clamp(30px,6vh,56px)}
+#v-welcome{--lw:clamp(150px,min(60vw,42svh),520px)}
+#v-welcome .lg-v{max-height:46svh}
+#v-welcome .wtop{padding-bottom:clamp(8px,2.2vh,28px)}
+#v-welcome .wbot{padding-top:clamp(10px,2.5vh,30px)}
+@media (max-height:500px){#v-welcome{--lw:clamp(110px,min(60vw,38svh),520px)}#v-welcome .lg-v{max-height:42svh}}
+@media (max-height:340px){#v-welcome{--lw:clamp(80px,min(60vw,32svh),520px)}#v-welcome .lg-v{max-height:36svh}}
 /* titulo y franja de colores */
 #v-welcome .wtop .t1{transition:letter-spacing .6s cubic-bezier(.2,.7,.2,1)}
 @media (hover:hover){#v-welcome .wtop:hover .t1{letter-spacing:.27em}}
-#v-welcome .strip{box-sizing:content-box;padding:12px 0;background-clip:content-box}
+#v-welcome .strip{position:relative}
+#v-welcome .strip::before{content:"";position:absolute;left:0;right:0;top:-14px;bottom:-14px}
 #v-welcome .strip i{transition:flex .45s cubic-bezier(.3,1.4,.5,1),transform .3s}
 @media (hover:hover){
  #v-welcome .strip:hover i{transform:scaleY(2.4)}
@@ -1199,6 +1210,8 @@ html.cx-fine #v-welcome,html.cx-fine #v-welcome *{cursor:none!important}
  .blk:hover,.upst li:hover{background-image:radial-gradient(240px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.14),transparent 65%)}
  .sc tbody tr{transition:background-color .2s}
  .sc tbody tr:hover{background-color:color-mix(in srgb,#00F03C 14%,transparent)}
+ .sc td:first-child{transition:background-color .2s}
+ .sc tbody tr:hover td:first-child{background-color:color-mix(in srgb,#00F03C 14%,var(--card));box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 14%,var(--card))}
  .logo .lg-h,.logo .lg-f{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
  .logo:hover .lg-h,.logo:hover .lg-f{transform:scale(1.06) rotate(-1.5deg)}
  .shb,.bkc,.addc{transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .2s,color .2s,filter .2s}
