@@ -1217,7 +1217,7 @@ html:has(#v-welcome:not([hidden])),html:has(#v-welcome:not([hidden])) body{overf
  .shb,.bkc,.addc{transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .2s,color .2s,filter .2s}
  .shb:hover,.addc:hover{transform:translateY(-2px)}
 }
-input:not([type="checkbox"]):not([type="radio"]):focus,textarea:focus{box-shadow:0 0 0 4px rgba(0,240,60,.22);transition:box-shadow .25s}
+input:not(.g):not(#pm):not([type="checkbox"]):not([type="radio"]):focus,textarea:focus{box-shadow:0 0 0 4px rgba(0,240,60,.22);transition:box-shadow .25s}
 @media (prefers-reduced-motion:reduce){
  #v-welcome .lg-v{transform:none}
  #v-welcome .halo,#v-welcome .rg,#v-welcome .wtop,#v-welcome .wbot{translate:none}
@@ -1349,8 +1349,19 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
 @media (hover:hover){.hero h1:hover .t1{translate:6px 0}.hero h1:hover .t2{translate:14px 0}}
 /* "Ingresa tus notas": se desliza y se dibuja una línea de colores debajo */
 .body h2.it{position:relative;width:fit-content;max-width:100%;transition:translate .45s cubic-bezier(.34,1.56,.64,1)}
-.body h2.it::after{content:"";position:absolute;left:0;bottom:-8px;height:4px;width:0;background:linear-gradient(90deg,#0A5CFF 0 33%,#00F03C 33% 66%,#F000F0 66%);transition:width .5s cubic-bezier(.2,.7,.2,1)}
-@media (hover:hover){.body h2.it:hover{translate:8px 0}.body h2.it:hover::after{width:100%}}
+@media (hover:hover){.body h2.it:hover{translate:8px 0}}
+
+/* Nota mínima: aviso "Máximo 20" (igual al de las notas) y celda de la tabla de combinaciones con hover propio */
+.minl{position:relative}
+.minl.sk{animation:gishake .42s cubic-bezier(.36,.07,.19,.97)}
+#sum .minl.bad input{border-bottom-color:#ff5a5f}
+.minl.bad::after{content:attr(data-msg);position:absolute;top:calc(100% + 8px);right:0;z-index:4;white-space:nowrap;padding:5px 9px;background:var(--rt);color:#fff;border-radius:2px;font:800 .68rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.02em;text-transform:none;pointer-events:none;animation:cxbad .24s cubic-bezier(.34,1.56,.64,1) both}
+.minl.bad::before{content:"";position:absolute;top:calc(100% + 3px);right:18px;z-index:4;border:5px solid transparent;border-top:0;border-bottom-color:var(--rt);pointer-events:none}
+@keyframes cxbad{from{opacity:0;transform:translateY(-4px) scale(.9)}to{opacity:1;transform:none}}
+@media (hover:hover){
+ .sc tbody td:not(:first-child):not(:last-child){transition:background-color .18s,color .18s,transform .25s cubic-bezier(.34,1.56,.64,1)}
+ .sc tbody td:not(:first-child):not(:last-child):hover{background-color:color-mix(in srgb,#00F03C 55%,var(--card));color:var(--navy);font-weight:800;transform:scale(1.14);border-radius:4px}
+}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -2617,6 +2628,18 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
  document.documentElement.addEventListener("pointerenter",()=>{inside=true;kick()});
  /* al cambiar de pantalla el cursor propio se apaga y la bienvenida vuelve a su posicion */
  new MutationObserver(()=>{if(!vis()){setOn(false);if(go)go.style.translate=""}else kick()}).observe(W,{attributes:true,attributeFilter:["hidden"]});
+})();
+</script>
+<script>
+/* Nota mínima: si escribes más de 20 aparece "Máximo 20" y vibra, igual que en las notas. Al salir del campo vuelve a 20 */
+(function(){
+ document.addEventListener("input",function(e){var t=e.target;if(!t||t.id!=="pm")return;
+  var l=t.closest(".minl");if(!l)return;var v=parseFloat(String(t.value).replace(",","."));
+  var bad=!isNaN(v)&&v>20;l.classList.toggle("bad",bad);
+  if(bad&&typeof badFx==="function")badFx(l,t,20)});
+ document.addEventListener("focusout",function(e){var t=e.target;if(!t||t.id!=="pm")return;
+  var l=t.closest(".minl");if(!l||!l.classList.contains("bad"))return;
+  t.value="20";setTimeout(function(){l.classList.remove("bad")},900)});
 })();
 </script>
 </body>
