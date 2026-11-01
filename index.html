@@ -996,6 +996,11 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
  #v-pick .beam,#v-pick .pt,#v-pick .halo{display:none}
  #v-pick::before{animation:none;will-change:auto}
  #v-pick .gr{animation:none}
+ /* al soltar, la luz y la tarjeta se apagan despacio */
+ #v-pick .pl button{transition:transform .7s cubic-bezier(.2,.7,.2,1),box-shadow .7s ease,background .7s ease,filter .7s ease}
+ #v-pick .pl button::before{transition:opacity .9s ease}
+ #v-pick .pl button::after{transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .6s ease}
+ #v-pick::after{transition:opacity .9s ease}
 }
 #v-pick .pl button:focus-visible{outline:2px solid #fff;outline-offset:3px}
 #v-pick .pl button:not(:disabled):active{transform:translateY(-1px) scale(.975);box-shadow:0 6px 14px -8px rgba(0,0,0,.6),inset 0 -6px 0 0 var(--s);transition-duration:.08s}
@@ -2667,19 +2672,27 @@ window.badFx=function(gi,t,mx){anim(gi&&gi.classList&&gi.classList.contains("min
 function off(){if(on){on.classList.remove("is-hov");on=null}}
 pl.addEventListener("pointermove",function(e){if(e.pointerType!=="mouse")return;if(e.movementX===0&&e.movementY===0)return;if(on&&!pl.contains(on))on=null;var b=e.target.closest&&e.target.closest(".pl button");if(!b||b.disabled){off();return}if(on!==b){off();b.classList.add("is-hov");on=b;try{anim("tarjeta_elegir_curso")}catch(_){}}var r=b.getBoundingClientRect();b.style.setProperty("--mx",(e.clientX-r.left)+"px");b.style.setProperty("--my",(e.clientY-r.top)+"px")},{passive:true});
 pl.addEventListener("pointerout",function(e){if(e.pointerType==="touch")return;var b=e.target.closest&&e.target.closest(".pl button");if(b&&!b.contains(e.relatedTarget)){/* la posicion del brillo (--mx/--my) se conserva: asi se desvanece donde estaba el cursor en vez de saltar a su lugar inicial */if(on===b)off()}});
-/* Celular: el efecto se enciende en el mismo instante en que el dedo toca la tarjeta (sin esperar al clic) y se apaga al soltar o si el dedo empieza a desplazar la lista (pointercancel) */
-var tOff=0;
-function tEnd(){clearTimeout(tOff);tOff=setTimeout(function(){off()},180)}
-pl.addEventListener("pointerdown",function(e){if(e.pointerType!=="touch")return;var b=e.target.closest&&e.target.closest(".pl button");if(!b||b.disabled)return;clearTimeout(tOff);off();var r=b.getBoundingClientRect();b.style.setProperty("--mx",(e.clientX-r.left)+"px");b.style.setProperty("--my",(e.clientY-r.top)+"px");b.classList.add("is-hov");on=b;try{anim("tarjeta_elegir_curso",{via:"toque"})}catch(_){}},{passive:true});
-pl.addEventListener("pointerup",function(e){if(e.pointerType==="touch")tEnd()},{passive:true});
-pl.addEventListener("pointercancel",function(e){if(e.pointerType==="touch"){clearTimeout(tOff);off()}},{passive:true})})();
+/* Celular: el efecto se enciende en el mismo instante en que el dedo toca la tarjeta y SIGUE al dedo mientras se hace scroll (los eventos touch siguen llegando durante el desplazamiento; los pointer se cancelan al empezar a desplazar). Ademas, mientras el dedo esta abajo y la lista se mueve, se vuelve a buscar la tarjeta que queda bajo el dedo. Se apaga un momento despues de soltar. */
+var tOff=0,tx=0,ty=0,tDown=false,tRaf=0;
+function tEnd(){clearTimeout(tOff);tOff=setTimeout(function(){off()},650)}
+function tAt(){tRaf=0;if(!tDown)return;var el=document.elementFromPoint(tx,ty),b=el&&el.closest&&el.closest(".pl button");
+ if(!b||b.disabled||!pl.contains(b)){return}
+ var r=b.getBoundingClientRect();b.style.setProperty("--mx",(tx-r.left)+"px");b.style.setProperty("--my",(ty-r.top)+"px");
+ if(on!==b){off();b.classList.add("is-hov");on=b;try{anim("tarjeta_elegir_curso",{via:"toque"})}catch(_){}}}
+function tKick(){if(!tRaf)tRaf=requestAnimationFrame(tAt)}
+pl.addEventListener("touchstart",function(e){var t=e.touches[0];if(!t)return;clearTimeout(tOff);tDown=true;tx=t.clientX;ty=t.clientY;tAt()},{passive:true});
+pl.addEventListener("touchmove",function(e){var t=e.touches[0];if(!t)return;tx=t.clientX;ty=t.clientY;tKick()},{passive:true});
+window.addEventListener("scroll",function(){if(tDown)tKick()},{passive:true});
+var tStop=function(){tDown=false;tEnd()};
+pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchcancel",tStop,{passive:true});
+})();
 </script>
 <script>/* Pie de pagina: campo de lineas magneticas, como limaduras de hierro. Cada linea gira hacia el cursor y se alarga y enciende cuando esta cerca; un clic lanza una onda que las sacude. Solo con mouse y sin "reducir movimiento". El dibujo solo corre mientras el cursor esta en el pie o las lineas vuelven a su sitio. */
 (function(){
  if(!window.matchMedia||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
  /* En celular el dedo hace de cursor: se escuchan los eventos touch (siguen llegando mientras la pagina se desplaza) y la posicion se calcula contra el pie en cada cuadro */
  var COARSE=!matchMedia("(hover:hover) and (pointer:fine)").matches;
- var GAP=COARSE?34:30,R=COARSE?170:200,BASE=-.62,TAU=Math.PI*2,WAVE_MS=1100;
+ var KA=COARSE?.07:.2,KS=COARSE?.045:.16,GAP=COARSE?34:30,R=COARSE?170:200,BASE=-.62,TAU=Math.PI*2,WAVE_MS=1100;
  var dAng=function(a,b){var d=(b-a)%TAU;if(d>Math.PI)d-=TAU;if(d<-Math.PI)d+=TAU;return d};
  var note=function(n){try{if(typeof anim==="function")anim(n)}catch(_){}};
  var BL=[150,185,255],GR=[0,240,60],MG=[240,0,240];
@@ -2702,7 +2715,7 @@ pl.addEventListener("pointercancel",function(e){if(e.pointerType==="touch"){clea
     w=0;
     for(wi=0;wi<waves.length;wi++){v=waves[wi];dx=x-v.x;dy=y-v.y;d=(Math.sqrt(dx*dx+dy*dy)-(now-v.t)*.85)/55;w=Math.max(w,Math.exp(-d*d)*(1-(now-v.t)/WAVE_MS))}
     if(w>.02)ta+=w*1.3;
-    A[k]+=dAng(A[k],ta)*.2;S[k]+=(Math.max(f,w)-S[k])*.16;s=S[k];
+    A[k]+=dAng(A[k],ta)*KA;S[k]+=(Math.max(f,w)-S[k])*KS;s=S[k];
     if(s>.012||Math.abs(dAng(A[k],BASE))>.02){busy=true;act.push(x,y,A[k],s,w)}
     else{A[k]=BASE;S[k]=0;cx.moveTo(x-Math.cos(BASE)*3.5,y-Math.sin(BASE)*3.5);cx.lineTo(x+Math.cos(BASE)*3.5,y+Math.sin(BASE)*3.5)}
    }
@@ -2730,9 +2743,9 @@ pl.addEventListener("pointercancel",function(e){if(e.pointerType==="touch"){clea
   ft.addEventListener("pointerdown",function(e){if(e.pointerType!=="mouse"||e.button!==0)return;var r=ft.getBoundingClientRect();waves.push({x:e.clientX-r.left,y:e.clientY-r.top,t:performance.now()});if(waves.length>4)waves.shift();note("pie_lineas_onda");if(!W)size();kick()});
   if(COARSE){
    var touchAt=function(e){var t=e.touches&&e.touches[0];if(!t)return false;cX=t.clientX;cY=t.clientY;var r=ft.getBoundingClientRect();mx=cX-r.left;my=cY-r.top;return true};
-   ft.addEventListener("touchstart",function(e){if(!touchAt(e))return;inside=true;if(!W)size();if(!entered){entered=true;note("pie_lineas_cursor")}waves.push({x:mx,y:my,t:performance.now()});if(waves.length>4)waves.shift();note("pie_lineas_onda");kick()},{passive:true});
+   ft.addEventListener("touchstart",function(e){if(!touchAt(e))return;inside=true;clearTimeout(ft._te);if(!W)size();if(!entered){entered=true;note("pie_lineas_cursor")}waves.push({x:mx,y:my,t:performance.now()});if(waves.length>4)waves.shift();note("pie_lineas_onda");kick()},{passive:true});
    ft.addEventListener("touchmove",function(e){if(!touchAt(e))return;inside=true;kick()},{passive:true});
-   var endT=function(){inside=false;entered=false;kick()};
+   var endT=function(){clearTimeout(ft._te);ft._te=setTimeout(function(){inside=false;entered=false;kick()},700)};
    ft.addEventListener("touchend",endT,{passive:true});ft.addEventListener("touchcancel",endT,{passive:true});
   }
   if(window.ResizeObserver)new ResizeObserver(size).observe(ft);else{window.addEventListener("resize",size);size()}
