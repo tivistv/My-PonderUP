@@ -166,7 +166,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     simulador_despliegue, buscador_lista, subir_zona_arrastre, barra_nota_minima, barra_agua, confeti_aprobar, nota_temblor,
     (ronda 5) nota_minima_temblor, boton_principal_hover, subir_zona_icono, valoracion_botones, valoracion_gracias, pie_enlaces_curso, barra_marcador_hover, menu_cursos_boton,
     zona_barra_pop, aviso_emergente, mini_resumen_aparece y mini_resumen_fi_aparece (estas dos solo una vez por visita).
-    Ronda 6: pie_lineas_cursor (entra el cursor al pie) y pie_lineas_onda (clic en el pie). tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
+    Ronda 6: pie_cursor_lente (entra el cursor al pie; ahi el cursor lleva una lente que deja en blanco y negro e invierte lo que tiene debajo). tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
     La propiedad nombre de curso_elegido, primera_nota y resultado_util lleva el nombre completo (cname), p. ej. "Nivelación en Matemáticas"; la propiedad curso sigue siendo la clave corta (mat, len, inf...).
     Las animaciones que corren solas (aurora, brillo de barras, flotar) no se pueden medir porque no dependen de la persona.
 =====================================================================
@@ -1320,11 +1320,6 @@ footer .fl a.ig:hover{background:var(--green);border-color:var(--green);color:va
 /* la caja ya no se estira cuando la lista de cursos crece con "Ver más" */
 footer .fc>.fl.fcm{align-self:start}
 footer{background:radial-gradient(380px circle at var(--fx,-400px) var(--fy,-400px),rgba(0,240,60,.09),transparent 70%),radial-gradient(560px 280px at 6% 0,rgba(10,92,255,.24),transparent 70%),radial-gradient(520px 260px at 98% 100%,rgba(0,240,60,.11),transparent 70%),var(--navy)}
-/* Pie: campo de lineas magneticas. El canvas lo crea el script del pie y queda detras del contenido; solo existe con mouse y sin "reducir movimiento" */
-footer>.fl-cv{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s}
-footer>.fl-cv.on{opacity:1}
-footer>.wrap{position:relative;z-index:1}
-@media (prefers-reduced-motion:reduce){footer>.fl-cv{display:none}}
 /* tarjeta de comentarios: sube un poco, se enciende el borde y el brillo sigue al cursor */
 footer .fl.fcm{transition:border-color .25s,box-shadow .3s}
 @media (hover:hover){footer .fl.fcm:hover{border-color:rgba(255,255,255,.28);border-left-color:var(--green);box-shadow:0 18px 40px -22px rgba(0,240,60,.55);background-image:radial-gradient(260px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.12),transparent 65%)}}
@@ -1373,6 +1368,20 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
  footer .fl a.ig:hover::after{border-color:var(--green);transform:translateX(3px) rotate(45deg)}
 }
 
+/* ===== PIE v5: cursor lente y cuadro de comentarios con el lenguaje del resto de la pagina ===== */
+/* Lente del cursor: deja en blanco y negro e invierte lo que hay debajo. La crea el script del pie (solo mouse). */
+.fl-lens{position:fixed;left:0;top:0;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;pointer-events:none;z-index:9999;opacity:0;transition:opacity .2s ease;-webkit-backdrop-filter:grayscale(1) invert(1);backdrop-filter:grayscale(1) invert(1);box-shadow:0 0 0 1px rgba(255,255,255,.9),0 0 0 2px rgba(0,0,0,.35);transform:translate3d(-200px,-200px,0)}
+.fl-lens.on{opacity:1}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.fl-lens{background:#fff;mix-blend-mode:difference}}
+@media (prefers-reduced-motion:reduce){.fl-lens{transition:none}}
+/* Cuadro de comentarios y sugerencias: bloque cuadrado de la pagina (fondo solido, borde fino, franja verde a la izquierda), titulo en mayusculas y campo solido, en vez de la tarjeta translucida. Al pasar el cursor se oscurece, como las tarjetas de curso. */
+footer .fc .fl.fcm{background:#0d2145;background-image:none;border:1px solid #233a66;border-left:6px solid var(--green);box-shadow:none;transition:background-color .2s}
+footer .fc .fl.fcm>b{display:block;margin:0 0 12px;font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:#fff}
+footer .fc .fl.fcm>b::after{content:none}
+@media (hover:hover){footer .fc .fl.fcm:hover{background:#08183a;background-image:none;border-color:#233a66;border-left-color:var(--green);box-shadow:none}}
+footer .fc .fl.fcm .sgf textarea{background:#0a1a38;border:1px solid #9fb0cf;border-radius:2px}
+footer .fc .fl.fcm .sgf textarea::placeholder{color:#9fb0cf}
+footer .fc .fl.fcm .sgf textarea:focus{background:#0a1a38;border-color:var(--green)}
 /* ===== Celular: el icono de Instagram de "¿Te sirvió?" es el mismo que en PC; el dedo inclina el logo en la bienvenida ===== */
 @media (max-width:600px){.igc svg{width:28px;height:28px;padding:0;background:none;color:inherit}}
 #v-welcome{touch-action:none}
@@ -2697,69 +2706,27 @@ var tStop=function(){tDown=false;tEnd()};
 pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchcancel",tStop,{passive:true});
 })();
 </script>
-<script>/* Pie de pagina: campo de lineas magneticas, como limaduras de hierro. Cada linea gira hacia el cursor y se alarga y enciende cuando esta cerca; un clic lanza una onda que las sacude. Solo con mouse y sin "reducir movimiento". El dibujo solo corre mientras el cursor esta en el pie o las lineas vuelven a su sitio. */
+<script>/* Pie de pagina: cursor "lente". Un circulo que sigue al mouse dentro del pie y deja en blanco y negro, e invierte, lo que tiene debajo (letras, fondo, botones). Crece sobre lo que se puede tocar y se achica al hacer clic. Solo con mouse; el cursor normal se queda encima para apuntar con precision. */
 (function(){
- if(!window.matchMedia||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
- /* En celular el dedo hace de cursor: se escuchan los eventos touch (siguen llegando mientras la pagina se desplaza) y la posicion se calcula contra el pie en cada cuadro */
- var COARSE=!matchMedia("(hover:hover) and (pointer:fine)").matches;
- var KA=COARSE?.07:.2,KS=COARSE?.045:.16,GAP=COARSE?34:30,R=COARSE?170:200,BASE=-.62,TAU=Math.PI*2,WAVE_MS=1100;
- var dAng=function(a,b){var d=(b-a)%TAU;if(d>Math.PI)d-=TAU;if(d<-Math.PI)d+=TAU;return d};
+ if(!window.matchMedia||!matchMedia("(hover:hover) and (pointer:fine)").matches||!document.querySelector("footer"))return;
+ var el=document.createElement("div");el.className="fl-lens";el.setAttribute("aria-hidden","true");document.body.appendChild(el);
+ var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,x=0,y=0,tx=0,ty=0,s=1,ts=1,raf=0,inF=false,seen=false,tick=0;
  var note=function(n){try{if(typeof anim==="function")anim(n)}catch(_){}};
- var BL=[150,185,255],GR=[0,240,60],MG=[240,0,240];
- document.querySelectorAll("footer").forEach(function(ft){
-  var cv=document.createElement("canvas"),cx=cv.getContext&&cv.getContext("2d");
-  if(!cx)return;
-  cv.className="fl-cv";cv.setAttribute("aria-hidden","true");ft.insertBefore(cv,ft.firstChild);
-  var W=0,H=0,cols=0,rows=0,A=null,S=null,mx=0,my=0,cX=0,cY=0,inside=false,entered=false,raf=0,waves=[];
-  function paint(now){
-   if(!W||!A)return false;
-   if(inside&&COARSE){var rc=ft.getBoundingClientRect();mx=cX-rc.left;my=cY-rc.top}
-   cx.clearRect(0,0,W,H);
-   waves=waves.filter(function(v){return now-v.t<WAVE_MS});
-   var act=[],i,j,k,x,y,dx,dy,d,f,ta,w,wi,v,s,busy=false;
-   cx.lineCap="round";cx.lineWidth=1;cx.strokeStyle="rgba(150,185,255,.13)";cx.beginPath();
-   for(j=0;j<rows;j++)for(i=0;i<cols;i++){
-    k=j*cols+i;x=(i-.5)*GAP+((j&1)?GAP/2:0);y=(j-.5)*GAP;
-    f=0;ta=BASE;
-    if(inside){dx=mx-x;dy=my-y;d=Math.sqrt(dx*dx+dy*dy);if(d<R){f=Math.pow(1-d/R,1.5);ta=BASE+dAng(BASE,Math.atan2(dy,dx))*Math.min(1,f*1.7)}}
-    w=0;
-    for(wi=0;wi<waves.length;wi++){v=waves[wi];dx=x-v.x;dy=y-v.y;d=(Math.sqrt(dx*dx+dy*dy)-(now-v.t)*.85)/55;w=Math.max(w,Math.exp(-d*d)*(1-(now-v.t)/WAVE_MS))}
-    if(w>.02)ta+=w*1.3;
-    A[k]+=dAng(A[k],ta)*KA;S[k]+=(Math.max(f,w)-S[k])*KS;s=S[k];
-    if(s>.012||Math.abs(dAng(A[k],BASE))>.02){busy=true;act.push(x,y,A[k],s,w)}
-    else{A[k]=BASE;S[k]=0;cx.moveTo(x-Math.cos(BASE)*3.5,y-Math.sin(BASE)*3.5);cx.lineTo(x+Math.cos(BASE)*3.5,y+Math.sin(BASE)*3.5)}
-   }
-   cx.stroke();
-   for(i=0;i<act.length;i+=5){
-    x=act[i];y=act[i+1];var an=act[i+2];s=act[i+3];w=act[i+4];
-    var len=7+13*s,g=Math.min(1,s*1.2),m=w>.05?Math.min(1,w*1.4):0,c=[0,0,0],q;
-    for(q=0;q<3;q++){c[q]=Math.round((BL[q]+(GR[q]-BL[q])*g)*(1-m)+MG[q]*m)}
-    cx.strokeStyle="rgba("+c[0]+","+c[1]+","+c[2]+","+Math.min(.62,.13+.5*s)+")";cx.lineWidth=1+1.1*s;
-    cx.beginPath();cx.moveTo(x-Math.cos(an)*len/2,y-Math.sin(an)*len/2);cx.lineTo(x+Math.cos(an)*len/2,y+Math.sin(an)*len/2);cx.stroke()
-   }
-   return busy||waves.length>0
-  }
-  function frame(t){raf=0;if(paint(t)||inside)raf=requestAnimationFrame(frame)}
-  function kick(){if(!raf)raf=requestAnimationFrame(frame)}
-  function size(){
-   var r=ft.getBoundingClientRect();if(!r.width||!r.height)return;
-   var dpr=Math.min(2,window.devicePixelRatio||1);
-   W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cx.setTransform(dpr,0,0,dpr,0,0);
-   cols=Math.ceil(W/GAP)+2;rows=Math.ceil(H/GAP)+2;
-   A=new Float32Array(cols*rows).fill(BASE);S=new Float32Array(cols*rows);
-   paint(performance.now());cv.classList.add("on")}
-  ft.addEventListener("pointermove",function(e){if(e.pointerType!=="mouse")return;var r=ft.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;inside=true;if(!entered){entered=true;note("pie_lineas_cursor")}if(!W)size();kick()},{passive:true});
-  ft.addEventListener("pointerleave",function(){inside=false;entered=false;kick()});
-  ft.addEventListener("pointerdown",function(e){if(e.pointerType!=="mouse"||e.button!==0)return;var r=ft.getBoundingClientRect();waves.push({x:e.clientX-r.left,y:e.clientY-r.top,t:performance.now()});if(waves.length>4)waves.shift();note("pie_lineas_onda");if(!W)size();kick()});
-  if(COARSE){
-   var touchAt=function(e){var t=e.touches&&e.touches[0];if(!t)return false;cX=t.clientX;cY=t.clientY;var r=ft.getBoundingClientRect();mx=cX-r.left;my=cY-r.top;return true};
-   ft.addEventListener("touchstart",function(e){if(!touchAt(e))return;inside=true;clearTimeout(ft._te);if(!W)size();if(!entered){entered=true;note("pie_lineas_cursor")}waves.push({x:mx,y:my,t:performance.now()});if(waves.length>4)waves.shift();note("pie_lineas_onda");kick()},{passive:true});
-   ft.addEventListener("touchmove",function(e){if(!touchAt(e))return;inside=true;kick()},{passive:true});
-   var endT=function(){clearTimeout(ft._te);ft._te=setTimeout(function(){inside=false;entered=false;kick()},700)};
-   ft.addEventListener("touchend",endT,{passive:true});ft.addEventListener("touchcancel",endT,{passive:true});
-  }
-  if(window.ResizeObserver)new ResizeObserver(size).observe(ft);else{window.addEventListener("resize",size);size()}
- })
+ function draw(){raf=0;var k=reduce?1:.28;x+=(tx-x)*k;y+=(ty-y)*k;s+=(ts-s)*(reduce?1:.2);el.style.transform="translate3d("+x+"px,"+y+"px,0) scale("+s+")";if(inF&&(Math.abs(tx-x)>.1||Math.abs(ty-y)>.1||Math.abs(ts-s)>.005))raf=requestAnimationFrame(draw)}
+ function kick(){if(!raf)raf=requestAnimationFrame(draw)}
+ function leave(){inF=false;seen=false;el.classList.remove("on")}
+ document.addEventListener("pointermove",function(e){
+  if(e.pointerType!=="mouse")return;
+  var t=e.target;if(!t||!t.closest||!t.closest("footer")){if(inF)leave();return}
+  tx=e.clientX;ty=e.clientY;
+  if(!inF){inF=true;x=tx;y=ty;el.classList.add("on");if(!seen){seen=true;note("pie_cursor_lente")}}
+  ts=t.closest("a,button,input,textarea,select,label,summary,[role=button]")?1.55:1;
+  kick()},{passive:true});
+ document.addEventListener("pointerdown",function(e){if(inF&&e.pointerType==="mouse"){ts=.8;kick()}});
+ document.addEventListener("pointerup",function(){if(inF){ts=1;kick()}});
+ /* al desplazar la pagina con el mouse quieto, si el pie ya no esta debajo del cursor la lente se va */
+ window.addEventListener("scroll",function(){if(!inF||tick)return;tick=requestAnimationFrame(function(){tick=0;var t=document.elementFromPoint(tx,ty);if(!t||!t.closest("footer"))leave()})},{passive:true});
+ document.documentElement.addEventListener("mouseleave",leave);
 })();
 </script>
 <script>
