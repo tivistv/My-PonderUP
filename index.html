@@ -1196,7 +1196,7 @@ html:has(#v-welcome:not([hidden])),html:has(#v-welcome:not([hidden])) body{overf
 }
 /* boton Empezar: flecha que aparece, sin tocar su brillo ni su hover actual */
 #go{transition:transform .2s,box-shadow .2s,letter-spacing .3s}
-@media (hover:hover){#go:hover{letter-spacing:.09em;box-shadow:0 12px 28px rgba(0,240,60,.45),0 0 0 6px rgba(0,240,60,.18)}}
+@media (hover:hover){#go:hover{letter-spacing:.05em;box-shadow:0 10px 22px rgba(0,240,60,.35),0 0 0 4px rgba(0,240,60,.14)}}
 /* Instagram */
 .igw svg{transition:transform .4s cubic-bezier(.3,1.6,.5,1)}
 .igw .igu{background:linear-gradient(currentColor,currentColor) 0 100%/0 2px no-repeat;transition:background-size .3s}
@@ -1329,6 +1329,28 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
 
 /* Simulador "¿Y si saco…?": franja magenta (antes azul) */
 #sim{border-left-color:#F000F0}
+
+/* ===== Ajustes: simulador sin oscurecer solo el encabezado, franja y textos del curso con hover ===== */
+/* "¿Y si saco…?": al pasar o presionar ya no se oscurece solo el encabezado (se veía cortado); se mueve el texto y la flecha */
+#simt{-webkit-tap-highlight-color:transparent}
+#simt:hover,#simt:active,#simt:focus{background:transparent}
+#simt>span{transition:translate .3s cubic-bezier(.34,1.56,.64,1)}
+@media (hover:hover){#simt:hover>span{translate:4px 0}#sim{transition:box-shadow .3s}#sim:hover{box-shadow:0 8px 22px -12px rgba(6,31,71,.25)}}
+/* rayitas debajo del curso: se estiran y la que tocas crece */
+.hero .strip{position:relative}
+.hero .strip::before{content:"";position:absolute;left:0;right:0;top:-14px;bottom:-14px}
+.hero .strip i{transition:flex .45s cubic-bezier(.3,1.4,.5,1),transform .35s cubic-bezier(.34,1.56,.64,1)}
+@media (hover:hover){
+ .hero .strip:hover i{transform:scaleY(2.2)}
+ .hero .strip i:hover{flex:4}
+}
+/* texto del curso: las dos líneas se deslizan una detrás de otra */
+.hero h1 .t1,.hero h1 .t2{transition:translate .5s cubic-bezier(.34,1.56,.64,1)}
+@media (hover:hover){.hero h1:hover .t1{translate:6px 0}.hero h1:hover .t2{translate:14px 0}}
+/* "Ingresa tus notas": se desliza y se dibuja una línea de colores debajo */
+.body h2.it{position:relative;width:fit-content;max-width:100%;transition:translate .45s cubic-bezier(.34,1.56,.64,1)}
+.body h2.it::after{content:"";position:absolute;left:0;bottom:-8px;height:4px;width:0;background:linear-gradient(90deg,#0A5CFF 0 33%,#00F03C 33% 66%,#F000F0 66%);transition:width .5s cubic-bezier(.2,.7,.2,1)}
+@media (hover:hover){.body h2.it:hover{translate:8px 0}.body h2.it:hover::after{width:100%}}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -2572,7 +2594,7 @@ pl.addEventListener("pointerout",function(e){var b=e.target.closest&&e.target.cl
   ls+=(tls-ls)*.12;
   let tgx=0,tgy=0;
   if(inside&&go){const r=go.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=mx-cx,dy=my-cy;
-   if(Math.hypot(dx,dy)<Math.max(r.width,r.height)*.9){tgx=dx*.22;tgy=dy*.3}}
+   if(Math.hypot(dx,dy)<Math.max(r.width,r.height)*.7){tgx=Math.max(-4,Math.min(4,dx*.07));tgy=Math.max(-3,Math.min(3,dy*.1))}}
   gx+=(tgx-gx)*.18;gy+=(tgy-gy)*.18;
   if(go)go.style.translate=(Math.abs(gx)+Math.abs(gy)>.05)?`${gx.toFixed(2)}px ${gy.toFixed(2)}px`:"";
   W.style.setProperty("--tx",tx.toFixed(4));W.style.setProperty("--ty",ty.toFixed(4));W.style.setProperty("--ls",ls.toFixed(4));
