@@ -1371,7 +1371,9 @@ footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .
 /* ===== PIE v5: cursor lente y cuadro de comentarios con el lenguaje del resto de la pagina ===== */
 /* Lente del cursor: deja en blanco y negro e invierte lo que hay debajo. La crea el script del pie (solo mouse). */
 .fl-lens{position:fixed;left:0;top:0;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;pointer-events:none;z-index:9999;opacity:0;transition:opacity .2s ease;-webkit-backdrop-filter:grayscale(1) invert(1);backdrop-filter:grayscale(1) invert(1);box-shadow:0 0 0 1px rgba(255,255,255,.9),0 0 0 2px rgba(0,0,0,.35);transform:translate3d(-200px,-200px,0)}
+.fl-lens{will-change:transform}
 .fl-lens.on{opacity:1}
+@media (forced-colors:active){.fl-lens{display:none}}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.fl-lens{background:#fff;mix-blend-mode:difference}}
 @media (prefers-reduced-motion:reduce){.fl-lens{transition:none}}
 /* Cuadro de comentarios y sugerencias: bloque cuadrado de la pagina (fondo solido, borde fino, franja verde a la izquierda), titulo en mayusculas y campo solido, en vez de la tarjeta translucida. Al pasar el cursor se oscurece, como las tarjetas de curso. */
@@ -1379,9 +1381,9 @@ footer .fc .fl.fcm{background:#0d2145;background-image:none;border:1px solid #23
 footer .fc .fl.fcm>b{display:block;margin:0 0 12px;font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:#fff}
 footer .fc .fl.fcm>b::after{content:none}
 @media (hover:hover){footer .fc .fl.fcm:hover{background:#08183a;background-image:none;border-color:#233a66;border-left-color:var(--green);box-shadow:none}}
-footer .fc .fl.fcm .sgf textarea{background:#0a1a38;border:1px solid #9fb0cf;border-radius:2px}
+footer .fc .fl.fcm .sgf textarea{background:#061633;border:1px solid #9fb0cf;border-radius:2px}
 footer .fc .fl.fcm .sgf textarea::placeholder{color:#9fb0cf}
-footer .fc .fl.fcm .sgf textarea:focus{background:#0a1a38;border-color:var(--green)}
+footer .fc .fl.fcm .sgf textarea:focus{background:#061633;border-color:var(--green)}
 /* ===== Celular: el icono de Instagram de "¿Te sirvió?" es el mismo que en PC; el dedo inclina el logo en la bienvenida ===== */
 @media (max-width:600px){.igc svg{width:28px;height:28px;padding:0;background:none;color:inherit}}
 #v-welcome{touch-action:none}
@@ -2706,7 +2708,7 @@ var tStop=function(){tDown=false;tEnd()};
 pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchcancel",tStop,{passive:true});
 })();
 </script>
-<script>/* Pie de pagina: cursor "lente". Un circulo que sigue al mouse dentro del pie y deja en blanco y negro, e invierte, lo que tiene debajo (letras, fondo, botones). Crece sobre lo que se puede tocar y se achica al hacer clic. Solo con mouse; el cursor normal se queda encima para apuntar con precision. */
+<script>/* Pie de pagina: cursor "lente". Un circulo que sigue al mouse dentro del pie y deja en blanco y negro, e invierte, lo que tiene debajo (letras, fondo, botones). Crece sobre lo que se puede tocar, se achica sobre los campos de texto (para escribir y seleccionar con precision) y tambien al hacer clic. Solo con mouse; el cursor normal se queda encima para apuntar con precision. */
 (function(){
  if(!window.matchMedia||!matchMedia("(hover:hover) and (pointer:fine)").matches||!document.querySelector("footer"))return;
  var el=document.createElement("div");el.className="fl-lens";el.setAttribute("aria-hidden","true");document.body.appendChild(el);
@@ -2720,7 +2722,7 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
   var t=e.target;if(!t||!t.closest||!t.closest("footer")){if(inF)leave();return}
   tx=e.clientX;ty=e.clientY;
   if(!inF){inF=true;x=tx;y=ty;el.classList.add("on");if(!seen){seen=true;note("pie_cursor_lente")}}
-  ts=t.closest("a,button,input,textarea,select,label,summary,[role=button]")?1.55:1;
+  ts=t.closest("textarea,input,select")?.6:t.closest("a,button,label,summary,[role=button]")?1.55:1;
   kick()},{passive:true});
  document.addEventListener("pointerdown",function(e){if(inF&&e.pointerType==="mouse"){ts=.8;kick()}});
  document.addEventListener("pointerup",function(){if(inF){ts=1;kick()}});
