@@ -169,6 +169,19 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     Ronda 7: pie_notas_cursor (entra el cursor o el dedo al pie) y pie_notas_ola (clic o toque en el pie): campo de numeros del 0 al 20 que solo aparece cerca del cursor o del dedo, donde cuenta hacia 20; en blanco, sin colores. tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
     La propiedad nombre de curso_elegido, primera_nota y resultado_util lleva el nombre completo (cname), p. ej. "Nivelación en Matemáticas"; la propiedad curso sigue siendo la clave corta (mat, len, inf...).
     Las animaciones que corren solas (aurora, brillo de barras, flotar) no se pueden medir porque no dependen de la persona.
+13) RONDA 8
+  - Cursos nuevos: Comportamiento del Consumidor (cdc) y Gestion de Personas (gdp). En gdp los pesos de la Nota de Trabajo suman 95 y no 100 (40+25+10+10+10); el codigo los
+    reparte sobre 95 (w:4000/95...) para que el maximo siga siendo 20. Si el silabo corrige algun peso, cambiar solo esos w. Redondeos de cdc: Trabajo y Participacion, Parcial,
+    Trabajo Final y promedio final (no indicados por el autor: se asumio lo habitual).
+  - Elige tu curso: las tarjetas terminan de aparecer a los 0.89 s (animation-duration .45s + delay maximo 440ms en "#v-pick .pl button.rv").
+  - Mi promedio hasta ahora: sin brillo verde que pasa; el brillo verde sale con el cursor (hover) como los otros bloques (#sum). En celular el texto va en dos lineas
+    ("Mi promedio" / "hasta ahora"). El aviso dice "No puedes llegar a X". La barra dice "4.4 de 11". Se quito el cuadro "Ya tienes el X asegurado...".
+  - Las notas no pasan del maximo de la casilla (20, o 10 en los controles sobre 10): el ultimo digito se rechaza y sale "Maximo 20". Tambien la nota minima.
+  - Simulador: sin los textos "Estas a X puntos..." ni "Pasas justo...". Quedan la etiqueta Aprobarias/Desaprobarias y el promedio simulado.
+  - "Restablecer redondeos" (pregunta 2) solo vuelve los redondeos a los del curso (defR); ya no borra notas ni la nota minima.
+  - Preguntas 03 y 04 rediseñadas (tarjetas .q3c y .q4t). Pregunta 04: "Solo en tu navegador y en tu dispositivo...".
+  - "Agrega tu curso" usa el mismo puntero propio (punto + aro) de la bienvenida; en los campos de texto vuelve el cursor de escribir.
+  - Interruptor claro/oscuro: flota apenas (keyframes tgf).
 =====================================================================
 -->
 <meta charset="utf-8">
@@ -400,6 +413,8 @@ footer{border-top:1px solid rgba(255,255,255,.2);padding:28px 0 128px;font-size:
 .wb span::after{height:6px;background:#fff}
 .body h2.it{font-size:clamp(1.9rem,8vw,3rem);line-height:1.05;font-weight:900;letter-spacing:-.01em;margin:30px 0 16px}
 @keyframes flt{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+/* Interruptor de tema: sube y baja apenas 4 px (usa "translate" para no chocar con el zoom al pasar el cursor ni con la animacion de ocultarse) */
+@keyframes tgf{from{translate:0 0}to{translate:0 -10px}}
 @keyframes flt2{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-14px) rotate(2deg)}}
 .wp{animation:flt 7s ease-in-out infinite alternate}
 .wb,.zb{filter:drop-shadow(0 8px 10px rgba(0,0,0,.3))}
@@ -597,7 +612,7 @@ input.g:placeholder-shown+.sf{display:none}
 .tgw{position:fixed;right:14px;bottom:calc(78px + env(safe-area-inset-bottom,0px));z-index:45;transition:opacity .35s ease,transform .35s ease,bottom .35s cubic-bezier(.2,.7,.2,1)}
 .tgw.low{bottom:calc(14px + env(safe-area-inset-bottom,0px))}/* sin barra inferior: el interruptor va en la esquina */
 .tgw.off{opacity:0;transform:translateY(16px) scale(.9);pointer-events:none}
-.tg{position:relative;display:block;width:72px;height:38px;padding:0;border:2px solid var(--green);border-radius:99px;background:var(--navy);cursor:pointer;box-shadow:0 8px 22px rgba(6,31,71,.4),0 0 0 4px rgba(0,240,60,.14);animation:flt 4.5s ease-in-out infinite alternate}
+.tg{position:relative;display:block;width:72px;height:38px;padding:0;border:2px solid var(--green);border-radius:99px;background:var(--navy);cursor:pointer;box-shadow:0 8px 22px rgba(6,31,71,.4),0 0 0 4px rgba(0,240,60,.14);animation:tgf 2.6s ease-in-out infinite alternate}
 .tg .ti{position:absolute;top:50%;width:18px;height:18px;margin-top:-9px;color:rgba(255,255,255,.55)}
 .tg .ti.s{left:9px}.tg .ti.m{right:9px}
 .tg .tk{position:absolute;left:3px;top:50%;width:28px;height:28px;margin-top:-14px;border-radius:50%;background:var(--green);color:var(--navy);display:grid;place-items:center;transition:transform .4s cubic-bezier(.3,1.4,.5,1)}
@@ -1094,6 +1109,11 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 .simk{display:block;margin-bottom:6px;font-weight:800;font-size:.78rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
 #simn{font:900 2.6rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-variant-numeric:tabular-nums}
 #simn.gn{color:var(--gt)}#simn.rd{color:var(--rt)}
+/* Resultado del simulador: solo etiqueta y numero, con mas presencia */
+.simo{margin-top:10px;padding-top:18px}
+.simk{margin-bottom:10px;font-size:.82rem}
+#simv .tag{font-size:.7rem;padding:5px 10px;line-height:1}
+#simn{font-size:clamp(3rem,13vw,3.8rem);letter-spacing:-.02em}
 #rim{position:fixed;inset:0;z-index:58;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:rgba(3,12,28,.8)}
 .rimc{width:min(460px,100%);max-height:100%;overflow:auto;overscroll-behavior:contain;background:var(--card);color:var(--txt);border-top:6px solid var(--green);padding:10px 16px 16px}
 .rimh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
@@ -1212,7 +1232,9 @@ html.cx-fine #v-welcome:hover .wel-spot,#v-welcome.tdown .wel-spot{opacity:1}
 .cx-ring.hov::before{transform:scale(1.7);background:rgba(0,240,60,.16);border-color:#fff}
 .cx-ring.dn::before{transform:scale(.7);background:rgba(0,240,60,.3)}
 .cx-dot.hov::before{transform:scale(.4)}
-html.cx-fine #v-welcome,html.cx-fine #v-welcome *{cursor:none!important}
+html.cx-fine #v-welcome,html.cx-fine #v-welcome *,html.cx-fine #v-up,html.cx-fine #v-up *{cursor:none!important}
+/* en "Agrega tu curso" los campos de texto conservan el cursor de escribir (el puntero propio se oculta ahi) */
+html.cx-fine #v-up input:not([type=file]),html.cx-fine #v-up textarea{cursor:text!important}
 /* el logo se inclina hacia el cursor, el halo y los anillos se mueven a otro ritmo (profundidad) */
 #v-welcome .lg-v{transform:perspective(900px) rotateY(calc(var(--tx,0)*12deg)) rotateX(calc(var(--ty,0)*-12deg)) scale(var(--ls,1));will-change:transform}
 #v-welcome .halo{translate:calc(var(--tx,0)*-22px) calc(var(--ty,0)*-22px)}
@@ -1252,7 +1274,7 @@ html:has(#v-welcome:not([hidden])),html:has(#v-welcome:not([hidden])) body{overf
 @keyframes cxrp{to{transform:scale(1);opacity:0}}
 /* resto de pantallas: brillo que sigue al cursor en tarjetas, filas, logo, campos */
 @media (hover:hover){
- .blk:hover,.upst li:hover{background-image:radial-gradient(240px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.14),transparent 65%)}
+ .blk:hover,.upst li:hover,#sum:hover{background-image:radial-gradient(240px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.14),transparent 65%)}
  .sc tbody tr{transition:background-color .2s}
  .sc tbody tr:hover{background-color:color-mix(in srgb,#00F03C 14%,transparent)}
  .sc td:first-child{transition:background-color .2s}
@@ -1267,7 +1289,7 @@ input:not(.g):not(#pm):not([type="checkbox"]):not([type="radio"]):focus,textarea
  #v-welcome .lg-v{transform:none}
  #v-welcome .halo,#v-welcome .rg,#v-welcome .wtop,#v-welcome .wbot{translate:none}
  .cx-layer,.cx-cur,.wel-spot{display:none!important}
- html.cx-fine #v-welcome,html.cx-fine #v-welcome *{cursor:auto!important}
+ html.cx-fine #v-welcome,html.cx-fine #v-welcome *,html.cx-fine #v-up,html.cx-fine #v-up *{cursor:auto!important}
 }
 
 /* ===== PIE REDISEÑADO (solo estilos; el contenido y los botones siguen igual) =====
@@ -1477,11 +1499,92 @@ footer .fc .fl.fcm .sgf textarea:focus{background:#061633;border-color:var(--gre
  .blk{position:relative}
  .blk::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1s ease;background:radial-gradient(260px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.2),transparent 65%)}
  .blk.tapfx{background-image:none}
+ #sum::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1s ease;background:radial-gradient(260px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.2),transparent 65%)}
+ #sum.tapfx::after{opacity:1;transition:opacity .15s ease}
  .blk.tapfx::after{opacity:1;transition:opacity .15s ease}
  .blk{transition:transform .8s cubic-bezier(.2,.7,.2,1),box-shadow .8s ease}
 }
 /* Barra de estado del iPhone (hora y bateria): en inicio, "Elige tu curso" y "Agrega tu curso" toda la pantalla es azul, asi que el fondo de la pagina tambien lo es; si no, iOS tinta la barra con el gris claro de abajo. Dentro del curso la barra azul fija ya lo resuelve. */
 body.dk,body:has(#v-welcome:not([hidden])),body:has(#v-pick:not([hidden])),body:has(#v-up:not([hidden])){background:var(--navy)}
+
+/* ===== AJUSTES v6 ===== */
+/* Carga más rápida: las animaciones de entrada son más cortas y las tarjetas de curso casi no esperan entre sí */
+.rv{animation-duration:.42s;animation-delay:calc(var(--i,0)*40ms)}
+.mr{animation-duration:.55s;animation-delay:calc(var(--i,0)*70ms)}
+.hero h1 .t2.mr.lt{animation-duration:.55s,5s;animation-delay:calc(var(--i,0)*70ms),1.2s}
+.strip{animation-duration:.5s;animation-delay:.2s}
+/* Las tarjetas de "Elige tu curso" terminan de aparecer a los 0.89 s: .45 s de animacion + hasta .44 s de escalonado */
+#v-pick .pl button.rv{animation-duration:.45s;animation-delay:min(calc(var(--i,0)*16ms),440ms)}
+/* Franja de colores bajo el nombre del curso: fija, sin movimiento */
+.hero .strip{animation:none}
+.hero .strip i,.hero .strip:hover i,.hero .strip i:hover,.hero .strip.tapfx i,.hero .strip i.tapfx{transition:none!important;transform:none!important;flex:1!important}
+/* "¿Y si saco…?": al elegir una barra ya no sale el aro verde alrededor */
+#sim input[type=range]:focus,#sim input[type=range]:active{box-shadow:none!important}
+/* Mi promedio hasta ahora: más grande (el brillo verde que pasaba sobre el texto se quitó; el brillo ahora sale con el cursor, como en los otros bloques) */
+#sl1{display:block;font-size:clamp(1.25rem,5.6vw,1.9rem);line-height:1.12}
+@supports (-webkit-background-clip:text) or (background-clip:text){
+#mini .ml{background-image:linear-gradient(100deg,transparent 40%,#00F03C 50%,transparent 60%),linear-gradient(#fff,#fff);background-size:250% 100%,100% 100%;background-repeat:no-repeat;background-position:120% 0,0 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:tshine 6s ease-in-out 1.2s infinite}
+}
+/* Celular: "Mi promedio" arriba y "hasta ahora" abajo, siempre en dos lineas */
+@media (max-width:600px){#sl1{white-space:nowrap;font-size:clamp(1.05rem,5.2vw,1.9rem)}#sl1 .l2{display:block}.sm1>div:first-child{min-width:0}}
+#mini .ml{white-space:nowrap}
+/* Número del promedio con más protagonismo */
+#big{font-size:clamp(4rem,15vw,5.8rem);transform-origin:right center;letter-spacing:-.02em}
+#big.dec{font-size:clamp(2.9rem,11vw,4.4rem)}
+#big.gn{text-shadow:0 0 26px rgba(0,163,41,.28)}
+:root[data-theme="dark"] #big.gn{text-shadow:0 0 30px rgba(0,240,60,.42)}
+@keyframes bigpop{0%{transform:scale(1)}35%{transform:scale(1.1)}100%{transform:scale(1)}}
+#big.pop{animation:bigpop .45s cubic-bezier(.3,1.5,.5,1)}
+/* Cómo funciona: el título queda a la misma distancia del borde de arriba y de la línea de abajo */
+.faq{padding:32px 0 44px}
+.faq h2{margin:0 0 32px;font-size:1.55rem}
+/* Respuestas ordenadas (mismo formato que la pregunta 5) */
+.tag.w{background:#fff;color:var(--navy)}
+.stl .ck{margin:2px 0}
+.stl .btn{margin-top:0}
+.stt .tag{line-height:1.25}
+/* Preguntas 03 y 04: tarjetas con la identidad de la pagina (franja de color, casilla de nota de verdad, iconos) en vez de filas repetidas */
+.q3g,.q4g{display:grid;gap:12px}
+.q3g{grid-template-columns:repeat(2,minmax(0,1fr))}
+.q4g{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:700px){.q3g,.q4g{grid-template-columns:1fr}}
+.q3c{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 16px 18px;background:rgba(255,255,255,.07);border-bottom:4px solid var(--c,#0A5CFF)}
+.q3c.b{--c:#0A5CFF}.q3c.g{--c:#00F03C}
+.q3t{font-weight:800;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:#fff}
+.q3f{display:inline-flex;align-items:center;gap:8px}
+.q3f i{display:block;min-width:60px;padding:9px 14px;border:2px solid var(--green);border-radius:2px;background:rgba(0,240,60,.12);font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal;text-align:center;color:#fff}
+.q3f.e i{min-width:120px;border:1px dashed rgba(255,255,255,.6);background:rgba(255,255,255,.06);font-weight:500;font-size:.9rem;font-style:italic;color:rgba(255,255,255,.7)}
+.q3f b{font-weight:700;font-size:.85rem;color:rgba(255,255,255,.7)}
+.q3c p,.q4t p{margin:0;color:rgba(255,255,255,.9)}
+.q4t{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:16px;background:rgba(255,255,255,.07);border-top:4px solid var(--c)}
+.q4i{display:grid;place-items:center;width:44px;height:44px;background:var(--c);color:var(--cc)}
+.q4t b{font-weight:800;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:#fff}
+@media (hover:hover){.q3c,.q4t{transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .2s}.q3c:hover,.q4t:hover{transform:translateY(-2px);background:rgba(255,255,255,.11)}}
+/* Instagram del pie: misma animación que el de la pantalla de inicio (el icono se inclina y crece, el usuario se subraya) */
+footer .fl a.ig svg{transition:transform .4s cubic-bezier(.3,1.6,.5,1),color .25s}
+footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100%/0 2px no-repeat;transition:background-size .3s}
+@media (hover:hover){footer .fl a.ig:hover svg{transform:rotate(-14deg) scale(1.3);animation:none}footer .fl a.ig:hover .igu{background-size:100% 2px}}
+
+/* Deslizadores de "¿Y si saco…?": punto grande, sin contorno gris */
+.sc2 input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;outline:none;border:0;box-shadow:none;height:40px;-webkit-tap-highlight-color:transparent;--p:0%}
+.sc2 input[type=range]::-webkit-slider-runnable-track{height:6px;border:0;border-radius:99px;background:linear-gradient(to right,var(--green) var(--p),var(--line) var(--p))}
+.sc2 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:21px;height:21px;margin-top:-7.5px;border:0;border-radius:50%;background:var(--green);box-shadow:none}
+.sc2 input[type=range]::-moz-range-track{height:6px;border:0;border-radius:99px;background:var(--line)}
+.sc2 input[type=range]::-moz-range-progress{height:6px;border-radius:99px;background:var(--green)}
+.sc2 input[type=range]::-moz-range-thumb{width:21px;height:21px;border:0;border-radius:50%;background:var(--green);box-shadow:none}
+/* Preguntas 03 y 04 más compactas en celular */
+@media (max-width:700px){
+.q3g,.q4g{gap:8px}
+.q3c{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:10px 12px 12px}
+.q3c .q3t{flex:1 0 100%;font-size:.72rem}
+.q3f i{min-width:46px;padding:5px 10px;font-size:.9rem}.q3f.e i{min-width:92px;font-size:.8rem}
+.q3f b{font-size:.78rem}
+.q3c p{flex:1 0 100%;font-size:.85rem;line-height:1.4}
+.q4t{display:grid;grid-template-columns:34px 1fr;column-gap:10px;row-gap:2px;align-items:center;padding:10px 12px;border-top-width:3px}
+.q4i{grid-row:1/3;width:34px;height:34px}.q4i svg{width:18px;height:18px}
+.q4t b{font-size:.72rem}
+.q4t p{font-size:.85rem;line-height:1.4}
+}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -1563,13 +1666,13 @@ window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.g
 </main>
 <section class="faq" id="faq"><div class="wrap">
 <h2>Cómo funciona</h2>
-<details class="qa"><summary><span class="no">01</span><span class="q">¿Cómo se calcula la nota de este curso?</span><i class="pm"></i></summary><div class="ans"><p id="cinfo"></p></div></details>
+<details class="qa"><summary><span class="no">01</span><span class="q">¿Cómo se calcula la nota de este curso?</span><i class="pm"></i></summary><div class="ans"><div class="stl" id="cinfo"></div></div></details>
 <details class="qa"><summary><span class="no">02</span><span class="q">¿Cómo se redondea?</span><i class="pm"></i></summary><div class="ans"><div id="rules"></div></div></details>
-<details class="qa"><summary><span class="no">03</span><span class="q">¿Qué significa "Por rendir"?</span><i class="pm"></i></summary><div class="ans"><p>Es una evaluación que aún no has dado. Si la dejas en blanco, cuenta como 0 en "Mi promedio hasta ahora" y la tabla te dice qué necesitas sacar en ella. Si escribes un 0, cuenta como una nota ya rendida.</p></div></details>
-<details class="qa"><summary><span class="no">04</span><span class="q">¿Es una herramienta oficial?</span><i class="pm"></i></summary><div class="ans"><p>No. Es una calculadora para planificar tus notas. El resultado oficial es el que publica la universidad.</p></div></details>
-<details class="qa"><summary><span class="no">05</span><span class="q">¿Qué significan los avisos de aprobado?</span><i class="pm"></i></summary><div class="ans"><div class="stl"><div class="sti"><div class="stt"><span class="tag y">Ya aprobaste</span></div><p>Aunque saques 0 en lo que falta, llegas a tu nota mínima.</p></div><div class="sti"><div class="stt"><span class="tag m">Aún puedes aprobar</span></div><p>Todavía se puede. Te decimos qué promedio necesitas en lo que falta.</p></div><div class="sti"><div class="stt"><span class="tag n">Ya no se puede llegar</span></div><p>Ni con 20 en todo lo que falta alcanzas tu nota mínima.</p></div><div class="sti"><div class="stt"><span class="tag y">Aprobado</span><span class="tag n">Desaprobado</span></div><p>Solo aparecen cuando ya no queda ninguna evaluación por rendir.</p></div></div></div></details>
+<details class="qa"><summary><span class="no">03</span><span class="q">¿Qué significa "Por rendir"?</span><i class="pm"></i></summary><div class="ans"><div class="q3g"><div class="q3c b"><span class="q3t">La dejas en blanco</span><span class="q3f e" aria-hidden="true"><i>Por rendir</i><b>/20</b></span><span class="tag m">Pendiente</span><p>Cuenta como 0 en "Mi promedio hasta ahora" y la tabla te dice cuánto necesitas sacar en ella.</p></div><div class="q3c g"><span class="q3t">Escribes un 0</span><span class="q3f" aria-hidden="true"><i>0</i><b>/20</b></span><span class="tag y">Rendida</span><p>Cuenta como una nota ya rendida: el 0 entra al promedio tal cual.</p></div></div></div></details>
+<details class="qa"><summary><span class="no">04</span><span class="q">¿Se guardan mis notas?</span><i class="pm"></i></summary><div class="ans"><div class="q4g"><div class="q4t" style="--c:#0A5CFF;--cc:#fff"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></span><b>Dónde</b><p>Solo en tu navegador y en tu dispositivo. Al volver, tus notas siguen ahí.</p></div><div class="q4t" style="--c:#00F03C;--cc:#061F47"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b>Privacidad</b><p>No se envían a ningún servidor y nadie más puede verlas.</p></div><div class="q4t" style="--c:#F000F0;--cc:#061F47"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 12a1.5 1.5 0 0 0 1.5 1.4h7A1.5 1.5 0 0 0 17 19l1-12M9 7V4h6v3"/></svg></span><b>Para borrarlas</b><p>Vacía la casilla de cada nota o borra los datos del sitio desde tu navegador.</p></div></div></div></details>
+<details class="qa"><summary><span class="no">05</span><span class="q">¿Qué significan los avisos de aprobado?</span><i class="pm"></i></summary><div class="ans"><div class="stl"><div class="sti"><div class="stt"><span class="tag y">Ya aprobaste</span></div><p>Aunque saques 0 en lo que falta, llegas a tu nota mínima.</p></div><div class="sti"><div class="stt"><span class="tag m">Aún puedes aprobar</span></div><p>Todavía se puede. Te decimos qué promedio necesitas en lo que falta.</p></div><div class="sti"><div class="stt"><span class="tag n">No puedes llegar</span></div><p>Ni con 20 en todo lo que falta alcanzas tu nota mínima.</p></div><div class="sti"><div class="stt"><span class="tag y">Aprobado</span><span class="tag n">Desaprobado</span></div><p>Solo aparecen cuando ya no queda ninguna evaluación por rendir.</p></div></div></div></details>
 </div></section>
-<footer><div class="wrap fc fcx"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Esta es una herramienta no oficial. Usamos los pesos y reglas de los reglamentos de cada curso, pero si notas alguna diferencia, lo que valida tu profesor o la universidad es lo que cuenta.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl fcm"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form><div class="fadd"><b>¿Falta tu curso?</b><button type="button" class="shb adb" data-add="pie"><i>+</i><span>Agrega tu curso</span></button></div><div class="igs"><a class="ig" data-ig="pie" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>Síguenos en <b class="igu">@myponderup</b></span></a></div></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Herramienta no oficial</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
+<footer><div class="wrap fc fcx"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>My PonderUP te ayuda a calcular tu promedio ponderado en segundos: ingresa tus notas, mira cuánto necesitas sacar en lo que falta y planifica cómo aprobar cada curso.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl fcm"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form><div class="fadd"><b>¿Falta tu curso?</b><button type="button" class="shb adb" data-add="pie"><i>+</i><span>Agrega tu curso</span></button></div><div class="igs"><a class="ig" data-ig="pie" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>Síguenos en <b class="igu">@myponderup</b></span></a></div></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Todos los derechos reservados</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
 </div>
 
 
@@ -1643,14 +1746,14 @@ window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.g
 <details class="qa"><summary><span class="no">05</span><span class="q">¿Se redondea el resultado?</span><i class="pm"></i></summary><div class="ans"><p>No. El promedio y el FI no se redondean al entero. Verás decimales solo cuando el resultado los tenga, con un máximo de dos.</p></div></details>
 <details class="qa"><summary><span class="no">06</span><span class="q">¿Es una herramienta oficial?</span><i class="pm"></i></summary><div class="ans"><p>No. Es una calculadora para que te hagas una idea de tu FI. El valor oficial es el que publica la universidad.</p></div></details>
 </div></section>
-<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Esta es una herramienta no oficial. Calculamos tu factor de inscripción con la fórmula que explica la universidad, pero el valor que cuenta es el que publica la universidad.</p></div><div class="fl" id="ffl"><b>Otras herramientas</b><button type="button" data-pick="1">Ponderado de un curso</button></div><div class="fl"><b>Comentarios o sugerencias</b></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Herramienta no oficial</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
+<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>My PonderUP te ayuda a calcular tu factor de inscripción paso a paso: ingresa tus cursos, tus notas y tus bonificaciones, y mira cómo queda tu resultado.</p></div><div class="fl" id="ffl"><b>Otras herramientas</b><button type="button" data-pick="1">Ponderado de un curso</button></div><div class="fl"><b>Comentarios o sugerencias</b></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Todos los derechos reservados</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
 </div>
 
 <div class="tgw off" id="tgw"><button type="button" class="tg" id="tg" role="switch" aria-checked="false" aria-label="Modo oscuro"><svg class="ti s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><svg class="ti m" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.6 9.6 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z"/></svg><span class="tk"><svg class="s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><svg class="m" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.6 9.6 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z"/></svg></span></button></div>
 <div id="fimini" aria-hidden="true"><span class="ml">Mi factor de inscripción</span><b id="fmbig" class="na">—</b></div>
 <div id="rim" hidden role="dialog" aria-modal="true" aria-labelledby="rimt"><div class="rimc"><div class="rimh"><b id="rimt">Compartir mi resultado</b><button type="button" id="rix" aria-label="Cerrar">×</button></div><div class="rimp" id="rimp" aria-busy="true"><img id="rii" alt="Vista previa de la imagen de tu resultado" width="540" height="675"></div><div class="rimf" role="group" aria-label="Formato de la imagen"><button type="button" data-rf="story" aria-pressed="false">Historia 9:16</button><button type="button" data-rf="post" aria-pressed="false">Publicación 4:5</button></div><label class="ck"><input type="checkbox" id="rin"> Mostrar mis notas en la imagen</label><div class="rima"><button type="button" class="btn" id="rig" disabled>Compartir imagen</button><button type="button" class="btn alt" id="rid" disabled>Descargar</button></div><p id="ris">La imagen solo muestra tu resultado. Tus notas no aparecen salvo que lo actives.</p></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
-<div id="mini" aria-hidden="true"><span class="ml">Mi promedio hasta ahora</span><i class="mb"><span id="mpf"></span><span id="mmk"></span></i><b id="mbig"></b></div>
+<div id="mini" aria-hidden="true"><span class="ml">Mi promedio<br>hasta ahora</span><i class="mb"><span id="mpf"></span><span id="mmk"></span></i><b id="mbig"></b></div>
 
 <script>
 const $=id=>document.getElementById(id),clone=o=>JSON.parse(JSON.stringify(o));
@@ -1753,9 +1856,9 @@ int:{n:"Introducción a la Ingeniería",pre:"",rf:1,i:"La Nota de Trabajo (45%) 
    {id:"l4",n:"Laboratorio 4",s:"L4",z:1,w:20,ch:[{id:"di",n:"Dinosaurio",mx:10,w:50,d:""},{id:"fp",n:"Fase Prototipar",mx:10,w:50,d:""}]},
    {id:"pf",n:"Presentación Final",s:"PF",w:20,b:1}]}]},
  {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
-mat1:{n:"Matemáticas I",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con 2 controles (2% cada uno, 4% en total) y 4 prácticas calificadas (9% cada una, 36% en total). El examen parcial y el final pesan 30% cada uno. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+mat1:{n:"Matemáticas I",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con 2 controles (2% cada uno, 4% en total) y 4 prácticas calificadas (9% cada una, 36% en total). Los controles se califican sobre 10 y el sistema los pasa solo a la escala de 20. El examen parcial y el final pesan 30% cada uno. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"tr",n:"Trabajos",w:40,r:1,ch:[
-  {id:"ct",n:"Controles",w:10,ch:[{id:"c1",n:"Control 1",s:"C1",w:50},{id:"c2",n:"Control 2",s:"C2",w:50}]},
+  {id:"ct",n:"Controles",w:10,ch:[{id:"c1",n:"Control 1",s:"C1",w:50,mx:10},{id:"c2",n:"Control 2",s:"C2",w:50,mx:10}]},
   {id:"pc",n:"Prácticas Calificadas",w:90,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
 len1:{n:"Lenguaje I",pre:"",rf:1,i:"Trabajos pesa 35% y está formado por 3 prácticas calificadas que valen lo mismo (11.67% cada una). El examen parcial pesa 30% y el final 35%. El reglamento no indica pesos distintos para las prácticas, por eso se asume que pesan igual. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
@@ -1834,8 +1937,34 @@ rce:{n:"Religiones, Culturas y Economía",pre:"",gp:2,rf:1,i:"Trabajos pesa 50% 
   {id:"tc",n:"Trabajos Colaborativos",s:"Colaborativos",w:40,b:1},
   {id:"ap",n:"Asistencia y Participación",s:"Asist. y Part.",w:20,b:1}]},
  {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
+,
+ipfe:{n:"Introducción a la Política, Filosofía y Economía",pre:"",rf:1,i:"El Examen Parcial y el Examen Final pesan 35% cada uno. Los tres análisis de casos (filosófico, político y económico) pesan 10% cada uno. El parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"pa",n:"Examen Parcial",w:35,r:1},{id:"fi",n:"Examen Final",w:35,r:1},
+ {id:"af",n:"Análisis Filosófico de Casos",s:"Filosófico",w:10},
+ {id:"ap",n:"Análisis Político de Casos",s:"Político",w:10},
+ {id:"ae",n:"Análisis Económico de Casos",s:"Económico",w:10}]}}
+,
+cdc:{n:"Comportamiento del Consumidor",pre:"",rf:1,i:"Trabajo y Participación pesa 50% y se forma con Casos Prácticos (25% del curso), Participación y dinámicas en clase (15%) y 2 controles (5% cada uno, 10% en total). El Examen Parcial pesa 30% y el Trabajo Final 20%. Trabajo y Participación, el parcial, el trabajo final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Trabajo y Participación",s:"Trabajo",w:50,r:1,ch:[
+  {id:"cp",n:"Casos Prácticos",s:"Casos",w:50},
+  {id:"pd",n:"Participación y Dinámicas en Clase",s:"Particip.",w:30},
+  {id:"ct",n:"Controles",w:20,ch:[{id:"c1",n:"Control 1",s:"C1",w:50},{id:"c2",n:"Control 2",s:"C2",w:50}]}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},
+ {id:"tf",n:"Trabajo Final",w:20,r:1}]}},
+gdp:{n:"Gestión de Personas",pre:"",rf:1,i:"La Nota de Trabajo pesa 45%, el Examen Parcial 20% y el Examen Final 35%. La Nota de Trabajo reúne Participación (40%), Casos y trabajos en clase (25%), Exposición de temas (10%), Trabajo de investigación individual (10%) y grupal (15%). El Examen Final se forma con el trabajo final escrito, la exposición del trabajo final y el examen oral. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:45,r:1,ch:[
+  {id:"pp",n:"Participación",s:"Participación",w:40},
+  {id:"ca",n:"Casos y Trabajos en Clase",s:"Casos",w:25},
+  {id:"ex",n:"Exposición de Temas",s:"Expo",w:10},
+  {id:"ti",n:"Trabajo de Investigación (Individual)",s:"TI",w:10},
+  {id:"tg",n:"Trabajo de Investigación (Grupal)",s:"TG",w:15}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},
+ {id:"fi",n:"Examen Final",w:35,r:1,ch:[
+  {id:"tw",n:"Trabajo Final Escrito",s:"Trabajo",w:30},
+  {id:"ef",n:"Exposición del Trabajo Final",s:"Exposición",w:20},
+  {id:"eo",n:"Examen Oral",s:"Oral",w:50}]}]}}
 };
-const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce","ipfe","cdc","gdp"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
@@ -1899,14 +2028,25 @@ function setCourse(k){
  $("tree").innerHTML=h;
  {const L=document.querySelectorAll("#tree input.g");if(L.length)L[L.length-1].setAttribute("enterkeyhint","done")}
  $("tree").classList.toggle("hdots",G.slice(1).every(g=>!g.ch));
- $("cinfo").textContent=C[k].i;
+ renderInfo(k);
  let r="";walk(S.root,c=>r+=`<label class="ck"><input type="checkbox" data-r="${c.id}"${c.r?" checked":""}> Redondear ${c.n} a entero</label>`);
- $("rules").innerHTML=r+`<label class="ck"><input type="checkbox" id="rf"${S.rf?" checked":""}> Redondear el promedio final a entero (10.5 cuenta como 11)</label><button type="button" class="btn" id="rs">Restablecer este curso</button>`;
+ $("rules").innerHTML=`<p>Marca lo que quieras redondear al entero (el .5 sube). Lo que dejes sin marcar se calcula con decimales.</p><div class="stl"><div class="sti"><div class="stt"><span class="tag y">Cada evaluación</span></div><div>${r}</div></div><div class="sti"><div class="stt"><span class="tag m">Promedio final</span></div><div><label class="ck"><input type="checkbox" id="rf"${S.rf?" checked":""}> Redondear el promedio final a entero (10.5 cuenta como 11)</label></div></div><div class="sti"><div class="stt"><span class="tag w">Los del curso</span></div><div><button type="button" class="btn" id="rs">Restablecer redondeos</button></div></div></div>`;
  $("pm").value=S.pm;
- prevOk=null;prevA=null;prevK=null;
+ prevOk=null;prevA=null;prevK=null;prevNum=null;
  update();
 }
 
+/* Pregunta 1 de "Cómo funciona": una fila por evaluación (con su peso total) y una fila de "Ten en cuenta" con las aclaraciones propias del curso */
+function renderInfo(k){
+ const jn=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" y "+a[a.length-1];
+ let h="";
+ S.root.ch.forEach((g,i)=>{const c=wbc(i),kids=g.ch?g.ch.map(x=>escL(x.n)+(dv(x)?" ("+dv(x)+")":"")):null,
+  txt=kids?`Se forma con ${jn(kids)}.`:"Se ingresa como una sola nota.";
+  h+=`<div class="sti"><div class="stt"><span class="tag" style="background:${c[0]};color:${c[1]}">${escL(g.n)} · ${fmt(g.a)}%</span></div><p>${txt}</p></div>`});
+ h+=`<div class="sti"><div class="stt"><span class="tag w">Promedio final</span></div><p>Suma cada parte según su peso${S.rf?" y se redondea al entero (el .5 sube)":""}.</p></div>`;
+ const nt=(C[k].i||"").split(/\.\s+/).map(x=>x.replace(/\.$/,"")+".").filter(x=>/sobre 10|se asume|no indica/i.test(x));
+ if(nt.length)h+=`<div class="sti"><div class="stt"><span class="tag m">Ten en cuenta</span></div><p>${escL(nt.join(" "))}</p></div>`;
+ $("cinfo").innerHTML=h}
 /* ===== Nombre del curso: cada letra salta al pasar el cursor por ella =====
    setLetters() parte el texto en palabras (que no se cortan a la mitad) y letras. El texto completo queda oculto para lectores de pantalla.
    hopLetter() anima con la Web Animations API, asi no choca con el brillo (CSS). Solo salta la letra tocada.
@@ -1949,7 +2089,7 @@ function simR(){
  $("simt").setAttribute("aria-expanded",String(simOpen));if(!simOpen){simShow(false);return}
  const ol=outlook(),sv=S.sim||(S.sim={}),def=ol.nec!==null?ol.nec:(ol.k==="no"?20:S.pm);
  $("simr").innerHTML=P.map(l=>{const mx=l.mx||20,v=sv[l.id]!==undefined?Math.min(mx,sv[l.id]):Math.min(mx,Math.ceil(def*mx/20*2-1e-6)/2);sv[l.id]=v;
-  return `<div class="srow"><span>${l.n}${dv(l)?`<em>${dv(l)}</em>`:""}</span><div class="sc2"><input type="range" min="0" max="${mx}" step="0.5" value="${v}" data-sid="${l.id}" aria-label="Nota simulada de ${l.n}"><output>${fmt(v)}</output><button type="button" class="btn sm" data-use="${l.id}" title="Usar como nota real">Usar</button></div></div>`}).join("");
+  return `<div class="srow"><span>${l.n}${dv(l)?`<em>${dv(l)}</em>`:""}</span><div class="sc2"><input type="range" min="0" max="${mx}" step="0.5" value="${v}" style="--p:${v/mx*100}%" data-sid="${l.id}" aria-label="Nota simulada de ${l.n}"><output>${fmt(v)}</output><button type="button" class="btn sm" data-use="${l.id}" title="Usar como nota real">Usar</button></div></div>`}).join("");
  simU();simShow(true)}
 /* Abrir y cerrar "¿Y si saco...?" con una animacion suave de altura y opacidad */
 let simT=0;
@@ -1963,10 +2103,9 @@ function simShow(o){const b=$("simb");if(o===(b.dataset.s==="open")&&!(o&&b.hidd
  simT=setTimeout(()=>{b.style.transition=b.style.height=b.style.overflow=b.style.opacity="";if(!o)b.hidden=true},470)}
 function simU(){
  const P=pend(),sv=S.sim||{},u={};P.forEach(l=>u[l.id]=(sv[l.id]||0)*20/(l.mx||20));
- const v=ev(S.root,full(u)),ok=pass(v),g=Math.abs(S.rf?rnd(v)-S.pm:v-S.pm),near=g<.005;
+ const v=ev(S.root,full(u)),ok=pass(v);
  $("simn").textContent=S.rf?rnd(v):fmt(v);$("simn").className=ok?"gn":"rd";
- const st=ok?(near?`Justo en la nota mínima de ${S.pm}.`:""):`Te faltan ${fmt(g)} para llegar a ${S.pm}.`;
- $("simv").innerHTML=`<span class="tag ${ok?"y":"n"}">${ok?"Aprobarías":"Desaprobarías"}</span>`+(st?`<span class="sst">${st}</span>`:"")}
+  $("simv").innerHTML=`<span class="tag ${ok?"y":"n"}">${ok?"Aprobarías":"Desaprobarías"}</span>`}
 $("simt").addEventListener("click",()=>{simOpen=!simOpen;if(simOpen)anim("simulador_despliegue");if(simOpen&&!seenSim.has(cur)){seenSim.add(cur);track("simulador_abierto",{curso:cur,pendientes:pend().length})}simR()});
 $("sim").addEventListener("input",e=>{const t=e.target;if(!t.dataset||!t.dataset.sid)return;(S.sim||(S.sim={}))[t.dataset.sid]=+t.value;const o=t.parentNode.querySelector("output");if(o)o.textContent=fmt(+t.value);simU()});
 $("sim").addEventListener("click",e=>{const b=e.target.closest("button[data-use]");if(!b)return;
@@ -1987,7 +2126,7 @@ function setNum(el,txt){
  const step=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);el._v=from+(to-from)*e;el.textContent=k<1?el._v.toFixed(dec):txt;if(k<1)el._r=requestAnimationFrame(step)};
  el._r=requestAnimationFrame(step)}
 const FLIM=3,fexp=new Set();
-let prevOk=null,prevA=null,prevK=null,simOpen=false;const seenEst=new Set(),seenSim=new Set();
+let prevOk=null,prevA=null,prevK=null,prevNum=null,simOpen=false;const seenEst=new Set(),seenSim=new Set();
 function burst(){
  if(RM)return;anim("confeti_aprobar");const r=document.createElement("div");r.className="cf";r.setAttribute("aria-hidden","true");
  const cols=["#00F03C","#0A5CFF","#F000F0","#ffffff"];
@@ -2007,7 +2146,7 @@ function outlook(){
 function vtxt(o,yo){
  if(!o.n)return o.loOk?{t:"Aprobado",c:"y",m:""}:{t:"Desaprobado",c:"n",m:""};
  if(o.loOk)return{t:yo?"Ya aprobé":"Ya aprobaste",c:"y",m:""};
- if(!o.hiOk)return{t:`Ya no se puede llegar a ${S.pm}`,c:"n",m:""};
+ if(!o.hiOk)return{t:yo?`No puedo llegar a ${S.pm}`:`No puedes llegar a ${S.pm}`,c:"n",m:""};
  return{t:yo?"Aún puedo aprobar":"Aún puedes aprobar",c:"m",m:""}}
 /* ===== Barra de progreso: agua =====
    Solo es visual. update() sigue calculando el % y escribiendo style.width con el valor exacto; aquí solo se anima lo que se ve.
@@ -2020,42 +2159,45 @@ function vtxt(o,yo){
 const waterTo=(()=>{
  const pf=$("pf"),pb=pf&&pf.parentNode,mq=window.matchMedia?matchMedia("(prefers-reduced-motion: reduce)"):null;
  if(!pf||!pb)return()=>{};
- const NP=12,RY=36,H=1/240,WN=6.2,AS=2600,TP=Math.PI*2,SWD=2.9,TM=3.2,PW=72,cl=(x,a,b)=>x<a?a:x>b?b:x,sm=t=>{t=cl(t,0,1);return t*t*(3-2*t)};
- const XS=[0,.16,.33,.53,.7,.86,1],VA=[6,2,0,3,8,10,6],VB=[5,10,13,10,3,0,5];
+ /* Nivel: resorte con rebote suave (como agua que se mece al subir o bajar). Superficie: tres olas que viajan hacia el frente con crestas puntiagudas.
+    En reposo la superficie sigue meciéndose despacio (solo mientras la barra se ve en pantalla y a ~30 fps). Al moverse el nivel, las olas crecen y se apagan solas. */
+ const NP=12,RY=36,H=1/240,WN=6.2,ZT=.5,AS=2600,TP=Math.PI*2,IDLE=.3,cl=(x,a,b)=>x<a?a:x>b?b:x;
  const LM=[44,27,17.5,11.3],WG=[.34,.34,.22,.1],KK=LM.map(l=>TP/l),CC=LM.map(l=>13.5*Math.sqrt(l));
+ const WL=[128,70,40],WA=[.5,.32,.18],WK=WL.map(l=>TP/l),WC=WL.map(l=>7.5*Math.sqrt(l)),PS=[0,1.7,3.1];
  const cv=document.createElement("canvas"),cx=cv.getContext("2d"),oc=document.createElement("canvas"),ox=oc.getContext("2d");
  cv.setAttribute("aria-hidden","true");cv.style.cssText="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;display:none";pf.after(cv);
  const XF=new Float32Array(RY),yy=new Float32Array(RY),cr=new Float32Array(RY),sr=new Float32Array(RY),PH=new Float32Array(4);
- let YS=null,SA=null,CA=null,img=null,cols=0,hp=0,trk=null,L=0,Vl=0,T=0,A=0,Ps=0,Pm=0,W=0,raf=0,last=0,acc=0,on=false,Vp=0,Ap=0;
+ let YS=null,SA=null,CA=null,img=null,cols=0,hp=0,L=0,Vl=0,T=0,A=0,Pm=0,W=0,HH=12,raf=0,last=0,acc=0,on=false,vis=true,Vp=0,Ap=0;
+ /* altura (px, desde arriba) de la superficie en la posicion x */
+ const surf=(xc,am,lp)=>{let w=0;for(let i=0;i<3;i++)w+=WA[i]*Math.sin(WK[i]*xc-PS[i]);
+  const h=Math.pow((cl(w,-1,1)+1)/2,1.6),sh=.65+.35*cl(xc/Math.max(lp,1),0,1),md=.85+.15*Math.sin(xc/310-Pm*.4);
+  return(1+6.8*am)*sh*md*(1-h)};
  const ensure=()=>{const c=Math.max(1,Math.round(W)),dpr=Math.min(window.devicePixelRatio||1,3),h=Math.max(1,pb.clientHeight);
   if(c!==cols||h!==hp){cols=c;hp=h;oc.width=cols;oc.height=RY;img=ox.createImageData(cols,RY);YS=new Float32Array(cols);SA=new Float32Array(cols);CA=new Float32Array(cols);for(let r=0;r<RY;r++){yy[r]=(r+.5)/RY*hp;cr[r]=Math.cos(.5*yy[r]);sr[r]=Math.sin(.5*yy[r])}}
   const cw=Math.round(cols*dpr),ch=Math.round(hp*dpr);if(cv.width!==cw||cv.height!==ch){cv.width=cw;cv.height=ch}};
  const rest=()=>{if(raf)cancelAnimationFrame(raf);raf=0;on=false;L=T;Vl=A=Vp=Ap=0;
   pf.classList.remove("pf-agua");pf.style.clipPath=pf.style.webkitClipPath="";pf.style.removeProperty("--vw");cv.style.display="none"};
  const draw=()=>{
-  const lp=L*W/100,g=cl(lp/8,0,1)*cl((W-lp)/8,0,1),lc=L.toFixed(3),bu=cl(Vp/90,-1,1)*1.1*g;
-  let q="0 0";
-  for(let j=0;j<=NP;j++){const u=j/NP;q+=",calc("+lc+"% + "+(bu*(1-(2*u-1)*(2*u-1))).toFixed(2)+"px) "+(u*100).toFixed(1)+"%"}
-  pf.style.clipPath=pf.style.webkitClipPath="polygon("+q+",0 100%)";
+  const lp=Math.max(0,L*W/100),am=Math.max(A,IDLE),g=cl(lp/8,0,1)*cl((W-lp)/8,0,1),bu=cl(Vp/70,-1,1)*2.2*g,hh=HH;
   pf.style.setProperty("--vw",Math.max(0,L).toFixed(3)+"%");
-  if(!cx||!ox)return;
+  if(lp<.5){pf.style.clipPath=pf.style.webkitClipPath="polygon(0 0,0 0,0 0)";cv.style.display="none";return}
+  const nt=Math.max(2,Math.min(120,Math.ceil(lp/6)));let q="";
+  for(let j=0;j<=nt;j++){const x=lp*j/nt;q+=(j?",":"")+x.toFixed(1)+"px "+surf(x,am,lp).toFixed(2)+"px"}
+  const yf=surf(lp,am,lp);
+  for(let j=0;j<=NP;j++){const u=j/NP;q+=","+(lp+bu*(1-(2*u-1)*(2*u-1))).toFixed(2)+"px "+(yf+(hh-yf)*u).toFixed(2)+"px"}
+  q+=",0px "+hh+"px";
+  pf.style.clipPath=pf.style.webkitClipPath="polygon("+q+")";
+  if(!cx||!ox||A<=.03){cv.style.display="none";return}
   ensure();cv.style.display="block";
   for(let r=0;r<RY;r++){const v=yy[r]/hp;XF[r]=lp+bu*(1-(2*v-1)*(2*v-1))}
-  const d=img.data,Am=A,Af=Math.min(1,A*1.25),xe=Math.max(lp,1),SW=SWD*Am*g/10,DR=Am*g;
-  for(let x=0;x<cols;x++){
-   const xc=x+.5;let c=0;
-   for(let i=0;i<4;i++){const a=KK[i]*xc+PH[i];c+=WG[i]*Math.sin(a)}
-   const cs=2*Math.pow((cl(c,-1,1)+1)/2,1.5)-1,rip=DR*sm(xc/28)*sm((xe-xc)/14)*(.78+.22*Math.sin(TP*xc/190-Pm))*(1-cs)/2;
-   const pu=xc/PW+.12*Math.sin(xc/230+.7),u=pu-Math.floor(pu);let k=0;while(k<5&&u>XS[k+1])k++;
-   const tt=sm((u-XS[k])/(XS[k+1]-XS[k])),va=VA[k]+(VA[k+1]-VA[k])*tt,vb=VB[k]+(VB[k+1]-VB[k])*tt,s2=.5-.5*Math.cos(TP*(Ps-xc/420));
-   YS[x]=SW*(va+(vb-va)*s2)+rip;
-   const a1=KK[1]*xc+PH[1];SA[x]=Math.sin(a1);CA[x]=Math.cos(a1)}
+  const d=img.data,Am=A,Af=Math.min(1,A*1.25);
+  for(let x=0;x<cols;x++){const xc=x+.5;YS[x]=surf(xc,am,lp);const a1=KK[1]*xc+PH[1];SA[x]=Math.sin(a1);CA[x]=Math.cos(a1)}
   for(let x=0;x<cols;x++){
    const xc=x+.5,ys=YS[x],sl=(YS[x<cols-1?x+1:x]-YS[x>0?x-1:x])*.5,sp=cl(.5-sl*6,0,1),sp3=Math.pow(cl(-sl*6,0,1),3),sA=SA[x],cA=CA[x];
    for(let r=0;r<RY;r++){
     const o=(r*cols+x)*4,dd=XF[r]-xc,m=cl(dd+.5,0,1);
     if(m<=0){d[o+3]=0;continue}
-    const y=yy[r],ya=y-ys,v=y/hp,cov=trk?cl(.5-ya,0,1):0;
+    const y=yy[r],ya=y-ys,v=y/hp;
     let aw=0,ak=Am*(.03+.16*v*v);
     if(ya>-.5){const dp=ya>0?ya:0;
      aw+=Am*.11*Math.exp(-dp/1.6);
@@ -2065,41 +2207,46 @@ const waterTo=(()=>{
      if(dd>-.5){aw+=Af*.34*Math.exp(-Math.max(dd,0)/2.2);const e=dd-4.5;ak+=Af*.09*Math.exp(-e*e/2)}}
     if(aw>.9)aw=.9;
     const at=aw+ak*(1-aw),gy=at>0?aw/at*255:0;
-    if(cov>0){const oa=cov+at*(1-cov);d[o]=(trk[0]*cov+gy*at*(1-cov))/oa;d[o+1]=(trk[1]*cov+gy*at*(1-cov))/oa;d[o+2]=(trk[2]*cov+gy*at*(1-cov))/oa;d[o+3]=Math.min(1,oa)*m*255}
-    else{d[o]=d[o+1]=d[o+2]=gy;d[o+3]=Math.min(1,at)*m*255}}
+    d[o]=d[o+1]=d[o+2]=gy;d[o+3]=Math.min(1,at)*m*255}
   }
   ox.putImageData(img,0,0);cx.clearRect(0,0,cv.width,cv.height);cx.imageSmoothingEnabled=true;cx.drawImage(oc,0,0,cols,RY,0,0,cv.width,cv.height)};
  const frame=ts=>{
-  raf=0;const dt=last?Math.min((ts-last)/1000,.05):H;last=ts;acc+=dt;
-  while(acc>=H){acc-=H;const a=-2*WN*Vl-WN*WN*(L-T);Vl+=a*H;L+=Vl*H;Ap=a*W/100}
+  raf=0;if(!on||!vis)return;
+  const moving=Math.abs(L-T)>.003||Math.abs(Vl)>.05||A>.03,dt=last?Math.min((ts-last)/1000,.05):H;
+  if(!moving&&last&&dt<.032){raf=requestAnimationFrame(frame);return}
+  last=ts;acc+=dt;
+  while(acc>=H){acc-=H;const a=-2*ZT*WN*Vl-WN*WN*(L-T);Vl+=a*H;L+=Vl*H;Ap=a*W/100}
   Vp=Vl*W/100;
-  const tg=Math.min(1,Math.abs(Vp)/70+Math.abs(Ap)/AS);A=tg>A?Math.min(tg,A+dt*7):Math.max(tg,A*Math.exp(-dt/.8));
-  const sf=.5+A;for(let i=0;i<4;i++)PH[i]+=dt*KK[i]*CC[i]*sf;Ps+=dt/TM*(.6+.8*A);Pm+=dt*TP/190*(30+30*A);
-  if(Math.abs(L-T)<.003&&Math.abs(Vl)<.05&&A<.03){rest();return}
+  if(Math.abs(L-T)<.003&&Math.abs(Vl)<.05){L=T;Vl=0;Vp=0;Ap=0}
+  const tg=Math.min(1,Math.abs(Vp)/45+Math.abs(Ap)/AS);A=tg>A?Math.min(tg,A+dt*7):Math.max(tg,A*Math.exp(-dt/1.5));
+  const am=Math.max(A,IDLE),sf=.5+A;for(let i=0;i<4;i++)PH[i]+=dt*KK[i]*CC[i]*sf;
+  for(let i=0;i<3;i++)PS[i]+=dt*WK[i]*WC[i]*(.55+1.1*am);Pm+=dt*(.8+1.2*am);
   draw();raf=requestAnimationFrame(frame)};
- if(window.ResizeObserver)new ResizeObserver(()=>{W=pb.clientWidth}).observe(pb);
+ const go=()=>{if(vis&&on&&!raf){last=0;acc=0;raf=requestAnimationFrame(frame)}};
+ const begin=()=>{if(on||!W||(mq&&mq.matches))return;on=true;HH=pb.clientHeight||12;pf.classList.add("pf-agua");draw();go()};
+ if(window.ResizeObserver)new ResizeObserver(()=>{W=pb.clientWidth;HH=pb.clientHeight||12}).observe(pb);
+ if(window.IntersectionObserver)new IntersectionObserver(es=>{vis=es[es.length-1].isIntersecting;if(vis){W=pb.clientWidth;if(!on)begin();else go()}},{rootMargin:"80px"}).observe(pb);
  return v=>{
   if(!isFinite(v))return;
   W=pb.clientWidth;
   if(!W||(mq&&mq.matches)){T=v;rest();return}
-  if(v===T&&!on)return;
-  T=v;
-  if(!on){on=true;last=0;acc=0;anim("barra_agua");
-   const m=(getComputedStyle(pb).backgroundColor||"").match(/[\d.]+/g);trk=m&&m.length>=3&&(m.length<4||+m[3]>.99)?[+m[0],+m[1],+m[2]]:null;
-   pf.classList.add("pf-agua");draw();raf=requestAnimationFrame(frame)}}
+  if(on&&v===T)return;
+  const was=T;T=v;
+  if(!on)begin();else go();
+  if(was!==T)anim("barra_agua")}
 })();
 function update(){
  const R=S.root,P=pend(),n=P.length,a=ev(R,full({})),okk=pass(a),num=S.rf?rnd(a):fmt(a),ol=outlook(),vd=vtxt(ol),col=ol.k==="aun"?"wn":(okk?"gn":"rd");
  if(prevOk===false&&okk&&a!==prevA)burst();prevOk=okk;prevA=a;
  walk(R,c=>{if(!c.ch)return;const hp=leaves(c).some(l=>isP(l.id)),e=$("sv-"+c.id);e.textContent=hp?"Faltan notas":fmt(ev(c,full({})));e.classList.toggle("pn",hp)});
- $("sl1").textContent=n?"Mi promedio hasta ahora":"Mi promedio final";
+ $("sl1").innerHTML=n?'Mi promedio <span class="l2">hasta ahora</span>':'Mi promedio <span class="l2">final</span>';
  $("sl2").innerHTML=`<span class="tag ${vd.c}">${vd.t}</span>${vd.m?`<span class="sst">${vd.m}</span>`:""}`;
- setNum($("big"),num);$("big").className=col;
+ setNum($("big"),num);$("big").className=col+(String(num).length>3?" dec":"");if(prevNum!==null&&prevNum!==num&&!RM){const bg2=$("big");void bg2.offsetWidth;bg2.classList.add("pop")}prevNum=num;
  setNum($("mbig"),num);$("mbig").className=col;
  const w=Math.min(100,a/20*100)+"%",m=Math.min(100,S.pm/20*100)+"%",bg=ol.k==="aun"?"#FFC400":(okk?"#00F03C":"#ff5a5f");
  $("pf").style.width=w;waterTo(parseFloat(w));$("pf").style.background=bg;$("mk").style.left=m;$("mk").setAttribute("aria-valuenow",S.pm);$("mkt").textContent=fmt(S.pm);
  $("mpf").style.width=w;$("mpf").style.background=bg;$("mmk").style.left=m;
- $("pt").textContent=n?`Llevas ${fmt(a)} y la meta es ${S.pm}`:`Terminaste con ${fmt(a)} (meta ${S.pm})`;
+ $("pt").textContent=n?`Actual: ${fmt(a)} | Objetivo: ${S.pm}`:`Cerraste con ${fmt(a)}, tu meta era ${S.pm}`;
  $("rib").hidden=leaves(R).length-n===0;
  if(ol.k!==prevK){if(prevK!==null&&!seenEst.has(cur+ol.k)){seenEst.add(cur+ol.k);track("estado_aprobacion",{curso:cur,estado:ol.k,pendientes:n})}prevK=ol.k}
  let cb="";
@@ -2125,7 +2272,7 @@ function update(){
    for(let x=-D/2;x<=20+D/2+1e-9;x+=.5){
     const o={};P.forEach((l,i)=>o[l.id]=sn(Math.max(0,Math.min(20,x+D*(.5-i/(n-1)))),l));
     if(okc(o)){const k=P.map(l=>o[l.id]).join(",");if(!seen.has(k)){seen.add(k);rows.push(mk(o))}break}}}
-  cb=okk?`<p class="msg">Ya aprobaste: aunque saques 0 en lo que falta, llegas a ${S.pm}.</p>`:(ol.k==="no"||!rows.length)?`<p class="msg bad">La nota mínima de ${S.pm} ya no es alcanzable.</p>`:`<h2>Combinaciones posibles para aprobar con ${S.pm}</h2><div class="sc"><table>${hdr}${rows.join("")}</table></div>`;
+  cb=okk?"":(ol.k==="no"||!rows.length)?`<p class="msg bad">Ya no se llega a ${S.pm}, ni sacando la nota máxima en lo que falta.</p>`:`<h2>Combinaciones posibles para aprobar con ${S.pm}</h2><div class="sc"><table>${hdr}${rows.join("")}</table></div>`;
  }
  $("cb").innerHTML=cb;
  simR();
@@ -2139,10 +2286,10 @@ function update(){
 const nd=t=>{let v=t.value.replace(/,/g,".").replace(/[^0-9.]/g,"");const i=v.indexOf(".");if(i>=0)v=v.slice(0,i+1)+v.slice(i+1).replace(/\./g,"");
  if(v!==t.value){const p=t.selectionStart,d=t.value.length-v.length;t.value=v;try{const q=Math.max(0,(p==null?v.length:p)-d);t.setSelectionRange(q,q)}catch(_){}}return v};
 const h=e=>{const t=e.target,id=t.dataset.id;
- if(t.classList.contains("g")){S.g[id]=nd(t);if(e.type==="input"&&t.value!==""&&!seenTyp.has(cur)){seenTyp.add(cur);track("nota_escribiendo",{curso:cur})}const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);const bd=f&&(+t.value>(idx[id].mx||20)||+t.value<0);gi.classList.toggle("bad",bd);if(bd&&typeof badFx==="function")badFx(gi,t,idx[id].mx||20);if(bd){const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}t.style.width=f?(t.value.length+.6)+"ch":""}}
+ if(t.classList.contains("g")){let nv=nd(t);const mxv=idx[id].mx||20;let over=false;if(nv!==""&&+nv>mxv){over=true;nv=String(S.g[id]??"");t.value=nv}S.g[id]=nv;if(e.type==="input"&&t.value!==""&&!seenTyp.has(cur)){seenTyp.add(cur);track("nota_escribiendo",{curso:cur})}const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);const bd=f&&(+t.value>(idx[id].mx||20)||+t.value<0);gi.classList.toggle("bad",bd);if(bd&&typeof badFx==="function")badFx(gi,t,idx[id].mx||20);if(bd){const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}t.style.width=f?(t.value.length+.6)+"ch":"";if(over){gi.classList.add("bad");if(typeof badFx==="function")badFx(gi,t,mxv);clearTimeout(gi._bd);gi._bd=setTimeout(()=>gi.classList.remove("bad"),1100);const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}}}
  else if(t.dataset.r)idx[t.dataset.r].r=t.checked?1:0;
  else if(t.id==="rf")S.rf=t.checked;
- else if(t.id==="pm")S.pm=Math.max(0,Math.min(20,+nd(t)||0));
+ else if(t.id==="pm"){let v=nd(t),over=false;if(v!==""&&+v>20){over=true;v=String(S.pm);t.value=v}S.pm=Math.max(0,Math.min(20,+v||0));if(over){const ml=t.closest(".minl");if(ml){ml.classList.add("bad");if(typeof badFx==="function")badFx(ml,t,20);clearTimeout(ml._bd);ml._bd=setTimeout(()=>ml.classList.remove("bad"),1100)}}}
  else return;
  update()};
 document.addEventListener("input",h);document.addEventListener("change",h);
@@ -2174,7 +2321,7 @@ document.addEventListener("click",e=>{
   /* Desde "Elige tu curso" el trabajo pesado (armar la calculadora) espera un cuadro para que primero se pinte el efecto de tocar y el telefono responda al instante */
   if(b.dataset.p){const k=b.dataset.c;requestAnimationFrame(()=>{setCourse(k);showView("tool")})}
   else{setCourse(b.dataset.c);if(b.dataset.f)window.scrollTo({top:0})}}
- else if(b.id==="rs"){track("curso_restablecido",{curso:cur});ST[cur]=null;setCourse(cur)}});
+ else if(b.id==="rs"){track("redondeos_restablecidos",{curso:cur});const d=defR(cur);walk(S.root,c=>{c.r=d[c.id]?1:0});S.rf=!!C[cur].rf;document.querySelectorAll("#rules input[data-r]").forEach(x=>{x.checked=!!d[x.dataset.r]});const rfx=$("rf");if(rfx)rfx.checked=S.rf;update();toast("Redondeos restablecidos")}});
 /* Notas: Enter (o "Siguiente" del teclado del celular) pasa a la siguiente; Shift+Enter vuelve a la anterior; en la ultima cierra el teclado y lleva al resumen */
 const nCoarse=window.matchMedia?matchMedia("(pointer:coarse)"):{matches:false};
 function nextNota(el,d){const L=[...document.querySelectorAll("#tree input.g")],n=L[L.indexOf(el)+d];
@@ -2275,7 +2422,7 @@ function save(){try{const o={};
 function load(){try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(!j||j.v!==1||!j.c)return null;
  for(const k in j.c){if(!C[k])continue;const e=j.c[k]||{},t=ST[k]=mkState(k),lv={},nd={};
   walk(t.root,c=>{nd[c.id]=c;if(!c.ch)lv[c.id]=1});
-  if(e.g)for(const id in e.g){const v=String(e.g[id]);if(lv[id]&&v!==""&&isFinite(+v))t.g[id]=v}
+  if(e.g)for(const id in e.g){const v=String(e.g[id]);if(lv[id]&&v!==""&&isFinite(+v)&&+v>=0)t.g[id]=+v>(nd[id].mx||20)?String(nd[id].mx||20):v}
   if(typeof e.pm==="number"&&e.pm>=0&&e.pm<=20)t.pm=e.pm;
   if(typeof e.rf==="boolean")t.rf=e.rf;
   if(e.r)for(const id in e.r)if(nd[id])nd[id].r=e.r[id]?1:0}
@@ -2788,6 +2935,7 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
  const layer=document.createElement("div");layer.className="cx-layer";layer.setAttribute("aria-hidden","true");document.body.appendChild(layer);
  const spot=document.createElement("div");spot.className="wel-spot";spot.setAttribute("aria-hidden","true");W.insertBefore(spot,W.firstChild);
  const vis=()=>!W.hidden;
+ const UP=document.getElementById("v-up"),cvis=()=>!W.hidden||(!!UP&&!UP.hidden);
  function part(x,y,o){
   if(RM.matches||layer.childElementCount>80)return;
   const p=document.createElement("i");p.className="cx-p"+(o.st?" st":"");
@@ -2809,7 +2957,7 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
   if(vis())burst(e.clientX,e.clientY)},{passive:true});
  /* brillo que sigue al cursor en tarjetas */
  if(FINE)document.addEventListener("pointermove",e=>{
-  const t=e.target.closest&&e.target.closest(".blk,.upst li");
+  const t=e.target.closest&&e.target.closest(".blk,.upst li,#sum");
   if(t){const r=t.getBoundingClientRect();t.style.setProperty("--gx",(e.clientX-r.left)+"px");t.style.setProperty("--gy",(e.clientY-r.top)+"px")}},{passive:true});
  /* ---- celular / pantalla tactil: el dedo inclina el logo igual que el mouse (al soltar vuelve suave al centro) ---- */
  {
@@ -2843,7 +2991,7 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
  function setOn(v){dot.classList.toggle("on",v);ring.classList.toggle("on",v)}
  function frame(){
   raf=0;
-  if(!vis()||RM.matches){setOn(false);return}
+  if(!cvis()||RM.matches){setOn(false);return}
   const ttx=inside?(mx/innerWidth-.5)*2:0,tty=inside?(my/innerHeight-.5)*2:0;
   rx+=(mx-rx)*.2;ry+=(my-ry)*.2;tx+=(ttx-tx)*.08;ty+=(tty-ty)*.08;
   ring.style.transform=`translate3d(${rx}px,${ry}px,0)`;
@@ -2861,28 +3009,26 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
  document.addEventListener("pointermove",e=>{
   if(e.pointerType==="touch")return;
   mx=e.clientX;my=e.clientY;
-  if(!vis()){setOn(false);return}
+  if(!cvis()){setOn(false);return}
   if(!inside){inside=true;rx=mx;ry=my;lx=mx;ly=my}
-  dot.style.transform=`translate3d(${mx}px,${my}px,0)`;setOn(true);anim("bienvenida_inclinar_logo");
+  dot.style.transform=`translate3d(${mx}px,${my}px,0)`;
+  const tf=!!(e.target.closest&&e.target.closest("#v-up input:not([type=file]),#v-up textarea"));setOn(!tf);if(vis())anim("bienvenida_inclinar_logo");
   W.style.setProperty("--mx",mx+"px");W.style.setProperty("--my",my+"px");
-  const h=!!(e.target.closest&&e.target.closest("a,button"));dot.classList.toggle("hov",h);ring.classList.toggle("hov",h);
-  if(Math.hypot(mx-lx,my-ly)>30){lx=mx;ly=my;trail(mx,my)}
+  const h=!!(e.target.closest&&e.target.closest("a,button,label.upd"));dot.classList.toggle("hov",h);ring.classList.toggle("hov",h);
+  if(vis()&&Math.hypot(mx-lx,my-ly)>30){lx=mx;ly=my;trail(mx,my)}
   kick()},{passive:true});
- document.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch"&&vis())ring.classList.add("dn")},{passive:true});
+ document.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch"&&cvis())ring.classList.add("dn")},{passive:true});
  document.addEventListener("pointerup",()=>ring.classList.remove("dn"),{passive:true});
  document.documentElement.addEventListener("pointerleave",()=>{inside=false;setOn(false);kick()});
  document.documentElement.addEventListener("pointerenter",()=>{inside=true;kick()});
  /* al cambiar de pantalla el cursor propio se apaga y la bienvenida vuelve a su posicion */
- new MutationObserver(()=>{if(!vis()){setOn(false);if(go)go.style.translate=""}else kick()}).observe(W,{attributes:true,attributeFilter:["hidden"]});
+ new MutationObserver(()=>{if(!cvis()){setOn(false)}if(!vis()){if(go)go.style.translate=""}if(cvis())kick()}).observe(W,{attributes:true,attributeFilter:["hidden"]});
+ if(UP)new MutationObserver(()=>{if(!cvis())setOn(false);else kick()}).observe(UP,{attributes:true,attributeFilter:["hidden"]});
 })();
 </script>
 <script>
-/* Nota mínima: si escribes más de 20 aparece "Máximo 20" y vibra, igual que en las notas. Al salir del campo vuelve a 20 */
+/* Nota mínima: ya no deja escribir más de 20 (lo rechaza el manejador principal de notas, que muestra "Máximo 20" y vibra). Aquí solo queda el ajuste al salir del campo */
 (function(){
- document.addEventListener("input",function(e){var t=e.target;if(!t||t.id!=="pm")return;
-  var l=t.closest(".minl");if(!l)return;var v=parseFloat(String(t.value).replace(",","."));
-  var bad=!isNaN(v)&&v>20;l.classList.toggle("bad",bad);
-  if(bad&&typeof badFx==="function")badFx(l,t,20)});
  document.addEventListener("focusout",function(e){var t=e.target;if(!t||t.id!=="pm")return;
   var l=t.closest(".minl");if(!l||!l.classList.contains("bad"))return;
   t.value="20";setTimeout(function(){l.classList.remove("bad")},900)});
@@ -2923,6 +3069,8 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
   const st=t.closest(".strip");
   if(st){flash(st,900);let best=null,bd=1e9;[...st.children].forEach(i=>{const r=i.getBoundingClientRect(),d=e.clientX<r.left?r.left-e.clientX:e.clientX>r.right?e.clientX-r.right:0;if(d<bd){bd=d;best=i}});if(best)flash(best,900)}
   const w=t.closest("#v-welcome .wtop");if(w)flash(w,1300);
+  const sm=t.closest("#sum");
+  if(sm){const r=sm.getBoundingClientRect();sm.style.setProperty("--gx",(e.clientX-r.left)+"px");sm.style.setProperty("--gy",(e.clientY-r.top)+"px");flash(sm,900);anim("tarjeta_nota_brillo",{via:"toque"})}
   const b=t.closest(".upst li");
   if(b){const r=b.getBoundingClientRect();b.style.setProperty("--gx",(e.clientX-r.left)+"px");b.style.setProperty("--gy",(e.clientY-r.top)+"px");flash(b,650)}
   const lf=t.closest("footer .lg-f");if(lf)flash(lf,700);
@@ -2957,5 +3105,6 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
  document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});
 })();
 </script>
+<script>document.addEventListener("input",function(e){var t=e.target;if(t&&t.matches&&t.matches('#sim input[type=range]')){var mx=parseFloat(t.max)||20;t.style.setProperty("--p",(parseFloat(t.value)/mx*100)+"%")}});</script>
 </body>
 </html>
