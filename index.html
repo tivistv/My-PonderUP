@@ -187,6 +187,11 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>My PonderUP</title>
+<script>/* MOTION: muchas laptops (universidad, Windows sin "efectos de animacion", escritorio remoto) reportan prefers-reduced-motion:reduce y apagaban TODO.
+ Ahora el SO solo apaga los bucles decorativos infinitos (CSS); las animaciones cortas y utiles siempre corren. */
+(function(){var mm=window.matchMedia;if(!mm)return;try{if(mm.call(window,"(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("rm-os")}catch(e){}
+window.matchMedia=function(q){var r=mm.call(window,q);if(/prefers-reduced-motion/.test(q)&&/reduce/.test(q))return{matches:false,media:q,onchange:null,addEventListener:function(){},removeEventListener:function(){},addListener:function(){},removeListener:function(){},dispatchEvent:function(){return false}};return r}})();
+</script>
 <script>document.documentElement.classList.add("js");/* tema antes de pintar: la eleccion guardada, o si no hay, el del sistema */
 (function(){try{var d=document.documentElement,v=localStorage.getItem("mp-theme"),m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches;d.dataset.theme=(v==="dark"||v==="light")?v:(m?"dark":"light")}catch(e){}})()</script>
 <meta name="description" content="Calcula tu ponderado y mira qué notas necesitas para aprobar.">
@@ -227,7 +232,7 @@ body{margin:0;background:var(--bg);color:var(--txt);font:500 16px/1.55 Montserra
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .rv{animation:up .7s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*100ms)}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){.gr,.ring,.dash,.dt,.cp,.sq,.core,.wp,.halo,.sp,.pt,.beam,.tg,.lg-v,.hero::after,.hero::before,.wel::before,footer::before,footer::after,.btn::after,.wb::after,.zs::after,#pf::after,#mpf::after{animation:none!important}}
 .btn{display:inline-block;background:var(--green);color:var(--navy);font:700 .8rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;padding:14px 18px;border:0;border-radius:2px;cursor:pointer;text-decoration:none}
 .btn.xl{font-size:1rem;padding:18px 36px;margin-top:8px}
 .logo{font-weight:800;font-size:1.15rem;letter-spacing:.03em;text-transform:uppercase}
@@ -1019,7 +1024,7 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 }
 #v-pick .pl button:focus-visible{outline:2px solid #fff;outline-offset:3px}
 #v-pick .pl button:not(:disabled):active{transform:translateY(-1px) scale(.975);box-shadow:0 6px 14px -8px rgba(0,0,0,.6),inset 0 -6px 0 0 var(--s);transition-duration:.08s}
-@media (prefers-reduced-motion:reduce){#v-pick .pl button:not(:disabled):hover,#v-pick .pl button:not(:disabled):focus-visible,#v-pick .pl button:not(:disabled):active{transform:none}#v-pick .pl button::after{transform:rotate(45deg)}}
+@media not all and (prefers-reduced-motion:reduce){#v-pick .pl button:not(:disabled):hover,#v-pick .pl button:not(:disabled):focus-visible,#v-pick .pl button:not(:disabled):active{transform:none}#v-pick .pl button::after{transform:rotate(45deg)}}
 
 /* PC: el bloque grande "Agrega tu curso" va arriba a la derecha y se queda a la vista al bajar */
 @media (min-width:1100px){
@@ -1209,7 +1214,7 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 
 /* Presionar: todos los botones principales se hunden un poco */
 .btn:not(:disabled):active,.rib:active,.shb:active,.mpvbtn:active,.addc:active{transform:scale(.97)}
-@media (prefers-reduced-motion:reduce){.tg:hover,.tg:active,.qa summary:hover .pm,.fl button[data-c]:hover,.fl button[data-pick]:hover,.fl button[data-fi]:hover,#cbtn:hover .chev{scale:none;translate:none}.btn:not(:disabled):active,.rib:active,.shb:active,.mpvbtn:active,.addc:active,.rib:hover{transform:none}}
+@media not all and (prefers-reduced-motion:reduce){.tg:hover,.tg:active,.qa summary:hover .pm,.fl button[data-c]:hover,.fl button[data-pick]:hover,.fl button[data-fi]:hover,#cbtn:hover .chev{scale:none;translate:none}.btn:not(:disabled):active,.rib:active,.shb:active,.mpvbtn:active,.addc:active,.rib:hover{transform:none}}
 
 /* ===== EFECTOS DE CURSOR Y HOVER (bienvenida + resto) =====
    Todo lo de aqui es visual. El JS que lo mueve esta en el bloque "EFECTOS DE CURSOR" al final del body.
@@ -1285,7 +1290,7 @@ html:has(#v-welcome:not([hidden])),html:has(#v-welcome:not([hidden])) body{overf
  .shb:hover,.addc:hover{transform:translateY(-2px)}
 }
 input:not(.g):not(#pm):not([type="checkbox"]):not([type="radio"]):focus,textarea:focus{box-shadow:0 0 0 4px rgba(0,240,60,.22);transition:box-shadow .25s}
-@media (prefers-reduced-motion:reduce){
+@media not all and (prefers-reduced-motion:reduce){
  #v-welcome .lg-v{transform:none}
  #v-welcome .halo,#v-welcome .rg,#v-welcome .wtop,#v-welcome .wbot{translate:none}
  .cx-layer,.cx-cur,.wel-spot{display:none!important}
@@ -1397,12 +1402,12 @@ footer::after{content:"";position:absolute;inset:-18%;z-index:0;pointer-events:n
 /* Franja de 4 colores de arriba: fluye de derecha a izquierda sin cortes (el dibujo se repite dos veces en un ancho doble y se corre exactamente una repeticion) */
 footer::before{z-index:2;background:linear-gradient(90deg,#0A5CFF 0 12.5%,#00F03C 12.5% 25%,#F000F0 25% 37.5%,#fff 37.5% 50%,#0A5CFF 50% 62.5%,#00F03C 62.5% 75%,#F000F0 75% 87.5%,#fff 87.5%);background-size:200% 100%;animation:footflow 7s linear infinite}
 @keyframes footflow{to{background-position:100% 0}}
-@media (prefers-reduced-motion:reduce){footer::before,footer::after{animation:none}}
+@media not all and (prefers-reduced-motion:reduce){footer::before,footer::after{animation:none}}
 /* Pie: campo de notas. Un canvas detras del contenido (lo crea el script del pie) en reposo esta vacio; solo cerca del cursor o del dedo aparecen numeros del 0 al 20 que suben hacia 20 y se encienden. */
 footer>.fl-nt{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:0;transition:opacity .6s}
 footer>.fl-nt.on{opacity:1}
 footer>.wrap{position:relative;z-index:1}
-@media (prefers-reduced-motion:reduce){footer>.fl-nt{display:none}}
+@media not all and (prefers-reduced-motion:reduce){footer>.fl-nt{display:none}}
 /* Cuadro de comentarios y sugerencias: bloque cuadrado de la pagina (fondo solido, borde fino, franja verde a la izquierda), titulo en mayusculas y campo solido, en vez de la tarjeta translucida. Al pasar el cursor se oscurece, como las tarjetas de curso. */
 footer .fc .fl.fcm{background:#0d2145;background-image:none;border:1px solid #233a66;border-left:6px solid var(--green);box-shadow:none;transition:background-color .2s}
 footer .fc .fl.fcm>b{display:block;margin:0 0 12px;font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:#fff}
@@ -1445,7 +1450,7 @@ footer .fc .fl.fcm .sgf textarea:focus{background:#061633;border-color:var(--gre
 .hero h1 .t2.mr.lt{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards,tshine2 5s ease-in-out infinite;animation-delay:calc(var(--i,0)*120ms),1.6s}
 .hero h1 .t2.lt .ltr{background-image:linear-gradient(100deg,transparent 42%,#fff 50%,transparent 58%),linear-gradient(var(--green),var(--green));background-size:calc(var(--tw,0px)*2.5) 100%,100% 100%;background-repeat:no-repeat;background-position:calc(var(--tw,0px)*(2.1*var(--sp) - 1.8) - var(--ox,0px)) 0,0 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 }
-@media (prefers-reduced-motion:reduce){.hero h1 .t2.mr.lt{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i,0)*120ms)}}
+@media not all and (prefers-reduced-motion:reduce){.hero h1 .t2.mr.lt{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i,0)*120ms)}}
 
 /* Nota mínima: aviso "Máximo 20" (igual al de las notas) y celda de la tabla de combinaciones con hover propio */
 .minl{position:relative}
@@ -1585,6 +1590,18 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 .q4t b{font-size:.72rem}
 .q4t p{font-size:.85rem;line-height:1.4}
 }
+
+/* ===== RENDIMIENTO ===== */
+.off,.off *,.off::before,.off::after,.off *::before,.off *::after{animation-play-state:paused!important}
+footer,.faq{content-visibility:auto;contain-intrinsic-size:auto 640px}
+.hero,.wel,#v-welcome,#v-pick{contain:paint}
+/* html.lo = equipo lento (JS mide los fps): sin bucles decorativos, sin blur/sombras animadas; entradas y transiciones se mantienen */
+html.lo .gr,html.lo .ring,html.lo .dash,html.lo .dt,html.lo .cp,html.lo .sq,html.lo .core,html.lo .wp,html.lo .sp,html.lo .pt,html.lo .tg,html.lo .lg-v,html.lo .hero::after,html.lo .hero::before,html.lo .wel::before,html.lo footer::before,html.lo footer::after,html.lo .btn::after,html.lo .wb::after,html.lo .zs::after,html.lo #pf::after,html.lo #mpf::after{animation:none!important;will-change:auto!important}
+html.lo .beam,html.lo .halo{display:none!important}
+html.lo *,html.lo *::before,html.lo *::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html.lo .wb,html.lo .zb{filter:none}
+html.lo .hero h1 .t2.mr,html.lo .hero h1 .t2.mr.lt,html.lo #v-welcome .wt .t1.mr{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards!important;animation-delay:calc(var(--i,0)*120ms)!important}
+html.lo .hero h1 .ltr{will-change:auto}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -3106,5 +3123,14 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
 })();
 </script>
 <script>document.addEventListener("input",function(e){var t=e.target;if(t&&t.matches&&t.matches('#sim input[type=range]')){var mx=parseFloat(t.max)||20;t.style.setProperty("--p",(parseFloat(t.value)/mx*100)+"%")}});</script>
+<script>/* RENDIMIENTO: detecta equipos lentos (fps reales, ahorro de datos, poca RAM/CPU) y pausa animaciones fuera de pantalla */
+(function(){var d=document.documentElement,c=navigator.connection||{};
+ if(c.saveData||(navigator.deviceMemory&&navigator.deviceMemory<=2)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=2))d.classList.add("lo");
+ function probe(done){var t=[],last=0,n=0;function f(now){if(last)t.push(now-last);last=now;if(++n<50&&!document.hidden)requestAnimationFrame(f);else{t.sort(function(a,b){return a-b});done(t.length>10?t[t.length>>1]:0)}}requestAnimationFrame(f)}
+ function run(){probe(function(m){if(m>22)d.classList.add("lo")})}
+ window.addEventListener("load",function(){setTimeout(run,600);setTimeout(run,5000)});
+ if("IntersectionObserver"in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle("off",!e.isIntersecting)})},{rootMargin:"120px"});
+  document.querySelectorAll("footer,.hero,.wel,#v-welcome,#v-pick").forEach(function(e){io.observe(e)})}
+})();</script>
 </body>
 </html>
