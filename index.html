@@ -1599,16 +1599,16 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 /* Nuevos cursos al costado de "Elige tu curso" (en celular van debajo del titulo) */
 .sidec{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px;max-width:760px;margin-top:34px}
 .sidec .addb{margin-top:0}
-.nwp{position:relative;z-index:1;margin:0;padding:14px 16px;background:rgba(6,31,71,.65);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green)}
+.nwp{position:relative;z-index:1;margin:0;padding:20px 20px 18px;background:rgba(6,31,71,.65);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green)}
 .nwp:empty{display:none}
-.nwk{display:flex;align-items:center;gap:8px;margin-bottom:10px;font:800 .66rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
-.nwk i{font-style:normal;background:var(--green);color:var(--navy);padding:3px 6px;letter-spacing:.06em}
-.nwl{display:flex;flex-wrap:wrap;gap:6px}
-.nwb{background:rgba(255,255,255,.09);border:0;border-bottom:3px solid var(--s,#00F03C);color:#fff;padding:9px 11px;font:800 .72rem/1.1 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;text-align:left;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .2s,transform .25s cubic-bezier(.34,1.56,.64,1)}
+.nwk{display:flex;align-items:center;gap:10px;margin-bottom:14px;font:800 .8rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
+.nwk i{font-style:normal;background:var(--green);color:var(--navy);padding:5px 9px;font-size:.78rem;letter-spacing:.06em}
+.nwl{display:flex;flex-direction:column;gap:9px}
+.nwb{width:100%;background:rgba(255,255,255,.1);border:0;border-bottom:4px solid var(--s,#00F03C);color:#fff;padding:16px 16px;font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;text-align:left;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .2s,transform .25s cubic-bezier(.34,1.56,.64,1)}
 .nwb:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .nwb:active{transform:scale(.97)}
 @media (hover:hover){.nwb:hover{background:rgba(255,255,255,.2);transform:translateY(-2px)}}
-@media (min-width:1100px){.sidec{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:20px;width:300px;max-width:none;margin:0;z-index:5}.sidec .addb{position:static;width:auto;box-shadow:0 14px 34px rgba(0,0,0,.35)}}
+@media (min-width:1100px){.sidec{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:20px;width:350px;max-width:none;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-width:thin;margin:0;z-index:5}.sidec .addb{position:static;width:auto;box-shadow:0 14px 34px rgba(0,0,0,.35)}}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
