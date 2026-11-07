@@ -1,0 +1,386 @@
+/* My PonderUP - efectos de cursor, hover y pie de pagina (al final: gana la cascada) */
+/* ===== EFECTOS DE CURSOR Y HOVER (bienvenida + resto) =====
+   Todo lo de aqui es visual. El JS que lo mueve esta en el bloque "EFECTOS DE CURSOR" al final del body.
+   Se apaga solo con prefers-reduced-motion. Cursor y foco en la bienvenida: solo con mouse (hover:hover y pointer:fine). */
+#v-welcome .wc{position:relative;z-index:1}
+.wel-spot{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s;background:radial-gradient(circle 320px at var(--mx,50%) var(--my,50%),rgba(0,240,60,.16),rgba(10,92,255,.09) 45%,transparent 72%)}
+html.cx-fine #v-welcome:hover .wel-spot,#v-welcome.tdown .wel-spot{opacity:1}
+/* particulas del cursor (estrellitas y puntos) */
+.cx-layer{position:fixed;inset:0;z-index:9998;pointer-events:none;overflow:hidden}
+.cx-p{position:absolute;width:var(--s,10px);height:var(--s,10px);margin:calc(var(--s,10px)/-2) 0 0 calc(var(--s,10px)/-2);background:var(--c,#fff);border-radius:50%;animation:cxp var(--t,.8s) cubic-bezier(.15,.7,.3,1) forwards;box-shadow:0 0 8px var(--c,#fff)}
+.cx-p.st{border-radius:0;clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);box-shadow:none}
+@keyframes cxp{0%{transform:translate(0,0) scale(1) rotate(0);opacity:1}100%{transform:translate(var(--dx,0),var(--dy,20px)) scale(0) rotate(var(--r,90deg));opacity:0}}
+.cx-rip{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;border:2px solid var(--c,#00F03C);animation:cxr .65s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes cxr{from{transform:scale(.3);opacity:.9}to{transform:scale(5.5);opacity:0}}
+/* cursor propio: punto exacto + aro que lo sigue con retraso */
+.cx-cur{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;opacity:0;transition:opacity .25s;will-change:transform}
+.cx-cur.on{opacity:1}
+.cx-dot::before{content:"";display:block;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#00F03C;box-shadow:0 0 12px 2px rgba(0,240,60,.7);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.cx-ring::before{content:"";display:block;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:2px solid rgba(0,240,60,.85);background:rgba(0,240,60,.04);transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .25s,border-color .25s}
+.cx-ring.hov::before{transform:scale(1.7);background:rgba(0,240,60,.16);border-color:#fff}
+.cx-ring.dn::before{transform:scale(.7);background:rgba(0,240,60,.3)}
+.cx-dot.hov::before{transform:scale(.4)}
+html.cx-fine #v-welcome,html.cx-fine #v-welcome *,html.cx-fine #v-up,html.cx-fine #v-up *{cursor:none!important}
+/* en "Agrega tu curso" los campos de texto conservan el cursor de escribir (el puntero propio se oculta ahi) */
+html.cx-fine #v-up input:not([type=file]),html.cx-fine #v-up textarea{cursor:text!important}
+/* el logo se inclina hacia el cursor, el halo y los anillos se mueven a otro ritmo (profundidad) */
+#v-welcome .lg-v{transform:perspective(900px) rotateY(calc(var(--tx,0)*12deg)) rotateX(calc(var(--ty,0)*-12deg)) scale(var(--ls,1));will-change:transform}
+#v-welcome .halo{translate:calc(var(--tx,0)*-22px) calc(var(--ty,0)*-22px)}
+#v-welcome .rg{translate:calc(var(--tx,0)*-34px) calc(var(--ty,0)*-34px)}
+#v-welcome .wtop{translate:calc(var(--tx,0)*10px) calc(var(--ty,0)*6px)}
+#v-welcome .wbot{translate:calc(var(--tx,0)*-8px) calc(var(--ty,0)*-6px)}
+/* Bienvenida de una sola pantalla: sin scroll, todo visible */
+html:has(#v-welcome:not([hidden])),html:has(#v-welcome:not([hidden])) body{overflow:hidden;height:100%}
+#v-welcome:not([hidden]){height:100vh;height:100svh;min-height:0;overflow:hidden}
+#v-welcome .wc{height:100%;min-height:0;padding-top:clamp(14px,3.5vh,40px);padding-bottom:clamp(30px,6vh,56px)}
+#v-welcome{--lw:clamp(150px,min(60vw,42svh),520px)}
+#v-welcome .lg-v{max-height:46svh}
+#v-welcome .wtop{padding-bottom:clamp(8px,2.2vh,28px)}
+#v-welcome .wbot{padding-top:clamp(10px,2.5vh,30px)}
+@media (max-height:500px){#v-welcome{--lw:clamp(110px,min(60vw,38svh),520px)}#v-welcome .lg-v{max-height:42svh}}
+@media (max-height:340px){#v-welcome{--lw:clamp(80px,min(60vw,32svh),520px)}#v-welcome .lg-v{max-height:36svh}}
+/* titulo y franja de colores */
+#v-welcome .wtop .t1{transition:letter-spacing .6s cubic-bezier(.2,.7,.2,1)}
+@media (hover:hover){#v-welcome .wtop:hover .t1{letter-spacing:.27em}}
+#v-welcome .strip{position:relative}
+#v-welcome .strip::before{content:"";position:absolute;left:0;right:0;top:-14px;bottom:-14px}
+#v-welcome .strip i{transition:flex .45s cubic-bezier(.3,1.4,.5,1),transform .3s}
+@media (hover:hover){
+ #v-welcome .strip:hover i{transform:scaleY(2.4)}
+ #v-welcome .strip i:hover{flex:4}
+}
+/* boton Empezar: flecha que aparece, sin tocar su brillo ni su hover actual */
+#go{transition:transform .2s,box-shadow .2s,letter-spacing .3s}
+@media (hover:hover){#go:hover{letter-spacing:.05em;box-shadow:0 10px 22px rgba(0,240,60,.35),0 0 0 4px rgba(0,240,60,.14)}}
+/* Instagram */
+.igw svg{transition:transform .4s cubic-bezier(.3,1.6,.5,1)}
+.igw .igu{background:linear-gradient(currentColor,currentColor) 0 100%/0 2px no-repeat;transition:background-size .3s}
+@media (hover:hover){.igw:hover svg{transform:rotate(-14deg) scale(1.3)}.igw:hover .igu{background-size:100% 2px}}
+/* ondas al hacer clic en botones */
+.rib{position:relative;overflow:hidden}
+.cx-rpl{position:absolute;border-radius:50%;background:rgba(255,255,255,.55);transform:scale(0);animation:cxrp .6s ease-out forwards;pointer-events:none}
+@keyframes cxrp{to{transform:scale(1);opacity:0}}
+/* resto de pantallas: brillo que sigue al cursor en tarjetas, filas, logo, campos */
+@media (hover:hover){
+ .blk:hover,.upst li:hover,#sum:hover{background-image:radial-gradient(240px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.14),transparent 65%)}
+ .sc tbody tr{transition:background-color .2s}
+ .sc tbody tr:hover{background-color:color-mix(in srgb,#00F03C 14%,transparent)}
+ .sc td:first-child{transition:background-color .2s}
+ .sc tbody tr:hover td:first-child{background-color:color-mix(in srgb,#00F03C 14%,var(--card));box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 14%,var(--card))}
+ .logo .lg-h,.logo .lg-f{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+ .logo:hover .lg-h,.logo:hover .lg-f{transform:scale(1.06) rotate(-1.5deg)}
+ .shb,.bkc,.addc{transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .2s,color .2s,filter .2s}
+ .shb:hover,.addc:hover{transform:translateY(-2px)}
+}
+input:not(.g):not(#pm):not([type="checkbox"]):not([type="radio"]):focus,textarea:focus{box-shadow:0 0 0 4px rgba(0,240,60,.22);transition:box-shadow .25s}
+html.rm #v-welcome .lg-v{transform:none}
+html.rm #v-welcome .halo,html.rm #v-welcome .rg,html.rm #v-welcome .wtop,html.rm #v-welcome .wbot{translate:none}
+html.rm .cx-layer,html.rm .cx-cur,html.rm .wel-spot{display:none!important}
+html.rm.cx-fine #v-welcome,html.rm.cx-fine #v-welcome *,html.rm.cx-fine #v-up,html.rm.cx-fine #v-up *{cursor:auto!important}
+
+/* ===== PIE REDISEÑADO (solo estilos; el contenido y los botones siguen igual) =====
+   Franja de los 4 colores arriba (como la de la bienvenida), brillos suaves de fondo, titulos con linea verde,
+   enlaces con rombo que se enciende, comentarios en tarjeta, Instagram como boton y barra final con "Volver arriba". */
+footer{position:relative;border-top:0;padding:50px 0 120px;font-size:.85rem;background:radial-gradient(560px 280px at 6% 0,rgba(10,92,255,.24),transparent 70%),radial-gradient(520px 260px at 98% 100%,rgba(0,240,60,.11),transparent 70%),var(--navy)}
+footer::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#0A5CFF 0 25%,#00F03C 25% 50%,#F000F0 50% 75%,#fff 75%)}
+footer .fc{gap:36px clamp(32px,6vw,84px);align-items:start}
+footer .fc>div:first-child{max-width:44ch}
+footer .lg-f{width:min(38vw,150px);filter:drop-shadow(0 0 18px rgba(0,240,60,.28));transition:transform .4s cubic-bezier(.34,1.56,.64,1),filter .3s}
+@media (hover:hover){footer .lg-f:hover{transform:rotate(-3deg) scale(1.06);filter:drop-shadow(0 0 26px rgba(0,240,60,.55))}}
+footer .fc p{margin:16px 0 0;font-size:.84rem;line-height:1.65;color:rgba(255,255,255,.7)}
+/* titulos de cada bloque */
+footer .fl>b{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:.7rem;font-weight:800;letter-spacing:.15em;color:var(--green)}
+footer .fl>b::after{content:"";flex:1;min-width:24px;height:1px;background:linear-gradient(90deg,rgba(0,240,60,.5),transparent)}
+/* lista de cursos */
+footer #fl,footer #ffl{min-width:min(100%,250px)}
+@media (min-width:761px){footer #fl{padding-left:clamp(20px,3vw,36px);border-left:1px solid rgba(255,255,255,.14)}}
+footer .fl button[data-c],footer .fl button[data-pick],footer .fl button[data-fi]{position:relative;padding:6px 0 6px 18px;text-decoration:none;color:rgba(255,255,255,.84);font-size:.86rem;line-height:1.35}
+footer .fl button[data-c]::before,footer .fl button[data-pick]::before,footer .fl button[data-fi]::before{content:"";position:absolute;left:1px;top:.95em;width:6px;height:6px;background:rgba(255,255,255,.3);transform:rotate(45deg);transition:background .2s,transform .3s cubic-bezier(.34,1.56,.64,1)}
+@media (hover:hover){footer .fl button[data-c]:hover::before,footer .fl button[data-pick]:hover::before,footer .fl button[data-fi]:hover::before{background:var(--green);transform:rotate(45deg) scale(1.5)}}
+footer .fl button.vm{margin-top:6px;padding:7px 14px;border:1px solid rgba(0,240,60,.5);border-radius:99px;font-size:.76rem;transition:background .2s,color .2s}
+footer .fl button.vm:hover{background:var(--green);color:var(--navy);text-decoration:none}
+/* comentarios: tarjeta */
+footer .fl:has(.sgf){max-width:520px;padding:22px 22px 20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-left:4px solid var(--green)}
+footer .sgf{max-width:none}
+footer .sgf textarea{transition:border-color .2s,background .2s,box-shadow .25s}
+footer .sgf textarea:focus{outline:0;border-color:var(--green);background:rgba(255,255,255,.12)}
+footer .fcx .fadd{display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.14)}
+footer .fadd>b{display:block;margin:0;font-size:.78rem;font-weight:700;letter-spacing:.02em;text-transform:none;color:rgba(255,255,255,.75)}
+footer .fcx .fadd .shb{margin-top:0;width:100%}
+/* Instagram como boton */
+footer .fcx .igs{display:block;margin-top:10px;padding-top:0}
+footer .fl a.ig{display:flex;align-items:center;justify-content:center;width:100%;height:44px;padding:0 16px;border:2px solid rgba(255,255,255,.3);border-radius:0;color:#fff;font-size:.8rem;transition:background .2s,color .2s,border-color .2s,transform .25s cubic-bezier(.34,1.56,.64,1)}
+footer .fl a.ig b{color:var(--green);transition:color .2s}
+footer .fl a.ig:hover b{color:var(--navy)}
+footer .fl a.ig:hover{background:var(--green);border-color:var(--green);color:var(--navy);text-decoration:none}
+@media (hover:hover){footer .fl a.ig:hover{transform:translateY(-2px)}footer .fl a.ig:hover svg{animation:cxwig .5s ease}}
+@keyframes cxwig{25%{transform:rotate(-16deg) scale(1.2)}60%{transform:rotate(10deg) scale(1.2)}100%{transform:none}}
+/* barra final */
+.fbt{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;margin-top:38px;padding-top:20px;border-top:1px solid rgba(255,255,255,.14);font-size:.74rem;letter-spacing:.02em;color:rgba(255,255,255,.55)}
+.fup{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3);font:700 .7rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.fup svg{transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+@media (hover:hover){.fup:hover{background:var(--green);color:var(--navy);border-color:var(--green)}.fup:hover svg{transform:translateY(-3px)}}
+.fup:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+@media (min-width:761px){footer .fc{grid-template-columns:minmax(0,1fr) clamp(250px,28vw,330px)}footer #fl,footer #ffl{justify-self:stretch;min-width:0}footer .fl button[data-c],footer .fl button[data-pick],footer .fl button[data-fi]{overflow-wrap:anywhere}}
+@media (max-width:760px){footer{padding-top:42px}footer .fl:has(.sgf){padding:18px 16px}}
+
+/* ===== PIE v3: caja de comentarios de alto fijo, Instagram nuevo, mas animaciones al pasar el cursor ===== */
+/* la caja ya no se estira cuando la lista de cursos crece con "Ver más" */
+footer .fc>.fl.fcm{align-self:start}
+footer{background:radial-gradient(380px circle at var(--fx,-400px) var(--fy,-400px),rgba(0,240,60,.09),transparent 70%),radial-gradient(560px 280px at 6% 0,rgba(10,92,255,.24),transparent 70%),radial-gradient(520px 260px at 98% 100%,rgba(0,240,60,.11),transparent 70%),var(--navy)}
+/* tarjeta de comentarios: sube un poco, se enciende el borde y el brillo sigue al cursor */
+footer .fl.fcm{transition:border-color .25s,box-shadow .3s}
+@media (hover:hover){footer .fl.fcm:hover{border-color:rgba(255,255,255,.28);border-left-color:var(--green);box-shadow:0 18px 40px -22px rgba(0,240,60,.55);background-image:radial-gradient(260px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.12),transparent 65%)}}
+/* Instagram: insignia con degradado, "Síguenos en" pequeño, usuario en grande y flecha */
+footer .fl a.ig{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;height:auto;min-height:58px;padding:9px 14px;background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.22);border-radius:0;color:#fff;font-weight:600}
+footer .fl a.ig svg{box-sizing:content-box;flex:none;width:18px;height:18px;padding:8px;color:#fff;background:linear-gradient(135deg,#F000F0,#0A5CFF);border-radius:10px;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+footer .fl a.ig>span{display:flex;flex-direction:column;align-items:flex-start;gap:4px;line-height:1;font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.62);white-space:nowrap}
+footer .fl a.ig b,footer .fl a.ig:hover b{font-size:.98rem;font-weight:800;letter-spacing:0;text-transform:none;color:#fff}
+footer .fl a.ig::after{content:"";margin-left:auto;flex:none;width:8px;height:8px;border-top:2px solid var(--green);border-right:2px solid var(--green);transform:translateX(-4px) rotate(45deg);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+@media (hover:hover){
+ footer .fl a.ig:hover{background:rgba(0,240,60,.1);border-color:var(--green);color:#fff;box-shadow:0 12px 26px -12px rgba(0,240,60,.5)}
+ footer .fl a.ig:hover svg{transform:rotate(-10deg) scale(1.12);animation:none}
+ footer .fl a.ig:hover::after{transform:translateX(2px) rotate(45deg)}
+}
+/* brillo que cruza los botones del pie al pasar el cursor */
+footer .fadd .shb,footer .shf,.fup{position:relative;overflow:hidden}
+footer .fadd .shb::after,footer .shf::after,.fup::after,footer .fl a.ig::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-120%);pointer-events:none}
+@media (hover:hover){footer .fadd .shb:hover::after,footer .shf:hover::after,.fup:hover::after,footer .fl a.ig:hover::before{transform:translateX(120%);transition:transform .7s ease}}
+/* enlaces de cursos: subrayado verde que se dibuja */
+footer .fl button[data-c],footer .fl button[data-pick],footer .fl button[data-fi]{background-image:linear-gradient(var(--green),var(--green));background-repeat:no-repeat;background-position:18px 100%;background-size:0 1px;transition:color .15s,translate .2s cubic-bezier(.2,.7,.2,1),background-size .3s}
+@media (hover:hover){footer .fl button[data-c]:hover,footer .fl button[data-pick]:hover,footer .fl button[data-fi]:hover{background-size:calc(100% - 18px) 1px}}
+/* titulos: la línea verde se enciende y las letras se abren */
+footer .fl>b{transition:letter-spacing .4s cubic-bezier(.2,.7,.2,1)}
+footer .fl>b::after{transition:opacity .3s}
+@media (hover:hover){footer .fl:hover>b{letter-spacing:.2em}footer .fl:hover>b::after{background:linear-gradient(90deg,var(--green),transparent)}}
+/* texto final y botón de compartir */
+.fbt span{transition:color .2s}
+@media (hover:hover){.fbt:hover span{color:rgba(255,255,255,.85)}}
+
+/* ===== PIE v4: sin brillo que sigue al cursor, sin barridos de luz, Instagram sutil ===== */
+footer{background:radial-gradient(560px 280px at 6% 0,rgba(10,92,255,.16),transparent 70%),radial-gradient(520px 260px at 98% 100%,rgba(0,240,60,.05),transparent 70%),var(--navy)}
+footer .lg-f{filter:none}
+@media (hover:hover){footer .lg-f:hover{filter:none;transform:rotate(-2deg) scale(1.04)}}
+/* tarjeta de comentarios: solo cambia el color del borde */
+@media (hover:hover){footer .fl.fcm:hover{box-shadow:none;background-image:none;border-color:rgba(255,255,255,.26);border-left-color:var(--green)}}
+/* sin barridos de luz en los botones */
+footer .fadd .shb::after,footer .shf::after,.fup::after,footer .fl a.ig::before{display:none}
+/* Instagram: línea fina, ícono simple, sin degradado ni resplandor */
+footer .fl a.ig{min-height:54px;background:transparent;border:1px solid rgba(255,255,255,.22);transition:border-color .25s,background-color .25s}
+footer .fl a.ig svg{box-sizing:border-box;width:22px;height:22px;padding:0;background:none;border-radius:0;color:rgba(255,255,255,.8);stroke-width:1.6;transition:color .25s,transform .3s cubic-bezier(.34,1.56,.64,1)}
+footer .fl a.ig>span{color:rgba(255,255,255,.55)}
+footer .fl a.ig::after{border-color:rgba(255,255,255,.45);transition:transform .3s cubic-bezier(.34,1.56,.64,1),border-color .25s}
+@media (hover:hover){
+ footer .fl a.ig:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.55);box-shadow:none}
+ footer .fl a.ig:hover svg{color:var(--green);transform:scale(1.08);animation:none}
+ footer .fl a.ig:hover::after{border-color:var(--green);transform:translateX(3px) rotate(45deg)}
+}
+
+/* ===== PIE v5: pie con brillos de color, franja de colores animada, campo de notas y cuadro de comentarios con el lenguaje del resto de la pagina ===== */
+/* Base azul oscura (mas oscura que antes, pero ya no tanto) con brillos de la marca que se mueven despacio, como la aurora de la bienvenida */
+footer{overflow:hidden;background:radial-gradient(520px 260px at 4% 0,rgba(10,92,255,.2),transparent 70%),radial-gradient(520px 260px at 100% 100%,rgba(0,240,60,.08),transparent 70%),#041a3d}
+footer::after{content:"";position:absolute;inset:-18%;z-index:0;pointer-events:none;background:radial-gradient(34% 40% at 14% 20%,rgba(10,92,255,.42),transparent 70%),radial-gradient(30% 36% at 86% 26%,rgba(240,0,240,.16),transparent 70%),radial-gradient(34% 40% at 72% 90%,rgba(0,240,60,.2),transparent 70%);animation:aur 16s ease-in-out infinite alternate;will-change:transform}
+/* Franja de 4 colores de arriba: fluye de derecha a izquierda sin cortes (el dibujo se repite dos veces en un ancho doble y se corre exactamente una repeticion) */
+footer::before{z-index:2;background:linear-gradient(90deg,#0A5CFF 0 12.5%,#00F03C 12.5% 25%,#F000F0 25% 37.5%,#fff 37.5% 50%,#0A5CFF 50% 62.5%,#00F03C 62.5% 75%,#F000F0 75% 87.5%,#fff 87.5%);background-size:200% 100%;animation:footflow 7s linear infinite}
+@keyframes footflow{to{background-position:100% 0}}
+html.rm footer::before,html.rm footer::after{animation:none}
+/* Pie: campo de notas. Un canvas detras del contenido (lo crea el script del pie) en reposo esta vacio; solo cerca del cursor o del dedo aparecen numeros del 0 al 20 que suben hacia 20 y se encienden. */
+footer>.fl-nt{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:0;transition:opacity .6s}
+footer>.fl-nt.on{opacity:1}
+footer>.wrap{position:relative;z-index:1}
+html.rm footer>.fl-nt{display:none}
+/* Cuadro de comentarios y sugerencias: bloque cuadrado de la pagina (fondo solido, borde fino, franja verde a la izquierda), titulo en mayusculas y campo solido, en vez de la tarjeta translucida. Al pasar el cursor se oscurece, como las tarjetas de curso. */
+footer .fc .fl.fcm{background:#0d2145;background-image:none;border:1px solid #233a66;border-left:6px solid var(--green);box-shadow:none;transition:background-color .2s}
+footer .fc .fl.fcm>b{display:block;margin:0 0 12px;font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:#fff}
+footer .fc .fl.fcm>b::after{content:none}
+@media (hover:hover){footer .fc .fl.fcm:hover{background:#08183a;background-image:none;border-color:#233a66;border-left-color:var(--green);box-shadow:none}}
+footer .fc .fl.fcm .sgf textarea{background:#061633;border:1px solid #9fb0cf;border-radius:2px}
+footer .fc .fl.fcm .sgf textarea::placeholder{color:#9fb0cf}
+footer .fc .fl.fcm .sgf textarea:focus{background:#061633;border-color:var(--green)}
+/* ===== Celular: el icono de Instagram de "¿Te sirvió?" es el mismo que en PC; el dedo inclina el logo en la bienvenida ===== */
+@media (max-width:600px){.igc svg{width:28px;height:28px;padding:0;background:none;color:inherit}}
+#v-welcome{touch-action:none}
+
+/* Simulador "¿Y si saco…?": franja magenta (antes azul) */
+#sim{border-left-color:#F000F0}
+
+/* ===== Ajustes: simulador sin oscurecer solo el encabezado, franja y textos del curso con hover ===== */
+/* "¿Y si saco…?": al pasar o presionar ya no se oscurece solo el encabezado (se veía cortado); se mueve el texto y la flecha */
+#simt{-webkit-tap-highlight-color:transparent}
+#simt:hover,#simt:active,#simt:focus{background:transparent}
+#simt>span{transition:translate .3s cubic-bezier(.34,1.56,.64,1)}
+@media (hover:hover){#simt:hover>span{translate:4px 0}#sim{transition:box-shadow .3s}#sim:hover{box-shadow:0 8px 22px -12px rgba(6,31,71,.25)}}
+/* rayitas debajo del curso: se estiran y la que tocas crece */
+.hero .strip{position:relative}
+.hero .strip::before{content:"";position:absolute;left:0;right:0;top:-14px;bottom:-14px}
+.hero .strip i{transition:flex .45s cubic-bezier(.3,1.4,.5,1),transform .35s cubic-bezier(.34,1.56,.64,1)}
+@media (hover:hover){
+ .hero .strip:hover i{transform:scaleY(2.2)}
+ .hero .strip i:hover{flex:4}
+}
+/* Nombre del curso: solo la letra por la que pasa el cursor salta (lo anima el JS con hopLetter(); aqui solo la estructura).
+   El brillo sigue siendo UNO solo para todo el titulo: --sp (0 a 1) avanza una vez en .t2 y cada letra lo dibuja en su lugar usando
+   su posicion dentro del titulo (--ox) y el ancho total (--tw), que mide el JS en measureLetters(). */
+@property --sp{syntax:"<number>";inherits:true;initial-value:0}
+.hero h1 .lw{display:inline-block;white-space:nowrap}
+.hero h1 .ltr{display:inline-block;will-change:transform;cursor:default}
+.hero h1 .t2.lt{touch-action:pan-y}
+@keyframes tshine2{0%,55%{--sp:0}100%{--sp:1}}
+@supports (-webkit-background-clip:text) or (background-clip:text){
+.hero h1 .t2.lt{background:none;-webkit-text-fill-color:currentColor}
+.hero h1 .t2.mr.lt{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards,tshine2 5s ease-in-out infinite;animation-delay:calc(var(--i,0)*120ms),1.6s}
+.hero h1 .t2.lt .ltr{background-image:linear-gradient(100deg,transparent 42%,#fff 50%,transparent 58%),linear-gradient(var(--green),var(--green));background-size:calc(var(--tw,0px)*2.5) 100%,100% 100%;background-repeat:no-repeat;background-position:calc(var(--tw,0px)*(2.1*var(--sp) - 1.8) - var(--ox,0px)) 0,0 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+}
+html.rm .hero h1 .t2.mr.lt{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i,0)*120ms)}
+
+/* Nota mínima: aviso "Máximo 20" (igual al de las notas) y celda de la tabla de combinaciones con hover propio */
+.minl{position:relative}
+.minl.sk{animation:gishake .42s cubic-bezier(.36,.07,.19,.97)}
+#sum .minl.bad input{border-bottom-color:#ff5a5f}
+.minl.bad::after{content:attr(data-msg);position:absolute;top:calc(100% + 8px);right:0;z-index:4;white-space:nowrap;padding:5px 9px;background:var(--rt);color:#fff;border-radius:2px;font:800 .68rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.02em;text-transform:none;pointer-events:none;animation:cxbad .24s cubic-bezier(.34,1.56,.64,1) both}
+.minl.bad::before{content:"";position:absolute;top:calc(100% + 3px);right:18px;z-index:4;border:5px solid transparent;border-top:0;border-bottom-color:var(--rt);pointer-events:none}
+@keyframes cxbad{from{opacity:0;transform:translateY(-4px) scale(.9)}to{opacity:1;transform:none}}
+@media (hover:hover){
+ .sc tbody td{transition:background-color .18s,color .18s}
+ .sc tbody tr:hover td:hover{background-color:color-mix(in srgb,#00F03C 55%,var(--card));color:var(--navy)}
+ .sc tbody tr:hover td:first-child:hover{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
+ .sc tbody tr:hover td:last-child:hover{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
+}
+/* ===== Celular: tabla sin sombras entre columnas fijas ===== */
+@media (max-width:600px){
+ .sc th:first-child,.sc td:first-child,.sc tbody tr.hl td:first-child{box-shadow:-300px 0 0 0 var(--cs,var(--card))!important}
+ .sc th:first-child{--cs:var(--thbg,var(--navy))}
+ .sc th:last-child{box-shadow:300px 0 0 0 var(--green)!important}
+ .sc td:last-child,.sc tbody tr:hover td:last-child:hover{box-shadow:300px 0 0 0 color-mix(in srgb,#00F03C 20%,var(--card))!important}
+ .sc tbody tr.hl td:first-child{--cs:color-mix(in srgb,#00F03C 14%,var(--card))}
+ .sc tbody tr.hl td.hc:first-child{--cs:color-mix(in srgb,#00F03C 55%,var(--card))}
+ .sc tbody tr.hl td.hc:last-child{box-shadow:300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))!important}
+}
+/* Fila tocada o clicada en la tabla de combinaciones: se queda resaltada hasta tocar fuera (lo maneja el JS "AL TOCAR", clases .hl y .hc) */
+.sc tbody tr{transition:background-color .2s}
+.sc td{transition:background-color .18s,color .18s}
+.sc tbody tr.hl{background-color:color-mix(in srgb,#00F03C 14%,transparent)}
+.sc tbody tr.hl td:first-child{background-color:color-mix(in srgb,#00F03C 14%,var(--card));box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 14%,var(--card))}
+.sc tbody tr.hl td.hc{background-color:color-mix(in srgb,#00F03C 55%,var(--card));color:var(--navy)}
+.sc tbody tr.hl td.hc:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
+.sc tbody tr.hl td.hc:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 55%,var(--card))}
+/* ===== Celular / pantalla tactil: versiones "al tocar" de varios efectos que en PC salen al pasar el cursor =====
+   El JS (bloque "AL TOCAR" al final) pone la clase .tapfx unos instantes en el elemento tocado; aqui se repite el mismo efecto del hover. */
+@media (hover:none){
+ #v-welcome .wtop.tapfx .t1{letter-spacing:.27em}
+ #v-welcome .strip.tapfx i{transform:scaleY(2.4)}
+ .hero .strip.tapfx i{transform:scaleY(2.2)}
+ .strip i.tapfx{flex:4}
+ .blk{transition:transform .25s,box-shadow .25s}
+ .blk.tapfx{transform:translateY(-2px);box-shadow:0 10px 24px rgba(6,31,71,.14)}
+ .blk.tapfx,.upst li.tapfx{background-image:radial-gradient(240px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.14),transparent 65%)}
+ .upst li.tapfx{transform:translateY(-3px);background-color:rgba(255,255,255,.13)}
+ footer .lg-f{transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+ footer .lg-f.tapfx{transform:rotate(-2deg) scale(1.04)}
+ footer .fl.tapfx>b{letter-spacing:.2em}
+ footer .fl.tapfx>b::after{background:linear-gradient(90deg,var(--green),transparent)}
+}
+/* ===== Celular: luz verde de los bloques de notas. Una capa propia que se enciende al tocar, sigue al dedo durante el scroll y se apaga despacio ===== */
+@media (hover:none){
+ .blk{position:relative}
+ .blk::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1s ease;background:radial-gradient(260px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.2),transparent 65%)}
+ .blk.tapfx{background-image:none}
+ #sum::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1s ease;background:radial-gradient(260px circle at var(--gx,50%) var(--gy,50%),rgba(0,240,60,.2),transparent 65%)}
+ #sum.tapfx::after{opacity:1;transition:opacity .15s ease}
+ .blk.tapfx::after{opacity:1;transition:opacity .15s ease}
+ .blk{transition:transform .8s cubic-bezier(.2,.7,.2,1),box-shadow .8s ease}
+}
+/* Barra de estado del iPhone (hora y bateria): en inicio, "Elige tu curso" y "Agrega tu curso" toda la pantalla es azul, asi que el fondo de la pagina tambien lo es; si no, iOS tinta la barra con el gris claro de abajo. Dentro del curso la barra azul fija ya lo resuelve. */
+body.dk,body:has(#v-welcome:not([hidden])),body:has(#v-pick:not([hidden])),body:has(#v-up:not([hidden])){background:var(--navy)}
+
+/* ===== AJUSTES v6 ===== */
+/* Carga más rápida: las animaciones de entrada son más cortas y las tarjetas de curso casi no esperan entre sí */
+.rv{animation-duration:.42s;animation-delay:calc(var(--i,0)*40ms)}
+.mr{animation-duration:.55s;animation-delay:calc(var(--i,0)*70ms)}
+.hero h1 .t2.mr.lt{animation-duration:.55s,5s;animation-delay:calc(var(--i,0)*70ms),1.2s}
+.strip{animation-duration:.5s;animation-delay:.2s}
+/* Las tarjetas de "Elige tu curso" terminan de aparecer a los 0.89 s: .45 s de animacion + hasta .44 s de escalonado */
+#v-pick .pl button.rv{animation-duration:.45s;animation-delay:min(calc(var(--i,0)*16ms),440ms)}
+/* Franja de colores bajo el nombre del curso: fija, sin movimiento */
+.hero .strip{animation:none}
+.hero .strip i,.hero .strip:hover i,.hero .strip i:hover,.hero .strip.tapfx i,.hero .strip i.tapfx{transition:none!important;transform:none!important;flex:1!important}
+/* "¿Y si saco…?": al elegir una barra ya no sale el aro verde alrededor */
+#sim input[type=range]:focus,#sim input[type=range]:active{box-shadow:none!important}
+/* Mi promedio hasta ahora: más grande (el brillo verde que pasaba sobre el texto se quitó; el brillo ahora sale con el cursor, como en los otros bloques) */
+#sl1{display:block;font-size:clamp(1.25rem,5.6vw,1.9rem);line-height:1.12}
+@supports (-webkit-background-clip:text) or (background-clip:text){
+#mini .ml{background-image:linear-gradient(100deg,transparent 40%,#00F03C 50%,transparent 60%),linear-gradient(#fff,#fff);background-size:250% 100%,100% 100%;background-repeat:no-repeat;background-position:120% 0,0 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:tshine 6s ease-in-out 1.2s infinite}
+}
+/* Celular: "Mi promedio" arriba y "hasta ahora" abajo, siempre en dos lineas */
+@media (max-width:600px){#sl1{white-space:nowrap;font-size:clamp(1.05rem,5.2vw,1.9rem)}#sl1 .l2{display:block}.sm1>div:first-child{min-width:0}}
+#mini .ml{white-space:nowrap}
+/* Número del promedio con más protagonismo */
+#big{font-size:clamp(4rem,15vw,5.8rem);transform-origin:right center;letter-spacing:-.02em}
+#big.dec{font-size:clamp(2.9rem,11vw,4.4rem)}
+#big.gn{text-shadow:0 0 26px rgba(0,163,41,.28)}
+:root[data-theme="dark"] #big.gn{text-shadow:0 0 30px rgba(0,240,60,.42)}
+@keyframes bigpop{0%{transform:scale(1)}35%{transform:scale(1.1)}100%{transform:scale(1)}}
+#big.pop{animation:bigpop .45s cubic-bezier(.3,1.5,.5,1)}
+/* Cómo funciona: el título queda a la misma distancia del borde de arriba y de la línea de abajo */
+.faq{padding:32px 0 44px}
+.faq h2{margin:0 0 32px;font-size:1.55rem}
+/* Respuestas ordenadas (mismo formato que la pregunta 5) */
+.tag.w{background:#fff;color:var(--navy)}
+.stl .ck{margin:2px 0}
+.stl .btn{margin-top:0}
+.stt .tag{line-height:1.25}
+/* Preguntas 03 y 04: tarjetas con la identidad de la pagina (franja de color, casilla de nota de verdad, iconos) en vez de filas repetidas */
+.q3g,.q4g{display:grid;gap:12px}
+.q3g{grid-template-columns:repeat(2,minmax(0,1fr))}
+.q4g{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:700px){.q3g,.q4g{grid-template-columns:1fr}}
+.q3c{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 16px 18px;background:rgba(255,255,255,.07);border-bottom:4px solid var(--c,#0A5CFF)}
+.q3c.b{--c:#0A5CFF}.q3c.g{--c:#00F03C}
+.q3t{font-weight:800;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:#fff}
+.q3f{display:inline-flex;align-items:center;gap:8px}
+.q3f i{display:block;min-width:60px;padding:9px 14px;border:2px solid var(--green);border-radius:2px;background:rgba(0,240,60,.12);font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal;text-align:center;color:#fff}
+.q3f.e i{min-width:120px;border:1px dashed rgba(255,255,255,.6);background:rgba(255,255,255,.06);font-weight:500;font-size:.9rem;font-style:italic;color:rgba(255,255,255,.7)}
+.q3f b{font-weight:700;font-size:.85rem;color:rgba(255,255,255,.7)}
+.q3c p,.q4t p{margin:0;color:rgba(255,255,255,.9)}
+.q4t{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:16px;background:rgba(255,255,255,.07);border-top:4px solid var(--c)}
+.q4i{display:grid;place-items:center;width:44px;height:44px;background:var(--c);color:var(--cc)}
+.q4t b{font-weight:800;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:#fff}
+@media (hover:hover){.q3c,.q4t{transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .2s}.q3c:hover,.q4t:hover{transform:translateY(-2px);background:rgba(255,255,255,.11)}}
+/* Instagram del pie: misma animación que el de la pantalla de inicio (el icono se inclina y crece, el usuario se subraya) */
+footer .fl a.ig svg{transition:transform .4s cubic-bezier(.3,1.6,.5,1),color .25s}
+footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100%/0 2px no-repeat;transition:background-size .3s}
+@media (hover:hover){footer .fl a.ig:hover svg{transform:rotate(-14deg) scale(1.3);animation:none}footer .fl a.ig:hover .igu{background-size:100% 2px}}
+
+/* Deslizadores de "¿Y si saco…?": punto grande, sin contorno gris */
+.sc2 input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;outline:none;border:0;box-shadow:none;height:40px;-webkit-tap-highlight-color:transparent;--p:0%}
+.sc2 input[type=range]::-webkit-slider-runnable-track{height:6px;border:0;border-radius:99px;background:linear-gradient(to right,var(--green) var(--p),var(--line) var(--p))}
+.sc2 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:21px;height:21px;margin-top:-7.5px;border:0;border-radius:50%;background:var(--green);box-shadow:none}
+.sc2 input[type=range]::-moz-range-track{height:6px;border:0;border-radius:99px;background:var(--line)}
+.sc2 input[type=range]::-moz-range-progress{height:6px;border-radius:99px;background:var(--green)}
+.sc2 input[type=range]::-moz-range-thumb{width:21px;height:21px;border:0;border-radius:50%;background:var(--green);box-shadow:none}
+/* Preguntas 03 y 04 más compactas en celular */
+@media (max-width:700px){
+.q3g,.q4g{gap:8px}
+.q3c{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:10px 12px 12px}
+.q3c .q3t{flex:1 0 100%;font-size:.72rem}
+.q3f i{min-width:46px;padding:5px 10px;font-size:.9rem}.q3f.e i{min-width:92px;font-size:.8rem}
+.q3f b{font-size:.78rem}
+.q3c p{flex:1 0 100%;font-size:.85rem;line-height:1.4}
+.q4t{display:grid;grid-template-columns:34px 1fr;column-gap:10px;row-gap:2px;align-items:center;padding:10px 12px;border-top-width:3px}
+.q4i{grid-row:1/3;width:34px;height:34px}.q4i svg{width:18px;height:18px}
+.q4t b{font-size:.72rem}
+.q4t p{font-size:.85rem;line-height:1.4}
+}
+
+/* ===== MODO LIGERO (html.lite) =====
+   Lo activa js/rendimiento.js solo si el equipo va lento (o con ?lite=1). Apaga unicamente los efectos decorativos que mas cuestan de pintar:
+   brillos en bucle sobre el logo y el texto, desenfoques, aurora, particulas, anillos y franjas del pie. Se conservan las animaciones de
+   entrada, los hover, las barras, el salto de letras y el confeti. Para quitarlo en un equipo: abrir la pagina con ?lite=0 */
+html.lite .lg-v,html.lite .gr,html.lite .ring,html.lite .dash,html.lite .dt,html.lite .cp,html.lite .sq,html.lite .core,html.lite .wp,
+html.lite .wel::before,html.lite .hero::before,html.lite .hero::after,html.lite .halo,html.lite .btn::after,
+html.lite footer::before,html.lite footer::after{animation:none!important}
+html.lite .halo,html.lite .beam,html.lite .beam::after{filter:none!important}
+html.lite .beam,html.lite .pt,html.lite .sp{display:none!important}
+html.lite #v-welcome .wt .t1.mr,html.lite .hero h1 .t2.mr,html.lite .hero h1 .t2.mr.lt{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards!important;animation-delay:calc(var(--i,0)*120ms)!important}
+html.lite .upf{-webkit-backdrop-filter:none;backdrop-filter:none}
+html.lite .wel::before,html.lite .hero::before,html.lite footer::after{will-change:auto}

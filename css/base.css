@@ -1,0 +1,366 @@
+/* My PonderUP - base: fuente, variables de color, estructura, encabezado, resultados, barras, tabla y preguntas */
+@font-face{font-family:Montserrat;font-style:normal;font-weight:100 900;font-display:swap;src:url(/fonts/montserrat-latin-wght-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Montserrat Fallback";src:local("Arial");size-adjust:112.83%;ascent-override:85.79%;descent-override:22.25%;line-gap-override:0%}
+:root{--navy:#061F47;--green:#00F03C;--blue:#0A5CFF;--bg:#F3F3F3;--card:#fff;--ink:#0B1F4B;--txt:#1A1A1A;--mut:#6B6B6B;--line:#E0E0E0;--lines:#0B1F4B;--fld:#fff;--gt:#00A329;--rt:#D92D3A;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07142b;--card:#0d2145;--ink:#eaf0ff;--txt:#dfe6f5;--mut:#9fb0cf;--line:#233a66;--lines:#9fb0cf;--fld:#0a1a38;--gt:#00F03C;--rt:#ff7a7a}}
+:root[data-theme="dark"]{--bg:#07142b;--card:#0d2145;--ink:#eaf0ff;--txt:#dfe6f5;--mut:#9fb0cf;--line:#233a66;--lines:#9fb0cf;--fld:#0a1a38;--gt:#00F03C;--rt:#ff7a7a}
+html{background:var(--navy);scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+html{scroll-behavior:smooth}html.rm{scroll-behavior:auto}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--txt);font:500 16px/1.55 Montserrat,"Montserrat Fallback","Helvetica Neue",Arial,sans-serif;min-height:100vh}
+.wrap{max-width:1070px;margin:0 auto;padding:0 16px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.rv{animation:up .7s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*100ms)}
+html.rm *{animation:none!important;transition:none!important}
+.btn{display:inline-block;background:var(--green);color:var(--navy);font:700 .8rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;padding:14px 18px;border:0;border-radius:2px;cursor:pointer;text-decoration:none}
+.btn.xl{font-size:1rem;padding:18px 36px;margin-top:8px}
+.logo{font-weight:800;font-size:1.15rem;letter-spacing:.03em;text-transform:uppercase}
+.logo b{color:var(--green)}
+.soon{font-style:normal;background:var(--green);color:var(--navy);font-size:.62rem;padding:2px 6px;border-radius:3px;margin-left:6px;letter-spacing:.05em}
+.strip{display:flex;width:150px;height:6px;margin:0 0 20px;transform-origin:left;animation:grow .8s .5s cubic-bezier(.2,.7,.2,1) backwards}.strip i{flex:1}
+/* Bienvenida y elección de curso */
+.wel{min-height:100vh;min-height:100svh;background:var(--navy);color:#fff;position:relative;overflow:hidden;display:flex;align-items:center}
+.wc{position:relative;z-index:1;width:100%;padding-top:48px;padding-bottom:48px}
+.wt{margin:0 0 20px;font-weight:900;text-transform:uppercase;line-height:.98;letter-spacing:-.01em}
+.wt span{display:block}
+.wt .t1{font-size:clamp(1.4rem,6.5vw,2.6rem);color:#fff;font-weight:800;letter-spacing:.02em;margin-bottom:6px}
+.wt .t2{font-size:clamp(2.6rem,12vw,6.2rem);color:#fff}
+.wt .t2 b{color:var(--green)}
+.pl{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));max-width:760px;margin-top:28px}
+.pl button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;background:rgba(255,255,255,.07);border:0;border-bottom:4px solid var(--s);color:#fff;padding:18px 18px 16px;font:800 1.1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .2s}
+.pl button:hover:not(:disabled){background:rgba(255,255,255,.15);transform:translateY(-2px)}
+.pl button:disabled{opacity:.55;cursor:default}
+.pl small,#clist small,#cbtn .cq{font-size:.62rem;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.7)}
+/* Cabecera */
+.hd,.hero,.faq,footer{background:var(--navy);color:#fff}
+.hd{position:relative;z-index:30}
+.hd1{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:16px;padding-bottom:12px}
+.hd1 .logo{display:flex;align-items:center;font-size:.85rem}
+.hd1 .btn{padding:12px 14px;font-size:.72rem}
+.mark{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--green);color:var(--navy);font:900 1.05rem Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal;margin-right:10px;flex:none}
+.cs{position:relative}
+#cbtn{width:100%;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border:0;border-bottom:4px solid var(--s,#0A5CFF);color:#fff;padding:12px 14px;font:800 .95rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;text-align:left;cursor:pointer}
+#cbtn .cv{flex:1}
+.chev{width:10px;height:10px;border-right:3px solid var(--green);border-bottom:3px solid var(--green);transform:rotate(45deg);margin:-4px 4px 0 0;transition:transform .2s,margin .2s}
+#cbtn[aria-expanded=true] .chev{transform:rotate(-135deg);margin-top:4px}
+#clist{position:absolute;left:16px;right:16px;top:100%;background:var(--navy);border:1px solid rgba(255,255,255,.2);border-top:0;border-radius:0 0 12px 12px;box-shadow:0 14px 28px rgba(0,0,0,.4);overflow:hidden;animation:drop .2s both}
+#clist button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;background:none;border:0;border-top:1px solid rgba(255,255,255,.12);color:#fff;padding:12px 14px;text-align:left;font:800 .95rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;cursor:pointer}
+#clist button.on{color:var(--green)}
+#clist button:disabled{opacity:.55;cursor:default}
+.hero{position:relative;overflow:hidden;padding:26px 0 30px}
+.hero::after{content:"%";position:absolute;right:-14px;top:-30px;font:900 15rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;color:rgba(255,255,255,.05);pointer-events:none}
+.hero .wrap{position:relative;z-index:1}
+.hero h1{margin:0 0 16px;font-weight:900;text-transform:uppercase;line-height:.98;letter-spacing:-.01em}
+.hero h1 span{display:block}
+.hero h1 .t1{font-size:clamp(1rem,4.6vw,1.7rem);color:#fff;font-weight:800;letter-spacing:.02em;margin-bottom:6px}
+.hero h1 .t2{font-size:clamp(1.8rem,8vw,4.2rem);color:var(--green)}
+.wb{display:flex;gap:2px;height:38px;transform-origin:left}
+.wb span{display:flex;align-items:center;justify-content:center;min-width:0;font-weight:800;font-size:.85rem;background:var(--wb);color:var(--wc);transform-origin:left;animation:grow .8s .6s cubic-bezier(.2,.7,.2,1) backwards}
+.lg{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.lg span::before{content:"";display:inline-block;width:10px;height:10px;background:var(--wb);margin-right:8px}
+/* Contenido */
+.body{padding-top:8px;padding-bottom:44px}
+h2{font:800 1.2rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;color:var(--ink);margin:30px 0 10px}
+.body h2.it{margin-top:26px}
+.mut{color:var(--mut);margin:0 0 8px;font-size:.88rem}
+.blk{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);margin-bottom:14px}
+.bh{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px}
+.bn{display:flex;align-items:center;gap:14px;min-width:0}
+.pct{font:900 2rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;color:var(--ink)}
+.bn b{font-weight:800;text-transform:uppercase;font-size:.88rem;letter-spacing:.02em;color:var(--ink)}
+.bb{padding:0 16px 8px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.row.grp,.row.bd{font-weight:700}
+.nm{padding-left:calc(var(--d,0)*16px);color:var(--ink)}
+.nm em{font-style:normal;color:var(--mut);font-size:.8rem;font-weight:500;margin-left:8px}
+.sv{font-variant-numeric:tabular-nums;text-align:right;font-weight:800;color:var(--ink);padding-right:4px}
+.sv.pn{font-weight:500;font-style:italic;color:var(--mut);font-size:.85rem}
+input[type=number],input.g,#pm{width:100%;font:600 1rem Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:8px 10px;border:1px solid var(--lines);border-radius:2px;background:var(--fld);color:var(--ink)}
+input.g{width:120px;flex:none;padding:8px;-moz-appearance:textfield}
+input.g::-webkit-outer-spin-button,input.g::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.g::placeholder{color:var(--mut);opacity:1;font-style:italic;font-weight:500;font-size:.9rem}
+.g:placeholder-shown{border-style:dashed;border-color:var(--mut);background:color-mix(in srgb,var(--ink) 5%,var(--fld))}
+#sum{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);padding:14px 16px;margin:6px 0 4px}
+.sm1{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#sl1{font-weight:800;text-transform:uppercase;font-size:.9rem;letter-spacing:.02em;color:var(--ink)}
+#big{font:900 3.2rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-variant-numeric:tabular-nums;transition:color .3s}
+#big.gn{color:var(--gt)}#big.rd{color:var(--rt)}
+.pbar{position:relative;height:12px;background:var(--line);margin:12px 0 10px}
+#pf{position:absolute;left:0;top:0;bottom:0;transition:background .3s}
+#mk{position:absolute;top:-5px;bottom:-5px;width:3px;margin-left:-1px;background:var(--ink)}
+.sm2{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:.88rem;color:var(--mut)}
+.minl{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--ink);text-transform:uppercase;font-size:.8rem;letter-spacing:.02em}
+#sum .minl input{width:50px;padding:2px 4px;text-align:center;background:transparent;border:0;border-bottom:3px solid var(--green);border-radius:0;color:var(--ink);font-weight:800;font-size:1.05rem;-moz-appearance:textfield}
+#sum .minl input::-webkit-outer-spin-button,#sum .minl input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.tag{display:inline-block;font-weight:800;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:3px}
+.tag.y{background:var(--green);color:var(--navy)}.tag.n{background:#ff7a7a;color:var(--navy)}
+.sc{overflow-x:auto;background:var(--card);border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th{background:var(--thbg,var(--navy));color:#fff;text-transform:uppercase;font-size:.72rem;letter-spacing:.03em;font-weight:700;padding:10px 8px;white-space:nowrap}
+td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:center;font-weight:600;color:var(--ink)}
+th.pfc{background:var(--green);color:var(--navy)}
+td.pfc{background:rgba(0,240,60,.2);font-weight:800}
+.msg{margin:18px 0 0;padding:12px 16px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);font-weight:600;color:var(--ink)}
+.msg.bad{border-left-color:#ff7a7a}
+/* Resumen compacto fijo */
+#mini{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--navy);color:#fff;display:flex;align-items:center;gap:14px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));border-top:3px solid var(--green);transform:translateY(115%);transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+#mini.on{transform:none}
+.ml{font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1.25;max-width:90px}
+.mb{position:relative;flex:1;height:8px;background:rgba(255,255,255,.2)}
+.mb span{position:absolute;top:0;bottom:0;left:0}
+#mpf{transition:width .35s ease,background .3s}
+#mmk{top:-4px;bottom:-4px;width:3px;margin-left:-1px;background:#fff}
+#mbig{font:900 1.7rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;min-width:3.2ch;text-align:right;font-variant-numeric:tabular-nums}
+#mbig.gn{color:#00F03C}#mbig.rd{color:#ff7a7a}
+/* Preguntas y pie */
+.faq{padding:40px 0 44px}
+.faq h2{color:#fff;margin:0 0 20px}
+.qa{border-top:1px solid rgba(255,255,255,.35)}
+.qa:last-of-type{border-bottom:1px solid rgba(255,255,255,.35)}
+.qa summary{list-style:none;display:grid;grid-template-columns:64px 1fr 30px;gap:12px;align-items:start;padding:20px 0;cursor:pointer}
+.qa summary::-webkit-details-marker{display:none}
+.no{font:900 2.6rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;color:var(--green)}
+.q{font-weight:700;font-size:1.05rem;line-height:1.35;padding-top:4px}
+.pm{position:relative;width:30px;height:30px;margin-top:4px;transition:transform .35s cubic-bezier(.3,1.3,.5,1)}
+.pm::before,.pm::after{content:"";position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;background:#fff}
+.pm::after{transform:rotate(90deg)}
+details[open]:not(.closing)>summary .pm{transform:rotate(45deg)}
+.qa summary .q{transition:color .25s}
+.qa[open]:not(.closing) summary .q{color:var(--green)}
+.ans{padding:0 42px 0 76px;color:rgba(255,255,255,.9)}
+.ans::after{content:"";display:block;height:22px}
+.ans p{margin:0 0 10px}
+.ck{display:flex;align-items:center;gap:10px;margin:10px 0}
+.ck input{accent-color:var(--green);width:18px;height:18px}
+.ans .btn{margin-top:8px}
+footer{border-top:1px solid rgba(255,255,255,.2);padding:28px 0 128px;font-size:.85rem}/* 128px: deja el formulario libre del boton flotante de tema (.tgw, bottom:78px) */
+.fc{display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px 48px}
+.fc p{max-width:50ch;color:rgba(255,255,255,.75);margin:10px 0 0}
+.fl b{display:block;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
+.fl button{display:block;background:none;border:0;padding:4px 0;color:#fff;font:inherit;text-decoration:underline;cursor:pointer;text-align:left}
+
+.wt.eq .t1{font-size:clamp(2.6rem,11.5vw,6rem);font-weight:900;letter-spacing:-.01em;margin-bottom:0}
+.wt.eq .t2{color:var(--green)}
+.deco{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.gw{position:absolute;inset:0;overflow:hidden;-webkit-mask-image:radial-gradient(ellipse 85% 75% at 75% 65%,#000 10%,transparent 78%);mask-image:radial-gradient(ellipse 85% 75% at 75% 65%,#000 10%,transparent 78%)}
+.gr{position:absolute;inset:-48px;background-image:linear-gradient(rgba(255,255,255,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.09) 1px,transparent 1px);background-size:48px 48px;animation:pan 9s linear infinite}
+@keyframes pan{to{transform:translate(48px,48px)}}
+.rg{position:absolute;right:-18vmin;bottom:-12vmin;width:min(95vw,620px);aspect-ratio:1}
+.ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--rc,#00F03C);opacity:0;animation:ping 7s ease-out infinite;animation-delay:var(--d,0s)}
+@keyframes ping{0%{transform:scale(.3);opacity:.7}100%{transform:scale(1);opacity:0}}
+.dash{position:absolute;inset:14%;border-radius:50%;border:2px dashed rgba(255,255,255,.28);animation:spin 38s linear infinite}
+.dash::before{content:"";position:absolute;top:-9px;left:50%;margin-left:-9px;width:18px;height:18px;border-radius:50%;background:#00F03C;box-shadow:0 0 0 6px rgba(0,240,60,.2)}
+.dash2{inset:34%;border-color:rgba(10,92,255,.7);animation-duration:24s;animation-direction:reverse}
+.dash2::before{background:#F000F0;width:14px;height:14px;top:-7px;margin-left:-7px;box-shadow:0 0 0 6px rgba(240,0,240,.2)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dt{position:absolute;border-radius:50%;animation:bob var(--t,7s) ease-in-out infinite alternate;animation-delay:var(--d,0s)}
+.cp{position:absolute;display:grid;place-items:center;min-width:46px;height:46px;padding:0 10px;border:2px solid rgba(255,255,255,.3);color:rgba(255,255,255,.65);font:800 1.05rem Montserrat,"Montserrat Fallback",Arial,sans-serif;animation:bob var(--t,8s) ease-in-out infinite alternate;animation-delay:var(--d,0s)}
+@keyframes bob{from{transform:translate(0,0)}to{transform:translate(var(--x,10px),var(--y,-22px))}}
+.sq{position:absolute;width:54px;height:54px;border:3px solid #F000F0;opacity:.7;animation:spin 22s linear infinite}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--navy);color:#fff}
+.lb{background:none;border:0;color:#fff;padding:0;cursor:pointer;font-family:Montserrat,"Montserrat Fallback",Arial,sans-serif;text-align:left}
+.core{position:absolute;left:50%;top:50%;width:96px;height:96px;margin:-48px 0 0 -48px;display:grid;place-items:center;background:#00F03C;color:#061F47;font:900 3.2rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal;animation:pulse 3.2s ease-in-out infinite alternate}
+@keyframes pulse{from{transform:scale(.92) rotate(-3deg)}to{transform:scale(1.06) rotate(3deg)}}
+#v-pick .core{display:none}
+
+.wm{position:absolute;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:2;text-align:center;font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);text-decoration:none;animation:fade 1.2s 1.4s backwards}
+.wm b,.fw b{color:var(--green);font-weight:800;letter-spacing:.04em;text-transform:none}
+.wm:hover b,.fw a:hover b{text-decoration:underline}
+.fw{margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.15);font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.fw a{color:inherit;text-decoration:none}
+
+.wm{display:flex;justify-content:center;align-items:center;gap:7px;font-size:.8rem;letter-spacing:.02em;text-transform:none;color:rgba(255,255,255,.65);transition:color .2s}
+.wm:hover,.fw a:hover{color:var(--green)}
+.fw{font-size:.8rem;letter-spacing:.02em;text-transform:none}
+.fw a{display:inline-flex;align-items:center;gap:7px;transition:color .2s}
+.wm svg,.fw svg{flex:none}
+
+#big.na{color:var(--mut)}#mbig.na{color:rgba(255,255,255,.6)}
+.fl a.ig{display:inline-flex;align-items:center;gap:8px;color:var(--green);font-weight:700;text-decoration:none;padding:4px 0}
+.fl a.ig:hover{text-decoration:underline}
+.tip{margin:12px 0 0;padding-left:12px;border-left:3px solid var(--green);font-size:.85rem;color:var(--mut)}
+.tip b{color:var(--ink);letter-spacing:.04em}
+.wb span{position:relative}
+.wb span::after{content:"";position:absolute;left:0;bottom:0;height:5px;width:var(--f,0%);background:var(--wc);transition:width .35s ease}
+.zm{margin-top:16px}
+.zm:empty{display:none}
+.zl{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.72)}
+.zl::before{content:"";width:8px;height:8px;background:var(--wb)}
+.zb{display:flex;gap:2px;height:30px}
+.zs{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;white-space:nowrap;font-size:.7rem;font-weight:800;color:var(--wc);background:color-mix(in srgb,var(--wb) var(--sh),#061F47);transform-origin:left;animation:grow .7s .9s cubic-bezier(.2,.7,.2,1) backwards}
+.zs.pd{background:repeating-linear-gradient(135deg,rgba(255,255,255,.2) 0 3px,transparent 3px 7px),rgba(255,255,255,.07);color:rgba(255,255,255,.7);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}
+.lg2{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:.72rem;font-weight:600;color:rgba(255,255,255,.8)}
+.lg2 span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:7px;background:color-mix(in srgb,var(--wb) var(--sh),#061F47)}
+
+.wb span::before{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:rgba(6,31,71,.45)}
+.wb span::after{height:6px;background:#fff}
+.body h2.it{font-size:clamp(1.9rem,8vw,3rem);line-height:1.05;font-weight:900;letter-spacing:-.01em;margin:30px 0 16px}
+@keyframes flt{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+/* Interruptor de tema: sube y baja apenas 4 px (usa "translate" para no chocar con el zoom al pasar el cursor ni con la animacion de ocultarse) */
+@keyframes tgf{from{translate:0 0}to{translate:0 -10px}}
+@keyframes flt2{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-14px) rotate(2deg)}}
+.wp{animation:flt 7s ease-in-out infinite alternate}
+.wb,.zb{filter:drop-shadow(0 8px 10px rgba(0,0,0,.3))}
+.hero::after{animation:flt2 10s ease-in-out infinite alternate}
+.hdeco{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.pbar{touch-action:pan-y;cursor:pointer;-webkit-user-select:none;user-select:none}
+.pbar::after{content:"";position:absolute;left:-12px;right:-12px;top:-18px;bottom:-18px}
+#mk{top:-12px;bottom:-12px;width:36px;margin-left:-18px;background:none;cursor:grab;outline:none;z-index:2;touch-action:none}
+#mk::before{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:3px;margin-left:-1.5px;background:var(--ink)}
+#mk::after{content:"";position:absolute;left:50%;top:0;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--ink);border:3px solid var(--card);box-shadow:0 1px 4px rgba(0,0,0,.35);transition:transform .15s}
+#mk:hover::after,.pbar.drag #mk::after{transform:scale(1.25)}
+.pbar.drag #mk{cursor:grabbing}
+#mk:focus-visible::after{box-shadow:0 0 0 3px var(--blue)}
+#mkt{position:absolute;left:50%;bottom:calc(100% + 2px);transform:translateX(-50%) scale(.9);opacity:0;background:var(--ink);color:var(--card);font:800 .8rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:5px 8px;border-radius:4px;pointer-events:none;white-space:nowrap;transition:opacity .15s,transform .15s}
+.pbar.drag #mkt,#mk:hover #mkt,#mk:focus-visible #mkt{opacity:1;transform:translateX(-50%) scale(1)}
+
+.hero{padding:38px 0 46px}
+.hero h1{margin-bottom:22px}
+.hero .strip{margin-bottom:28px}
+.hero .lg{margin-top:16px}
+.zm{margin-top:22px}
+.hero::before,.wel::before{content:"";position:absolute;inset:-40% -20%;z-index:0;pointer-events:none;background:radial-gradient(40% 45% at 20% 30%,rgba(10,92,255,.45),transparent 70%),radial-gradient(35% 40% at 78% 25%,rgba(0,240,60,.2),transparent 70%),radial-gradient(40% 45% at 60% 82%,rgba(240,0,240,.18),transparent 70%);animation:aur 22s ease-in-out infinite alternate;will-change:transform}
+@keyframes aur{from{transform:translate3d(-4%,-2%,0) rotate(0deg) scale(1)}to{transform:translate3d(4%,3%,0) rotate(8deg) scale(1.12)}}
+@keyframes mask{from{clip-path:inset(0 0 100% 0);transform:translateY(55%);opacity:0}to{clip-path:inset(0);transform:none;opacity:1}}
+.mr{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i,0)*120ms)}
+#pf,#mpf{overflow:hidden}
+#pf::after,#mpf::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.6) 50%,transparent 80%);transform:translate3d(-100%,0,0);animation:shinec 2.6s linear infinite;will-change:transform;backface-visibility:hidden}
+/* Brillo de las barras de promedio: recorrido continuo (sin pausa entre pasadas) y en la capa de la GPU, para que siga fluido en celular al desplazar la pagina */
+@keyframes shinec{from{transform:translate3d(-100%,0,0)}to{transform:translate3d(100%,0,0)}}
+#mpf{transform:translateZ(0);will-change:width}
+@keyframes shine{0%,55%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+/* Barra #pf: agua. Solo existe mientras el nivel se mueve (clase .pf-agua); en reposo se quita y la barra queda como siempre. */
+#pf.pf-agua{width:100%!important;will-change:clip-path}
+#pf.pf-agua::after{right:auto;width:var(--vw,100%)}
+.js .sr{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*90ms)}
+.js .sr.in{opacity:1;transform:none}
+.btn{position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.65) 50%,transparent 70%);transform:translateX(-120%);animation:sheen 5s ease-in-out infinite}
+@keyframes sheen{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.btn:active{transform:scale(.97)}
+@media(hover:hover){.btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,240,60,.35)}.blk{transition:transform .25s,box-shadow .25s}.blk:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(6,31,71,.14)}}
+input.g{transition:box-shadow .2s,border-color .2s,background .2s}
+input.g:focus{border-style:solid;border-color:var(--ink);box-shadow:0 0 0 3px rgba(0,240,60,.45)}
+.zs.pop{animation:pop .55s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scaleY(1)}40%{transform:scaleY(1.45)}100%{transform:scaleY(1)}}
+
+.wm{gap:18px}
+.wm a{display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.65);text-decoration:none;transition:color .2s}
+.wm a+a{padding-left:18px;border-left:1px solid rgba(255,255,255,.25)}
+.wm:hover{color:rgba(255,255,255,.65)}
+.wm a:hover{color:var(--green)}
+.igs{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:12px}
+@media (max-width:600px){.fl a.ig{padding:10px 0}}
+.igc{display:flex;align-items:center;gap:14px;margin:20px 0 4px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);color:var(--ink);text-decoration:none}
+.igc:hover{border-color:var(--ink);border-left-color:var(--green)}
+.igc:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.igc svg{flex:none;width:28px;height:28px}
+.igc .igt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.igc b{font-weight:800;font-size:.98rem;line-height:1.25}
+.igc small{font-weight:700;color:var(--gt);font-size:.9rem}
+/* Valoracion "¿Te ayudo?" (aparece cuando ya hay al menos una nota) */
+.mpv{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 14px;margin:18px 0 0;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--blue);color:var(--ink)}
+.mpv[hidden]{display:none}
+.mpvq{margin:0;font-weight:800;font-size:.92rem;line-height:1.25}
+.mpvb{display:flex;gap:8px}
+.mpvbtn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:6px 14px;background:transparent;color:var(--ink);border:2px solid var(--ink);border-radius:2px;font:800 .8rem/1 Montserrat,"Montserrat Fallback",system-ui,sans-serif;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.mpvbtn svg{flex:none;width:18px;height:18px}
+.mpvbtn:focus-visible,.mpvl:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.mpvbtn:active{transform:scale(.97)}
+@media (hover:hover){.mpvbtn[data-v="si"]:hover{background:var(--green);border-color:var(--green);color:var(--navy)}.mpvbtn[data-v="no"]:hover{background:var(--ink);color:var(--card)}}
+.mpvt{display:none;align-items:center;flex-wrap:wrap;gap:4px 14px;margin:0;font-weight:700;font-size:.88rem;line-height:1.35}
+.mpv.done .mpvq,.mpv.done .mpvb{display:none}
+.mpv.done .mpvt{display:flex}
+.mpvl{padding:8px 0;background:none;border:0;color:var(--gt);font:800 .88rem/1.2 Montserrat,"Montserrat Fallback",system-ui,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.mpvl[hidden]{display:none}
+@keyframes fbin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.mpv.done .mpvt{animation:fbin .25s ease-out}
+@media (max-width:600px){.mpv{flex-direction:column;align-items:stretch;margin:14px 0 0}.mpvb .mpvbtn{flex:1}}
+a[data-ig][hidden]{display:none!important}
+.igw{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:16px;color:rgba(255,255,255,.8);font-weight:700;font-size:.95rem;text-decoration:none;white-space:nowrap;transition:color .2s}
+.igw:hover{color:var(--green)}
+@media (max-width:600px){.igc{min-height:56px;margin:16px 0 0}}
+/* Celular: texto corto y tarjeta mas llamativa (icono verde grande, letra gruesa, flecha) */
+.igk{display:none}
+@media (max-width:600px){
+ .igf{display:none}.igk{display:inline}
+ .igc{min-height:68px;gap:14px;padding:14px 16px 14px 14px;box-shadow:0 6px 18px rgba(6,31,71,.14)}
+ .igc svg{width:44px;height:44px;padding:9px;box-sizing:border-box;background:var(--green);color:var(--navy)}
+ .igc b{font-size:1.15rem;font-weight:900}
+ .igc small{font-size:.95rem}
+ .igc::after{content:"›";flex:none;margin-left:auto;color:var(--gt);font-size:2rem;font-weight:700;line-height:1}
+}
+
+#sl1{font-size:clamp(1.1rem,4.8vw,1.5rem);font-weight:900;line-height:1.15;letter-spacing:.01em}
+#big{font-size:3.6rem}
+.nota{display:flex;gap:12px;align-items:flex-start;margin:0 0 20px;padding:12px 14px;background:color-mix(in srgb,var(--green) 12%,var(--card));border-left:4px solid var(--green);font-size:.88rem;line-height:1.5;color:var(--txt)}
+.nota i{flex:none;display:grid;place-items:center;width:20px;height:20px;margin-top:1px;border-radius:50%;background:var(--navy);color:var(--green);font:800 .75rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal}
+.nota b{color:var(--ink)}
+/* Casillas: la nota y el "/20" van centrados juntos; el "/20" aparece solo cuando hay nota */
+.gi{position:relative;display:flex;align-items:center;justify-content:center;gap:2px;width:120px;height:40px;padding:0 8px;flex:none;border:1px dashed var(--mut);border-radius:2px;background:color-mix(in srgb,var(--ink) 5%,var(--fld));transition:border-color .2s,box-shadow .2s,background .2s}
+.gi.fl{border:1px solid var(--lines);background:var(--fld)}
+.gi:focus-within{border-style:solid;border-color:var(--ink);box-shadow:0 0 0 3px rgba(0,240,60,.45)}
+.gi.bad{border-style:solid;border-color:#ff5a5f;box-shadow:0 0 0 3px rgba(255,90,95,.25)}
+.gi input.g,.gi input.g:focus,.gi input.g:placeholder-shown{width:3ch;min-width:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;outline:none;text-align:center}
+.gi input.g:placeholder-shown{width:100%}
+.sf{color:var(--mut);font-size:.8rem;font-weight:600;white-space:nowrap;pointer-events:none}
+input.g:placeholder-shown+.sf{display:none}
+/* Círculos verdes de avance junto a cada nota */
+.row:not(.grp) .nm::before,#tree.hdots .bh.lf .bn::before{content:"";display:inline-block;flex:none;width:9px;height:9px;margin-right:10px;border-radius:50%;border:2px solid var(--mut);transition:background .25s,border-color .25s,box-shadow .25s}
+.row.dn:not(.grp) .nm::before,#tree.hdots .bh.lf.dn .bn::before{background:#00F03C;border-color:#00F03C;box-shadow:0 0 0 3px rgba(0,240,60,.25)}
+#tree.hdots .bh.lf .bn::before{margin-right:0}
+.hero{padding:34px 0 24px}
+.body h2.it{margin:20px 0 16px}
+.ns{display:none}
+@media (max-width:600px){.nl{display:none}.ns{display:inline}}
+@supports (-webkit-background-clip:text) or (background-clip:text){
+.hero h1 .t2{background-image:linear-gradient(100deg,transparent 42%,#fff 50%,transparent 58%),linear-gradient(var(--green),var(--green));background-size:250% 100%,100% 100%;background-repeat:no-repeat;background-position:120% 0,0 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 .t2.mr{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards,tshine 5s ease-in-out infinite;animation-delay:calc(var(--i,0)*120ms),1.6s}
+}
+@keyframes tshine{0%,55%{background-position:120% 0,0 0}100%{background-position:-20% 0,0 0}}
+/* Nota mínima: control arrastrable centrado sobre la barra */
+.pbar{margin:18px 0 12px}
+.pbar::after{top:-20px;bottom:-20px}
+#mk{top:50%;bottom:auto;width:44px;height:44px;margin:-22px 0 0 -22px}
+#mk::before{left:50%;top:50%;bottom:auto;width:3px;height:34px;margin:-17px 0 0 -1.5px;border-radius:2px;background:var(--ink);box-shadow:0 0 0 2px var(--card)}
+#mk::after{left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--card);border:3px solid var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+#sum{position:relative}
+/* Celebración al alcanzar la nota mínima */
+.cf{position:absolute;right:46px;top:44px;width:0;height:0;pointer-events:none;z-index:7}
+.cf i{position:absolute;left:0;top:0;width:var(--s);height:var(--s);background:var(--c);border-radius:2px;animation:conf 1.1s cubic-bezier(.15,.7,.3,1) forwards;animation-delay:var(--d,0ms)}
+@keyframes conf{0%{transform:translate(0,0) rotate(0) scale(.4);opacity:1}70%{opacity:1}100%{transform:translate(var(--x),calc(var(--y) + 70px)) rotate(var(--r)) scale(1);opacity:0}}
+.gi.fl input.g{font-variant-numeric:tabular-nums}
+/* Centrado exacto del control de nota mínima */
+#mk::before,#mk::after{box-sizing:border-box}
+#mmk{margin-left:-1.5px}
+/* Tabla de combinaciones con muchas columnas: encabezados que se acomodan y primera/última columna fijas al desplazar */
+.sc th{white-space:normal;min-width:76px;line-height:1.2;vertical-align:bottom}
+.sc table{min-width:100%;width:max-content}
+.sc th:first-child,.sc td:first-child{position:sticky;left:0;z-index:1}
+.sc th:last-child,.sc td:last-child{position:sticky;right:0;z-index:1}
+.sc td:first-child{background:var(--card)}
+.sc td.pfc{background:color-mix(in srgb,#00F03C 20%,var(--card))}
+/* Combinaciones en celular: misma tabla con scroll, mas compacta y con "Promedio final" en dos filas */
+@media (max-width:600px){
+ .sc th{min-width:58px;padding:9px 5px;font-size:.62rem;letter-spacing:.02em}
+ .sc td{padding:9px 5px;font-size:.92rem}
+ .sc th.pfc,.sc td.pfc{min-width:64px;padding-left:6px;padding-right:6px}
+ .sc td.pfc{border-left:1px solid var(--line)}
+ .sc th span{display:block}
+}
+.sc th:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.35)}
+.sc td:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2)}
+.sc th:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.35)}
+.sc td:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.2)}
+/* Filas con círculo: sangría para nombres de varias líneas */
+.nm{position:relative}
+.row:not(.grp) .nm{padding-left:calc(var(--d,0)*16px + 22px)}
+.row:not(.grp) .nm::before{position:absolute;left:calc(var(--d,0)*16px);top:calc(.775em - 6.5px);margin:0}
+@media (max-width:600px){.hdeco{display:none}}

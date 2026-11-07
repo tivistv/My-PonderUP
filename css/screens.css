@@ -1,0 +1,521 @@
+/* My PonderUP - pantallas: factor de inscripcion, compartir, agrega tu curso, elige tu curso, simulador y pulido de hovers */
+/* ===== Factor de inscripción ===== */
+.fback{display:flex;align-items:center;gap:10px;width:100%;background:rgba(255,255,255,.08);border:0;border-bottom:4px solid var(--green);color:#fff;padding:12px 14px;font:800 .95rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;text-align:left;cursor:pointer}
+.fback small{font-size:.62rem;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.7)}
+.fback b{flex:1;font-weight:800}
+.fch2{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:0 0 10px}
+.fch2 button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--mut);color:var(--ink);padding:16px 18px;font:inherit;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s}
+.fch2 button b{font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase}
+.fch2 button span{font-size:.85rem;color:var(--mut);font-weight:500}
+.fch2 button[aria-checked=true]{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--card));box-shadow:0 0 0 3px rgba(0,240,60,.35)}
+.fgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin:0 0 14px}
+.fsl{display:grid;gap:6px;align-content:start}
+.fsl label{font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.fsl small{color:var(--mut);font-size:.78rem;font-weight:500;line-height:1.35}
+.fsel{width:100%;font:600 1rem Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:12px 10px;border:1px solid var(--lines);border-radius:2px;background:var(--fld);color:var(--ink)}
+.fsel option,.fsel optgroup{background:var(--card);color:var(--ink)}
+.fsel:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(0,240,60,.45)}
+.fbk{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);margin:0 0 14px}
+.fhd{display:grid;grid-template-columns:minmax(0,1fr) 78px 96px 64px 36px;gap:8px;padding:10px 16px;background:var(--navy);color:#fff;font:700 .7rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;letter-spacing:.03em}
+.fhd span+span{text-align:center}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) 78px 96px 64px 36px;grid-template-areas:"nm cr nt nc del";gap:8px;align-items:center;padding:10px 16px;border-top:1px solid var(--line)}
+.fhd+.frow,.fbk>.frow:first-child{border-top:0}
+.fnm{grid-area:nm;font-weight:700;color:var(--ink);min-width:0;overflow-wrap:anywhere}
+.fcr{grid-area:cr}.fnt{grid-area:nt}
+.flb{display:block;margin:0}
+.flb small,.fnc small{display:none}
+.fin{width:100%;font:600 1rem Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:8px;border:1px solid var(--lines);border-radius:2px;background:var(--fld);color:var(--ink);text-align:center;-moz-appearance:textfield;transition:box-shadow .2s,border-color .2s,background .2s}
+.fin::-webkit-outer-spin-button,.fin::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.fin::placeholder{color:var(--mut);opacity:1;font-style:italic;font-weight:500;font-size:.9rem}
+.fin:placeholder-shown{border-style:dashed;border-color:var(--mut);background:color-mix(in srgb,var(--ink) 5%,var(--fld))}
+.fin:focus{outline:none;border-style:solid;border-color:var(--ink);box-shadow:0 0 0 3px rgba(0,240,60,.45)}
+.fin.bad{border-style:solid;border-color:#ff5a5f;box-shadow:0 0 0 3px rgba(255,90,95,.25)}
+.fin.tx{text-align:left}
+.fnc{grid-area:nc;text-align:center;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.fdel{grid-area:del;width:34px;height:34px;display:grid;place-items:center;background:none;border:1px solid var(--line);border-radius:2px;color:var(--mut);cursor:pointer;font:700 .95rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:0}
+.fdel:hover{color:var(--rt);border-color:var(--rt)}
+.fempty{padding:18px 16px;color:var(--mut);font-size:.9rem}
+.ftot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 18px;padding:10px 16px;border-top:2px solid var(--ink);font-weight:700;color:var(--ink);font-size:.85rem;font-variant-numeric:tabular-nums}
+.fcrd{padding:14px 16px}
+.fcrd label{display:block;font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-bottom:8px}
+.fcrd .fin{max-width:200px;font-size:1.2rem;font-weight:800}
+.fcrd small{display:block;margin-top:8px;color:var(--mut);font-size:.82rem;line-height:1.4}
+.fcv{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fcv b{font:900 2.4rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+.fbg{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.fbon{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--mut);padding:12px 14px;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s}
+.fbon input{accent-color:var(--green);width:20px;height:20px;flex:none;margin:0;cursor:pointer}
+.fbt{flex:1;min-width:0;color:var(--ink);font-weight:800;text-transform:uppercase;font-size:.85rem;letter-spacing:.02em}
+.fbt em{display:block;font-style:normal;text-transform:none;font-weight:500;color:var(--mut);font-size:.78rem;letter-spacing:0;margin-top:2px}
+.fpt{font:900 1.2rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+.fbon.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--card))}
+.fbon:focus-within{box-shadow:0 0 0 3px rgba(0,240,60,.45)}
+.fbs{margin:10px 0 0;text-align:right;font-weight:700;color:var(--ink);font-size:.9rem}
+#fisum{position:relative;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);padding:14px 16px;margin:6px 0 4px}
+#fl1{font-weight:800;text-transform:uppercase;font-size:.9rem;letter-spacing:.02em;color:var(--ink)}
+#fibig{font:900 3.6rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink);transition:color .3s}
+#fibig.na{color:var(--mut)}
+.fbd{margin-top:14px;border-top:1px solid var(--line)}
+.fbr{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);color:var(--ink);font-weight:600}
+.fbr b{font-variant-numeric:tabular-nums;font-weight:800;white-space:nowrap}
+.fbr.sub span{color:var(--mut);font-weight:500;font-size:.85rem}
+.fbr.sub b{color:var(--mut);font-weight:600;font-size:.85rem}
+.fbr.tot{border-bottom:0;border-top:2px solid var(--ink);margin-top:-1px;font-weight:800;text-transform:uppercase;font-size:.9rem}
+.fbr.tot b{font-size:1.15rem}
+#fimsg{margin:14px 0 0}
+#fisum .btn{margin-top:14px;background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+#fisum .btn::after{display:none}
+#fbar span{overflow:hidden;white-space:nowrap;transition:flex-grow .35s ease}
+#fimini{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));border-top:3px solid var(--green);transform:translateY(115%);transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+#fimini.on{transform:none}
+#fimini .ml{max-width:none;font-size:.7rem}
+#fmbig{font:900 1.7rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;min-width:3.2ch;text-align:right;font-variant-numeric:tabular-nums}
+#fmbig.na{color:rgba(255,255,255,.6)}
+#ffl{grid-area:co;justify-self:end}
+@media (max-width:760px){#ffl{justify-self:start}}
+@media (max-width:600px){
+ .fhd{display:none}
+ .frow{grid-template-columns:78px 104px minmax(0,1fr) 38px;grid-template-areas:"nm nm nm nm" "cr nt nc del";align-items:end}
+ .flb small,.fnc small{display:block;font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:3px}
+ .fnc{align-self:end;padding-bottom:7px}
+ .fdel{align-self:end}
+ #fibig{font-size:3rem}
+}
+/* ===== Compartir, sugerencias y aviso ===== */
+.hr{display:flex;align-items:center;gap:8px;flex:none}
+.shb{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;min-width:40px;padding:0 12px;background:transparent;color:var(--green);border:2px solid var(--green);border-radius:2px;font:700 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:background .25s ease,color .25s ease,transform .2s,filter .25s ease}
+.shb svg{flex:none}
+.shb:hover{background:var(--green);color:var(--navy)}
+.shb:active{transform:scale(.96)}
+.shb:focus-visible{outline:2px solid #fff;outline-offset:2px}
+/* Banner superior: unico boton, verde y con texto tambien en celular */
+.bar .shb{background:var(--green);color:var(--navy);border-color:var(--green)}
+.bar .shb:hover,.bar .shb:focus-visible{background:var(--green);color:var(--navy);filter:brightness(1.1)}
+.shf{margin-top:16px;height:44px;padding:0 16px}
+@media (max-width:480px){.hr{gap:6px}.hd1 .btn{padding:12px 10px;font-size:.66rem}.lg-h{max-width:calc(100vw - 190px)}}
+.sgf{margin:8px 0 0;max-width:460px}
+.sgr{display:flex;gap:8px;align-items:stretch}
+.sgf textarea{flex:1;min-width:0;min-height:52px;max-height:130px;resize:none;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.32);border-radius:2px;padding:12px;font:500 .85rem/1.35 Montserrat,"Montserrat Fallback",Arial,sans-serif;transition:border-color .2s,background .2s}
+.sgf textarea::placeholder{color:rgba(255,255,255,.55)}
+.sgf textarea:focus{outline:0;border-color:var(--green);background:rgba(255,255,255,.12)}
+@media (pointer:coarse){.sgf textarea{font-size:16px}}
+.fl .sgf .sgb{display:inline-flex;align-items:center;justify-content:center;flex:none;background:var(--green);color:var(--navy);font:700 .8rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;text-decoration:none;text-align:center;padding:0 18px;border-radius:2px}
+.fl .sgf .sgb:disabled{opacity:.6;cursor:wait}
+.sgt:empty{display:none}.sgt{margin-top:8px}
+.sgs{min-height:1.3em;margin-top:8px;font-size:.8rem;font-weight:600}
+.sgs.ok{color:var(--green)}.sgs.bad{color:#ff7a7a}
+.sgh{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;opacity:0}
+.sgv{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:60;max-width:calc(100vw - 32px);overflow-wrap:anywhere;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:var(--navy);color:#fff;border-left:4px solid var(--green);border-radius:2px;padding:12px 16px;font:600 .85rem/1.3 Montserrat,"Montserrat Fallback",Arial,sans-serif;box-shadow:0 10px 26px rgba(0,0,0,.35);transition:opacity .25s,transform .25s}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+/* ===== Agrega tu curso (botón en "Elige tu curso" + pantalla de envío de archivos) ===== */
+@media (min-width:701px){#v-pick .wc{padding-top:84px}}
+.addc{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:16px;z-index:3;display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.08);color:#fff;border:2px solid var(--green);border-radius:2px;padding:9px 14px 9px 10px;font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.addc i{display:grid;place-items:center;flex:none;width:20px;height:20px;background:var(--green);color:var(--navy);font:900 1.05rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal}
+.addc:hover,.addc:focus-visible{background:var(--green);color:var(--navy)}
+.addc:hover i,.addc:focus-visible i{background:var(--navy);color:var(--green)}
+
+/* Pantalla "Agrega tu curso": mismo fondo con brillos que inicio y "Elige tu curso" */
+.upv{display:block;overflow:hidden;overflow:clip;align-items:initial}
+.upv .bar{position:relative;background:transparent;z-index:2}
+.upv .bar .hr{position:absolute;right:16px;top:calc(50% + 2px);transform:translateY(-50%);margin:0}
+.upw{padding-top:34px;padding-bottom:90px}
+.upin{position:relative;z-index:1;max-width:800px}
+.updeco{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.updeco .sq{opacity:.45}
+.updeco .sq.b{border-color:#0A5CFF;width:38px;height:38px;animation-duration:30s;animation-direction:reverse}
+.updeco .sq.g{border-color:#00F03C;width:26px;height:26px;animation-duration:18s}
+.upv .gt{margin-bottom:20px;font-size:.8rem}
+.upv .wt{margin:0 0 16px}
+.upv .wt .t1{font-size:clamp(1.5rem,6vw,2.4rem);margin-bottom:4px}
+.upv .wt .t2{font-size:clamp(3rem,13.5vw,5.4rem);color:var(--green)}
+.upi{margin:0 0 26px;max-width:58ch;font-size:clamp(1rem,2.8vw,1.15rem);line-height:1.6;font-weight:500;color:rgba(255,255,255,.88)}
+.upst{list-style:none;margin:0 0 26px;padding:0;display:grid;gap:10px;grid-template-columns:repeat(3,1fr)}
+.upst li{display:flex;align-items:center;gap:12px;padding:15px 16px;background:rgba(255,255,255,.08);border-bottom:3px solid var(--c,#00F03C);transition:transform .2s,background .2s;font-size:.88rem;line-height:1.3;font-weight:600;color:rgba(255,255,255,.9)}
+.upst li:hover{transform:translateY(-3px);background:rgba(255,255,255,.13)}
+.upst li:nth-child(1){--c:#0A5CFF}.upst li:nth-child(2){--c:#00F03C}.upst li:nth-child(3){--c:#F000F0}
+.upst li i{flex:none;display:grid;place-items:center;width:34px;height:34px;background:var(--c);color:var(--navy);font:900 1.1rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal}
+.upst li:nth-child(1) i{color:#fff}
+.upst b{font-weight:800;text-transform:uppercase;letter-spacing:.03em;font-size:.88rem;display:block;color:#fff}
+.upf{position:relative;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green);padding:32px 30px 30px;box-shadow:0 24px 60px rgba(0,0,0,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.upstrip{position:absolute;left:-6px;right:-1px;top:-5px;display:flex;height:4px}
+.upstrip i{flex:1}
+.upstrip i:nth-child(1){background:#0A5CFF}.upstrip i:nth-child(2){background:#00F03C}.upstrip i:nth-child(3){background:#F000F0}.upstrip i:nth-child(4){background:#fff}
+.upg2{display:grid;gap:0 18px;grid-template-columns:1fr 1fr}
+.upf .upl{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 9px;font-size:.78rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff}
+.upf .upl em{font-style:normal;font-weight:600;letter-spacing:.04em;text-transform:none;font-size:.72rem;color:rgba(255,255,255,.6)}
+.upfd{margin-bottom:24px}
+.upf input[type=text],.upf input[type=email],.upf textarea{display:block;width:100%;background:rgba(6,31,71,.55);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:2px;padding:16px;font:600 1.05rem/1.35 Montserrat,"Montserrat Fallback",Arial,sans-serif;transition:border-color .2s,background .2s,box-shadow .2s}
+.upf textarea{min-height:88px;resize:vertical;font-weight:500}
+.upf input::placeholder,.upf textarea::placeholder{color:rgba(255,255,255,.45);font-weight:500}
+.upf input:hover,.upf textarea:hover{border-color:rgba(255,255,255,.5)}
+.upf input:focus,.upf textarea:focus{outline:0;border-color:var(--green);background:rgba(6,31,71,.8);box-shadow:0 0 0 3px rgba(0,240,60,.22)}
+.upc{font:800 .68rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;color:rgba(255,255,255,.7)}
+.upd{display:flex;align-items:center;gap:18px;padding:26px 22px;border:2px dashed rgba(0,240,60,.65);background:rgba(0,240,60,.06);cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+.upd:hover,.upd.dg,.upd:focus-within{background:rgba(0,240,60,.14);border-color:var(--green)}
+.upd.dg{transform:scale(1.01)}
+.upd.off{opacity:.5;cursor:not-allowed}
+.upd .ico{flex:none;display:grid;place-items:center;width:64px;height:64px;background:var(--green);color:var(--navy);transition:transform .25s}
+.upd:hover .ico,.upd.dg .ico{transform:translateY(-4px) rotate(-4deg)}
+.upd .tx{display:flex;flex-direction:column;gap:5px;min-width:0}
+.upd .tx b{font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;line-height:1.15}
+.upd .tx small{font-size:.86rem;font-weight:500;line-height:1.4;color:rgba(255,255,255,.75)}
+.upd .fm{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.upd .fm span{font-size:.7rem;font-weight:800;letter-spacing:.08em;padding:5px 10px;border:1px solid rgba(255,255,255,.35);color:#fff}
+.upd input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.upm{display:flex;align-items:center;gap:12px;margin-top:12px;font-size:.76rem;font-weight:600;color:rgba(255,255,255,.75)}
+.upm .tr{flex:1;height:6px;background:rgba(255,255,255,.14);overflow:hidden}
+.upm .tr span{display:block;height:100%;width:0;background:var(--green);transition:width .3s,background .3s}
+.upm .tr span.hi{background:#F000F0}
+.upl2{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.upl2:empty{display:none}
+.upl2 li{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.09);border-left:4px solid var(--c,#00F03C);padding:10px 8px 10px 12px;animation:up .35s both}
+.upl2 li[data-t=pdf]{--c:#00F03C}.upl2 li[data-t=docx]{--c:#0A5CFF}.upl2 li[data-t=png],.upl2 li[data-t=jpg],.upl2 li[data-t=jpeg]{--c:#F000F0}
+.upl2 .fx{flex:none;min-width:46px;text-align:center;font-size:.64rem;font-weight:800;letter-spacing:.06em;background:var(--c);color:var(--navy);padding:6px 6px}
+.upl2 li[data-t=docx] .fx{color:#fff}
+.upl2 .fi{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.upl2 .fn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.9rem;font-weight:700}
+.upl2 .fs{font-size:.72rem;font-weight:500;color:rgba(255,255,255,.65)}
+.upl2 button{flex:none;display:grid;place-items:center;background:none;border:0;color:rgba(255,255,255,.8);width:36px;height:36px;cursor:pointer;border-radius:2px;transition:background .2s,color .2s}
+.upl2 button:hover,.upl2 button:focus-visible{background:rgba(255,122,122,.22);color:#ff7a7a}
+.upn{display:flex;gap:12px;align-items:flex-start;margin:22px 0 0;padding:14px 16px;background:rgba(0,240,60,.09);border-left:4px solid var(--green);font-size:.86rem;line-height:1.5;font-weight:500;color:rgba(255,255,255,.88)}
+.upn svg{flex:none;margin-top:1px;color:var(--green)}
+.upv .upb{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:22px;padding:22px 18px;font-size:1.05rem}
+.upv .upb:disabled{opacity:.6;cursor:wait}
+.upv .beam{display:none}
+.ups{min-height:1.4em;margin-top:14px;font-size:.88rem;font-weight:700;line-height:1.4}
+.ups.ok{color:var(--green)}.ups.bad{color:#ff7a7a}
+.upok{text-align:left;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green);padding:34px 24px;animation:up .5s both}
+.upok .ck2{display:grid;place-items:center;width:64px;height:64px;background:var(--green);color:var(--navy);margin-bottom:18px}
+.upok h2{margin:0 0 10px;font-size:clamp(1.5rem,6vw,2.2rem);font-weight:900;text-transform:uppercase;line-height:1.02;color:#fff}
+.upok h2 span{color:var(--green)}
+.upok p{margin:0 0 22px;max-width:48ch;font-size:1rem;line-height:1.6;color:rgba(255,255,255,.85)}
+.upok .acts{display:flex;flex-wrap:wrap;gap:10px}
+.upok .acts .btn{margin-top:0}
+.upok .acts .sec{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.4)}
+.upok .acts .sec:hover{border-color:var(--green);color:var(--green);box-shadow:none}
+@media (max-width:700px){
+ .upst{grid-template-columns:1fr}
+ .upg2{grid-template-columns:1fr}
+ .upf{padding:24px 16px 22px}
+ .upd .ico{width:48px;height:48px}
+ .upd{padding:16px 14px;gap:12px}
+ .upok .acts .btn{width:100%}
+}
+@media (pointer:coarse){.upf input[type=text],.upf input[type=email],.upf textarea{font-size:16px}}
+
+/* Móvil: "Agrega tu curso" va al final de la lista (en PC sigue arriba a la derecha) */
+.addb{display:none}
+@media (max-width:700px){
+ .addc{display:none}
+ .addb{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:760px;margin-top:34px;padding:20px 18px 18px;background:rgba(6,31,71,.88);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green)}
+ .addb-k{font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--green)}
+ .addb b{font-size:1.35rem;font-weight:900;text-transform:uppercase;line-height:1.05;color:#fff}
+ .addb-t{font-size:.92rem;line-height:1.5;font-weight:500;color:rgba(255,255,255,.85);margin-bottom:10px}
+ .addb .addb-b{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 14px;font-size:.9rem}
+ .addb-b span{font-size:1.2rem;line-height:1;font-weight:900}
+ /* pantalla de envío en celular: más compacta */
+ .upst{grid-template-columns:repeat(3,1fr);gap:8px}
+ .upst li{flex-direction:column;align-items:flex-start;gap:10px;padding:12px 10px}
+ .upst li i{width:30px;height:30px}
+ .upst li span{font-size:.74rem;line-height:1.3}
+ .upst b{font-size:.72rem}
+ .upf textarea{min-height:120px}
+ .upd .fm{gap:5px}
+ .upd .fm span{font-size:.64rem;padding:4px 7px}
+ .upd .tx b{font-size:1rem}
+ .upn{font-size:.82rem}
+}
+@media (max-width:380px){
+ .upv .bar .hr .shb{padding:10px 9px;font-size:.62rem}
+ .upv .bar .hd1 .logo{font-size:.78rem}
+ .upf textarea{min-height:140px}
+ .upd .tx b{font-size:.92rem}
+}
+/* Buscador de cursos */
+.bqx{position:relative}
+.bqs{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.bqm{position:absolute;left:14px;top:50%;margin-top:-9px;width:18px;height:18px;color:rgba(255,255,255,.7);pointer-events:none}
+.bqi{display:block;width:100%;height:48px;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.32);border-radius:2px;padding:0 46px 0 42px;font:600 .95rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;transition:border-color .2s,background .2s;-webkit-appearance:none;appearance:none}
+.bqi::placeholder{color:rgba(255,255,255,.55);font-weight:500}
+.bqi:focus{outline:0;border-color:var(--green);background:rgba(255,255,255,.12)}
+.bqi::-webkit-search-cancel-button,.bqi::-webkit-search-decoration{-webkit-appearance:none;display:none}
+.bqk{display:none;position:absolute;right:5px;top:50%;margin-top:-18px;width:36px;height:36px;place-items:center;background:none;border:0;border-radius:2px;color:#fff;font:700 1.4rem/1 Arial,sans-serif;cursor:pointer}
+.bqk.bqv,#clist .bqk.bqv{display:grid}
+#clist .bqk{display:none;position:absolute;left:auto;right:5px;top:50%;margin-top:-18px;width:36px;height:36px;padding:0;gap:0;border:0;border-top:0;align-items:center;justify-content:center;flex-direction:row;text-transform:none;background:none;color:#fff;font:700 1.4rem/1 Arial,sans-serif}
+#clist .bqk:hover{background:rgba(255,255,255,.14)}
+.bqk:hover,.bqk:focus-visible{background:rgba(255,255,255,.14)}
+.bqw{max-width:760px;margin-top:22px}
+.bqw+.pgs{margin-top:16px}
+.csb{position:sticky;top:0;z-index:3;background:var(--navy);padding:10px 12px}
+.csb .bqi{height:44px;font-size:.88rem}
+.sno{padding:20px 14px;font-size:.9rem;font-weight:600;color:rgba(255,255,255,.75)}
+p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
+.bqh{display:none!important}
+#plist.bqd .rv{animation:none}
+@media (pointer:coarse){.bqi,.csb .bqi{font-size:16px}}
+@media (max-width:480px){.bqw{margin-top:18px}}
+
+/* ===== "Elige tu curso": botón Atrás (izquierda) y Agrega tu curso (derecha), arriba también en celular ===== */
+.bkc{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));left:16px;z-index:3;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#fff;border:2px solid rgba(255,255,255,.55);border-radius:2px;padding:9px 14px 9px 10px;font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .2s}
+.bkc svg{width:18px;height:18px;flex:none;transition:transform .2s}
+.bkc:hover,.bkc:focus-visible{background:#fff;color:var(--navy);border-color:#fff}
+.bkc:hover svg,.bkc:focus-visible svg{transform:translateX(-3px)}
+@media (max-width:700px){
+ #v-pick .wc{padding-top:calc(72px + env(safe-area-inset-top,0px))}
+ .addc{display:inline-flex;top:calc(12px + env(safe-area-inset-top,0px));right:12px;gap:7px;padding:8px 10px 8px 8px;font-size:.64rem}
+ .addc i{width:18px;height:18px;font-size:1rem}
+ .bkc{top:calc(12px + env(safe-area-inset-top,0px));left:12px;gap:6px;padding:8px 10px 8px 8px;font-size:.64rem}
+ .bkc svg{width:16px;height:16px}
+}
+
+/* ===== Ajustes: tabla en celular, botón Agrega tu curso grande en todas las pantallas, centrado y contraste ===== */
+/* Tabla de combinaciones: sin "rebote" en los extremos (evita que las columnas fijas se separen y dejen espacio en blanco) */
+.sc{overscroll-behavior-x:none;overscroll-behavior:none;-webkit-overflow-scrolling:auto;background:var(--card)}
+.sc th,.sc td{vertical-align:middle;text-align:center}
+/* "Agrega tu curso": el bloque grande de abajo se usa en celular y en PC; el botón pequeño de arriba se oculta */
+@media (min-width:701px){.addc{display:none!important}}
+@media (max-width:700px){.addc{display:inline-flex!important}}
+.addb{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:760px;margin-top:34px;padding:22px 22px 20px;background:rgba(6,31,71,.88);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green)}
+.addb-k{font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--green)}
+.addb b{font-size:clamp(1.35rem,3.2vw,1.7rem);font-weight:900;text-transform:uppercase;line-height:1.05;color:#fff}
+.addb-t{font-size:.95rem;line-height:1.5;font-weight:500;color:rgba(255,255,255,.85);margin-bottom:10px}
+.addb .addb-b{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px 16px;font-size:.95rem}
+.addb-b span{font-size:1.3rem;line-height:1;font-weight:900}
+/* "Elige tu curso": en reposo el fondo queda igual de claro que la bienvenida; al pasar el cursor por un curso (o enfocarlo con teclado) una capa oscura aparece suave encima del fondo */
+#v-pick::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .35s ease;background:radial-gradient(ellipse 90% 70% at 30% 45%,rgba(2,10,30,.5),rgba(2,10,30,.18) 75%),linear-gradient(180deg,rgba(2,10,30,.18),rgba(2,10,30,.4))}
+#v-pick:has(.pl button.is-hov)::after,#v-pick:has(.pl button:focus-visible)::after{opacity:1}
+#v-pick .gt,#v-pick .pl button,#v-pick .wt{text-shadow:0 1px 10px rgba(2,10,30,.45)}
+#v-pick .pl button{background:rgba(255,255,255,.1)}
+/* ===== "Elige tu curso": hover satisfactorio en las tarjetas =====
+   Al pasar el cursor: la tarjeta sube con un rebote suave, un brillo del color del curso sigue al cursor,
+   la franja de abajo se hace más gruesa, aparece una flecha y el fondo de la tarjeta se oscurece y las demás bajan de intensidad.
+   Al hacer clic se "hunde" un poco. Solo con mouse (hover:hover); en celular queda el efecto de presionar. */
+#v-pick .pl button{position:relative;overflow:hidden;isolation:isolate;box-shadow:0 0 0 0 rgba(0,0,0,0),inset 0 0 0 0 var(--s);transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s cubic-bezier(.2,.7,.2,1),background .2s,opacity .25s,filter .25s}
+#v-pick .pl button::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(170px circle at var(--mx,22%) var(--my,30%),color-mix(in srgb,var(--s) 26%,transparent),transparent 72%)}
+#v-pick .pl button::after{content:"";position:absolute;top:18px;right:18px;width:9px;height:9px;border-top:3px solid #fff;border-right:3px solid #fff;pointer-events:none;opacity:0;transform:translateX(-12px) rotate(45deg);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .2s}
+#v-pick .pl small{transition:color .2s}
+@media (hover:hover){
+ /* Sin movimiento real del mouse no hay efecto (la clase .is-hov la pone el script de abajo): asi, si el cursor queda quieto sobre una tarjeta al cargar, no se enciende sola */
+ #v-pick .pl button:not(:disabled):hover{background:rgba(255,255,255,.1);transform:none}
+ #v-pick .pl button:not(:disabled).is-hov,#v-pick .pl button:not(:disabled):focus-visible{background:rgba(2,10,30,.46);transform:translateY(-4px);box-shadow:0 16px 26px -12px rgba(0,0,0,.65),inset 0 -4px 0 0 var(--s);transition:transform .38s cubic-bezier(.34,1.56,.64,1),box-shadow .3s cubic-bezier(.2,.7,.2,1),background .2s,opacity .25s,filter .25s}
+ #v-pick .pl button:not(:disabled).is-hov::before,#v-pick .pl button:not(:disabled):focus-visible::before{opacity:1}
+ #v-pick .pl button:not(:disabled).is-hov::after,#v-pick .pl button:not(:disabled):focus-visible::after{opacity:1;transform:translateX(0) rotate(45deg)}
+ #v-pick .pl button:not(:disabled).is-hov small,#v-pick .pl button:not(:disabled):focus-visible small{color:#fff}
+ /* las demás tarjetas se oscurecen mientras una está encendida (solo con movimiento real del mouse, por eso ya no salta al cargar). Se usa filter y no opacity porque la animación de entrada (.rv) controla la opacidad y retrasaba el efecto hasta que terminaba */
+ #plist:has(.pl button.is-hov) .pl button:not(.is-hov):not(:focus-visible){filter:brightness(.5)}
+}
+/* CELULAR / PANTALLA TACTIL: mismo efecto, pero al apretar con el dedo (el script de "Elige tu curso" pone .is-hov en pointerdown y la quita al soltar o al empezar a desplazar) */
+@media (hover:none){
+ #v-pick .pl button:not(:disabled).is-hov{background:rgba(2,10,30,.46);transform:translateY(-4px);box-shadow:0 16px 26px -12px rgba(0,0,0,.65),inset 0 -4px 0 0 var(--s);transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s cubic-bezier(.2,.7,.2,1),background .15s,filter .15s}
+ #v-pick .pl button:not(:disabled).is-hov::before{opacity:1}
+ #v-pick .pl button:not(:disabled).is-hov::after{opacity:1;transform:translateX(0) rotate(45deg)}
+ #v-pick .pl button:not(:disabled).is-hov small{color:#fff}
+ #plist:has(.pl button.is-hov) .pl button:not(.is-hov){filter:brightness(.55)}
+ /* toque inmediato: sin espera de doble toque, sin resaltado gris del navegador */
+ #v-pick .pl button,#v-pick .bkc,#v-pick .addc,#v-pick .addb-b{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+ /* menos trabajo para el telefono mientras se elige: se apagan las capas decorativas pesadas (desenfoques, mezcla de luz y particulas) */
+ #v-pick .beam,#v-pick .pt,#v-pick .halo{display:none}
+ #v-pick::before{animation:none;will-change:auto}
+ #v-pick .gr{animation:none}
+ /* al soltar, la luz y la tarjeta se apagan despacio */
+ #v-pick .pl button{transition:transform .7s cubic-bezier(.2,.7,.2,1),box-shadow .7s ease,background .7s ease,filter .7s ease}
+ #v-pick .pl button::before{transition:opacity .9s ease}
+ #v-pick .pl button::after{transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .6s ease}
+ #v-pick::after{transition:opacity .9s ease}
+}
+#v-pick .pl button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#v-pick .pl button:not(:disabled):active{transform:translateY(-1px) scale(.975);box-shadow:0 6px 14px -8px rgba(0,0,0,.6),inset 0 -6px 0 0 var(--s);transition-duration:.08s}
+html.rm #v-pick .pl button:not(:disabled):hover,html.rm #v-pick .pl button:not(:disabled):focus-visible,html.rm #v-pick .pl button:not(:disabled):active{transform:none}
+html.rm #v-pick .pl button::after{transform:rotate(45deg)}
+
+/* PC: el bloque grande "Agrega tu curso" va arriba a la derecha y se queda a la vista al bajar */
+@media (min-width:1100px){
+ .addb{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:20px;width:300px;max-width:none;margin:0;z-index:5;padding:18px 18px 16px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
+ .addb b{font-size:1.25rem}
+ .addb-t{font-size:.88rem}
+ .addb .addb-b{padding:15px 14px;font-size:.88rem}
+}
+
+/* Tabla de combinaciones en celular: el rebote al llegar al borde vuelve a funcionar y cada fila "se estira" con su propio color (sin huecos blancos) */
+.sc{overscroll-behavior:auto;overscroll-behavior-x:auto}
+.sc th:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.35),300px 0 0 0 var(--green)}
+.sc td:last-child{box-shadow:-6px 0 8px -6px rgba(6,31,71,.2),300px 0 0 0 color-mix(in srgb,#00F03C 20%,var(--card))}
+.sc th:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.35),-300px 0 0 0 var(--thbg,var(--navy))}
+.sc td:first-child{box-shadow:6px 0 8px -6px rgba(6,31,71,.2),-300px 0 0 0 var(--card)}
+
+/* ===== "Agrega tu curso" tambien dentro del curso (barra, desplegable, tarjeta final y pie) ===== */
+.bar .shb.adb{background:transparent;color:var(--green);border-color:var(--green);padding:0 14px 0 8px}
+.bar .shb.adb:hover,.bar .shb.adb:focus-visible{background:var(--green);color:var(--navy);filter:none}
+.shb.adb i{display:grid;place-items:center;flex:none;width:22px;height:22px;background:var(--green);color:var(--navy);font:900 1.1rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal;transition:background .2s,color .2s}
+.shb.adb:hover i,.shb.adb:focus-visible i{background:var(--navy);color:var(--green)}
+.caddw{position:sticky;bottom:0;z-index:2;padding:12px;background:var(--navy);border-top:1px solid rgba(255,255,255,.2)}
+#clist .caddw button{flex-direction:row;align-items:center;justify-content:center;gap:10px;width:100%;border:2px solid var(--green);border-radius:2px;color:var(--green);padding:12px 14px;font-size:.82rem;letter-spacing:.04em}
+#clist .caddw button:hover,#clist .caddw button:focus-visible{background:var(--green);color:var(--navy)}
+#clist .caddw button span{font-size:1.25rem;line-height:1;font-weight:900}
+@media (max-width:640px){
+ .bar .shb.adb{padding:0;width:40px}
+ .shb.adb span{display:none}
+ .shb.adb i{background:transparent;color:var(--green);width:auto;height:auto;font-size:1.6rem;font-weight:800}
+ .bar .shb.adb:hover i,.bar .shb.adb:focus-visible i{background:transparent;color:var(--navy)}
+ #v-tool .lg-h{max-width:calc(100vw - 222px)}
+}
+@media (max-width:400px){
+ #v-tool .bar .shb[data-share]{padding:0;width:40px}
+ #v-tool .bar .shb[data-share] span{display:none}
+ #v-tool .lg-h{max-width:calc(100vw - 150px)}
+}
+@media (pointer:coarse){#v-tool .hr .shb{height:44px;min-width:44px}}
+
+/* ===== Barra Anterior/Siguiente/Listo, chip "Auto" del tema y fondo fijo ===== */
+.gi{scroll-margin:90px 0 100px}
+.tgw{display:flex;align-items:center;gap:8px}
+/* "Elige tu curso" y "Agrega tu curso": el fondo queda fijo a la pantalla y no depende de la altura del contenido, asi no salta al filtrar la lista ni al agregar archivos */
+#v-pick{align-items:flex-start}
+#v-pick>.deco,#v-up>.deco,#v-up>.updeco{position:fixed;inset:0;height:100vh;height:100lvh;z-index:0}
+#v-pick::before,#v-up::before{position:fixed;inset:auto;left:-20vw;top:-40vh;width:140vw;height:180vh}
+#v-pick::after{position:fixed;inset:auto;left:0;top:0;width:100%;height:100vh}
+@supports (height:1lvh){#v-pick::before,#v-up::before{top:-40lvh;height:180lvh}#v-pick::after{height:100lvh}}
+/* Cuadraditos de las casillas (redondeos, mostrar notas): grandes y sin aplastarse cuando el texto ocupa dos lineas */
+.ck{align-items:center;min-height:44px;margin:4px 0;line-height:1.35;cursor:pointer}
+.ck input{flex:none;width:24px;height:24px;margin:0;cursor:pointer}
+.fbon input{width:24px;height:24px}
+@media (pointer:coarse){.ck input,.fbon input{width:28px;height:28px}}
+/* Pregunta 05: lista ordenada */
+.stl{display:grid}
+.sti{display:grid;grid-template-columns:200px 1fr;gap:6px 16px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.sti:first-child{border-top:0;padding-top:2px}
+.sti p{margin:0}
+.stt{display:flex;flex-wrap:wrap;gap:6px}
+@media (max-width:560px){.sti{grid-template-columns:1fr;gap:8px}}
+/* Aviso de aprobado (4 estados), simulador y compartir imagen */
+.tag.m{background:#FFC400;color:var(--navy)}
+.sst{display:block;margin-top:6px;font-size:.84rem;line-height:1.35;font-weight:600;color:var(--mut);text-transform:none;letter-spacing:0}
+#big.wn{color:var(--ink)}#mbig.wn{color:#FFC400}
+.rib{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:44px;margin-top:14px;padding:10px 14px;background:var(--green);color:var(--navy);border:2px solid var(--green);border-radius:2px;font:800 .78rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:filter .25s ease,transform .2s,background .25s ease,color .25s ease}
+.rib:active,.rib:focus-visible{filter:brightness(1.1)}
+.rib:active{transform:scale(.98)}
+@media (hover:hover){.rib:hover{filter:brightness(1.1)}}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:10px 12px;font-size:.7rem}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+#sim{margin:18px 0 0;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--blue)}
+#simt{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:12px 16px;background:transparent;border:0;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+#simt b{display:block;font-weight:800;font-size:1rem;text-transform:uppercase;letter-spacing:.02em}
+#simt small{display:block;font-weight:500;font-size:.8rem;color:var(--mut)}
+.smc{flex:none;width:10px;height:10px;margin:-4px 4px 0 0;border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(45deg);transition:transform .4s cubic-bezier(.2,.7,.2,1),margin-top .4s cubic-bezier(.2,.7,.2,1)}
+#simt[aria-expanded="true"] .smc{transform:rotate(-135deg);margin-top:4px}
+#simb{padding:0 16px 16px}
+.simi{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;font-size:.85rem;color:var(--mut)}
+.srow{padding:10px 0;border-top:1px solid var(--line)}
+.srow>span{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;font-weight:700;color:var(--ink)}
+.srow em{font-style:normal;font-size:.75rem;font-weight:600;color:var(--mut)}
+.sc2{display:flex;align-items:center;gap:12px}
+.sc2 input[type=range]{flex:1;min-width:0;height:36px;margin:0;accent-color:var(--green)}
+.sc2 output{min-width:3.6ch;text-align:right;font-weight:900;font-size:1.25rem;font-variant-numeric:tabular-nums;color:var(--ink)}
+.simo{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;padding-top:14px;border-top:2px solid var(--ink)}
+.simk{display:block;margin-bottom:6px;font-weight:800;font-size:.78rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
+#simn{font:900 2.6rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-variant-numeric:tabular-nums}
+#simn.gn{color:var(--gt)}#simn.rd{color:var(--rt)}
+/* Resultado del simulador: solo etiqueta y numero, con mas presencia */
+.simo{margin-top:10px;padding-top:18px}
+.simk{margin-bottom:10px;font-size:.82rem}
+#simv .tag{font-size:.7rem;padding:5px 10px;line-height:1}
+#simn{font-size:clamp(3rem,13vw,3.8rem);letter-spacing:-.02em}
+#rim{position:fixed;inset:0;z-index:58;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:rgba(3,12,28,.8)}
+.rimc{width:min(460px,100%);max-height:100%;overflow:auto;overscroll-behavior:contain;background:var(--card);color:var(--txt);border-top:6px solid var(--green);padding:10px 16px 16px}
+.rimh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.rimh b{font-weight:800;font-size:.95rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
+#rix{flex:none;width:44px;height:44px;margin-right:-10px;background:transparent;border:0;color:var(--ink);font-size:1.8rem;line-height:1;cursor:pointer}
+.rimp{display:flex;justify-content:center;padding:10px;background:var(--bg);border:1px solid var(--line)}
+#rii{display:block;width:auto;height:auto;max-width:100%;max-height:min(48vh,520px);transition:opacity .2s}
+.rimp[aria-busy="true"] #rii{opacity:.35}
+.rimf{display:flex;gap:8px;margin:12px 0 2px}
+.rimf button{flex:1;min-height:44px;padding:6px;background:transparent;color:var(--ink);border:2px solid var(--line);border-radius:2px;font:700 .72rem/1.1 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;cursor:pointer}
+.rimf button[aria-pressed="true"]{border-color:var(--green);background:color-mix(in srgb,var(--green) 18%,transparent)}
+.rima{display:flex;gap:8px;margin-top:8px}
+.rima .btn{flex:1;min-height:46px;text-align:center}
+#ris{margin:10px 0 0;font-size:.8rem;color:var(--mut)}
+/* Aviso de aprobado centrado entre el titulo y la barra */
+#sl2{margin-top:11px}
+#sum .pbar{margin-top:6px}
+/* Modo oscuro: el encabezado de las tablas se separa de las filas */
+:root[data-theme="dark"]{--thbg:#1d4fb0}
+:root[data-theme="dark"] .sc th.pfc{background:var(--green)}
+:root[data-theme="dark"] .sc td{border-bottom-color:#2d4a7f}
+/* Pie del curso: comentarios bajo "Compartir pagina", "Agrega tu curso" y luego Instagram; cursos con "Ver mas" */
+.fcx{grid-template-rows:auto 1fr}
+.fcx>.fl:last-child{align-self:stretch;display:flex;flex-direction:column}
+.fcx .fadd{margin-top:22px}
+.fcx .fadd .shb{font:700 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px 0 8px;margin-top:2px;background:transparent;color:var(--green);border:2px solid var(--green);text-decoration:none;text-align:center}
+.fcx .fadd .shb:hover,.fcx .fadd .shb:focus-visible{background:var(--green);color:var(--navy)}
+.fcx .fadd .shb span{display:inline}
+.fcx .fadd .shb i{width:22px;height:22px;background:var(--green);color:var(--navy);font-size:1.1rem}
+.fcx .fadd .shb:hover i,.fcx .fadd .shb:focus-visible i{background:var(--navy);color:var(--green)}
+.fcx .igs{margin-top:auto;padding-top:18px}
+.fl .fmore{display:block}
+.fl button.vm{display:inline-flex;align-items:center;gap:8px;margin-top:2px;padding:6px 0;color:var(--green);font-weight:700;font-size:.82rem;letter-spacing:.02em;text-decoration:none}
+.fl button.vm::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.fl button.vm[aria-expanded="true"]::after{transform:translateY(2px) rotate(-135deg)}
+.fl button.vm:hover{text-decoration:underline}
+@media (pointer:coarse){.fl button.vm{min-height:44px}}
+.fl a.ig,.fl a.ig span{white-space:nowrap}
+.fl a.ig .igu{display:inline;margin:0}
+@media (max-width:760px){.fc.fcx{grid-template-areas:"lg" "cm" "co"}.fcx>.fl:last-child{align-self:start}}
+/* ===== Nota fuera de rango: temblor corto + mensaje claro bajo la casilla ===== */
+@keyframes gishake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-5px)}40%,60%{transform:translateX(5px)}}
+@keyframes badin{from{opacity:0;transform:translate(-50%,-4px) scale(.9)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+.gi.sk{animation:gishake .42s cubic-bezier(.36,.07,.19,.97)}
+.gi.bad::after{content:attr(data-msg);position:absolute;top:calc(100% + 6px);left:50%;z-index:4;white-space:nowrap;padding:5px 9px;background:var(--rt);color:#fff;border-radius:2px;font:800 .68rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.02em;pointer-events:none;animation:badin .24s cubic-bezier(.34,1.56,.64,1) both}
+.gi.bad::before{content:"";position:absolute;top:calc(100% + 1px);left:50%;z-index:4;margin-left:-5px;border:5px solid transparent;border-top:0;border-bottom-color:var(--rt);pointer-events:none}
+/* ===== Pulido de hovers y estados (lenguaje común) =====
+   Sobre un puntero: el verde de la marca responde (texto, franja o relleno). Tarjetas y botones suben un poco;
+   al presionar, todo se hunde. Los hovers solo se activan con mouse (hover:hover). */
+::selection{background:var(--green);color:var(--navy)}
+
+/* Desplegable de cursos (dentro de la calculadora) */
+#cbtn{transition:background .2s}
+#cbtn .chev{translate:0 0;transition:transform .2s,margin .2s,translate .2s}
+#clist{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent}
+#clist button[data-c],#clist button[data-fi]{transition:background .18s,padding-left .2s cubic-bezier(.2,.7,.2,1),box-shadow .2s}
+@media (hover:hover){
+ #cbtn:hover{background:rgba(255,255,255,.15)}
+ #cbtn:hover .chev{translate:0 2px}
+ #clist button[data-c]:not(:disabled):hover,#clist button[data-c]:not(:disabled):focus-visible,#clist button[data-fi]:hover,#clist button[data-fi]:focus-visible{background:rgba(255,255,255,.09);padding-left:19px;box-shadow:inset 4px 0 0 var(--green)}
+}
+
+/* Casillas de nota: al pasar el cursor pasan de línea punteada a sólida, para invitar a escribir */
+@media (hover:hover){.gi:not(.bad):not(:focus-within):hover{border-style:solid;border-color:var(--ink);background:color-mix(in srgb,#000 18%,var(--fld))}:root[data-theme="dark"] .gi:not(.bad):not(:focus-within):hover{background:color-mix(in srgb,#000 45%,var(--fld))}}
+
+/* Tarjeta del promedio: la franja lateral toma el color del estado (aprobando, en riesgo o sin nota) */
+#sum{transition:border-color .35s,box-shadow .35s;box-shadow:0 8px 20px -14px rgba(6,31,71,.45)}
+#sum:has(#big.rd){border-left-color:var(--rt)}
+#sum:has(#big.wn){border-left-color:#FFC400}
+#sum:has(#big.na){border-left-color:var(--mut)}
+
+/* Preguntas frecuentes */
+.qa summary .pm{transition:transform .35s cubic-bezier(.3,1.3,.5,1),scale .2s}
+@media (hover:hover){.qa summary:hover .q{color:var(--green)}.qa summary:hover .pm{scale:1.12}}
+
+/* Pie: los enlaces de cursos se corren un poco y se pintan de verde */
+.fl button[data-c],.fl button[data-pick],.fl button[data-fi]{transition:color .15s,translate .2s cubic-bezier(.2,.7,.2,1)}
+@media (hover:hover){.fl button[data-c]:hover,.fl button[data-pick]:hover,.fl button[data-fi]:hover{color:var(--green);translate:4px 0}}
+
+/* Compartir mi resultado: sube como los demás botones principales */
+.rib{transition:filter .25s ease,transform .2s,background .25s ease,color .25s ease,box-shadow .25s}
+@media (hover:hover){.rib:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,240,60,.3)}}
+
+/* Simulador: la cabecera se tiñe suave y la flecha toma el verde */
+#simt{transition:background .2s}
+.smc{transition:transform .4s cubic-bezier(.2,.7,.2,1),margin-top .4s cubic-bezier(.2,.7,.2,1),border-color .2s}
+@media (hover:hover){#simt:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}#simt:hover .smc{border-color:var(--gt)}}
+
+/* Botón de tema: crece un poco y su halo se aviva (usa scale para no chocar con la flotación) */
+.tg{transition:scale .2s cubic-bezier(.34,1.56,.64,1),box-shadow .25s}
+@media (hover:hover){.tg:hover{scale:1.07;box-shadow:0 8px 22px rgba(6,31,71,.4),0 0 0 7px rgba(0,240,60,.26)}}
+.tg:active{scale:.94}
+
+/* Presionar: todos los botones principales se hunden un poco */
+.btn:not(:disabled):active,.rib:active,.shb:active,.mpvbtn:active,.addc:active{transform:scale(.97)}
+html.rm .tg:hover,html.rm .tg:active,html.rm .qa summary:hover .pm,html.rm .fl button[data-c]:hover,html.rm .fl button[data-pick]:hover,html.rm .fl button[data-fi]:hover,html.rm #cbtn:hover .chev{scale:none;translate:none}
+html.rm .btn:not(:disabled):active,html.rm .rib:active,html.rm .shb:active,html.rm .mpvbtn:active,html.rm .addc:active,html.rm .rib:hover{transform:none}
