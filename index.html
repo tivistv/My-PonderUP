@@ -182,6 +182,15 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   - Preguntas 03 y 04 rediseñadas (tarjetas .q3c y .q4t). Pregunta 04: "Solo en tu navegador y en tu dispositivo...".
   - "Agrega tu curso" usa el mismo puntero propio (punto + aro) de la bienvenida; en los campos de texto vuelve el cursor de escribir.
   - Interruptor claro/oscuro: flota apenas (keyframes tgf).
+14) RONDA 9
+  - Psicologia (psi, Sellos UP): Nota de Trabajo 45% (Evaluacion Individual 20% = 2 miniensayos de 10%; Evaluacion Grupal 25% = Aula Invertida 5% + Lectura Creativa 20%), Parcial 25%, Final 30%. Redondeo asumido: Nota de Trabajo, parcial, final y promedio final.
+  - Cursos nuevos: Sociologia (soc, grupo Sellos UP: gp:2) y Sistemas Financieros (sf, grupo Cursos).
+  - Sociologia: Evaluacion de Proceso 30% (4 PC = 90% del bloque, Participacion = 10%), Parcial 20%, Final Oral 30%, Trabajo Grupal Integrador 20%.
+    Se asumio que las 4 PC valen lo mismo y que se redondean al entero: Evaluacion de Proceso, parcial, final, trabajo grupal y promedio final (no indicado por el autor).
+  - Sistemas Financieros: Evaluacion Continua 45% (8 controles, solo cuentan los 6 mejores), Parcial 20%, Final 35%. Se asumio redondeo al entero en las 3 partes y en el promedio final.
+  - NUEVO en el motor: la propiedad best:N en un grupo (ver ev()). El grupo promedia solo sus N mejores hijos (todos con el mismo peso) y descarta los demas.
+    Con d:"" en cada hijo se oculta su % individual (cada control cuenta 7.5% del curso solo si esta entre los 6 mejores). El bloque muestra "Cuentan los N mejores de M" (clase .bst).
+    Las notas por rendir cuentan 0 en "Mi promedio hasta ahora" y 20 en el mejor caso, asi que el aviso de aprobado y la tabla de combinaciones siguen funcionando.
 =====================================================================
 -->
 <meta charset="utf-8">
@@ -1585,6 +1594,7 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 .q4t b{font-size:.72rem}
 .q4t p{font-size:.85rem;line-height:1.4}
 }
+.bst{display:block;margin-top:3px;font-weight:600;font-size:.72rem;letter-spacing:0;text-transform:none;color:var(--mut)}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -1962,16 +1972,31 @@ gdp:{n:"Gestión de Personas",pre:"",rf:1,i:"La Nota de Trabajo pesa 45%, el Exa
  {id:"fi",n:"Examen Final",w:35,r:1,ch:[
   {id:"tw",n:"Trabajo Final Escrito",s:"Trabajo",w:30},
   {id:"ef",n:"Exposición del Trabajo Final",s:"Exposición",w:20},
-  {id:"eo",n:"Examen Oral",s:"Oral",w:50}]}]}}
+  {id:"eo",n:"Examen Oral",s:"Oral",w:50}]}]}},
+soc:{n:"Sociología",pre:"",gp:2,rf:1,i:"La Evaluación de Proceso pesa 30% y se forma con 4 prácticas calificadas (90% de ese bloque, 6.75% del curso cada una) y la Participación en Clase (10% del bloque, 3% del curso). El Examen Parcial pesa 20%, el Examen Final Oral 30% y el Trabajo Grupal Integrador 20%. No se indicó el peso de cada práctica, por eso se asume que las 4 valen lo mismo. La Evaluación de Proceso, el parcial, el final oral, el trabajo grupal y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"ep",n:"Evaluación de Proceso",w:30,r:1,ch:[
+  {id:"pc",n:"Prácticas Calificadas",w:90,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+  {id:"ap",n:"Participación en Clase",s:"P",w:10,b:1}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},
+ {id:"fi",n:"Examen Final Oral",s:"Final Oral",w:30,r:1},
+ {id:"tg",n:"Trabajo Grupal Integrador",s:"Trabajo Grupal",w:20,r:1}]}},
+sf:{n:"Sistemas Financieros",pre:"",rf:1,i:"La Evaluación Continua pesa 45% y reúne 8 controles. Solo cuentan los 6 mejores: el sistema descarta solo los 2 controles con menor nota, y se asume que los 8 controles valen lo mismo. El Examen Parcial pesa 20% y el Examen Final 35%. La Evaluación Continua, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"ec",n:"Evaluación Continua",w:45,r:1,best:6,ch:[{id:"c1",n:"Control 1",s:"C1",w:12.5,d:""},{id:"c2",n:"Control 2",s:"C2",w:12.5,d:""},{id:"c3",n:"Control 3",s:"C3",w:12.5,d:""},{id:"c4",n:"Control 4",s:"C4",w:12.5,d:""},{id:"c5",n:"Control 5",s:"C5",w:12.5,d:""},{id:"c6",n:"Control 6",s:"C6",w:12.5,d:""},{id:"c7",n:"Control 7",s:"C7",w:12.5,d:""},{id:"c8",n:"Control 8",s:"C8",w:12.5,d:""}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
+psi:{n:"Psicología",pre:"",gp:2,rf:1,i:"La Nota de Trabajo pesa 45% y se forma con la Evaluación Individual (20% del curso: Miniensayo 1 y Miniensayo 2, 10% cada uno) y la Evaluación Grupal (25% del curso: Aula Invertida 5% y Lectura Creativa 20%). El Examen Parcial pesa 25% y el Examen Final 30%. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:45,r:1,ch:[
+  {id:"ei",n:"Evaluación Individual",w:2000/45,ch:[{id:"m1",n:"Miniensayo 1",s:"ME1",w:50},{id:"m2",n:"Miniensayo 2",s:"ME2",w:50}]},
+  {id:"eg",n:"Evaluación Grupal",w:2500/45,ch:[{id:"ai",n:"Aula Invertida",s:"Aula",w:20},{id:"lc",n:"Lectura Creativa",s:"Lectura",w:80}]}]},
+ {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
 };
-const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce","ipfe","cdc","gdp"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce","ipfe","cdc","gdp","soc","sf","psi"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
 const isP=id=>{const g=S.g[id];return g===undefined||g===""||isNaN(+g)};
 const pend=()=>leaves(S.root).filter(l=>isP(l.id));
 const full=o=>{const v={};leaves(S.root).forEach(l=>{const m=l.mx||20;v[l.id]=isP(l.id)?(o[l.id]??0):Math.min(m,Math.max(0,+S.g[l.id]))*20/m});return v};
-const ev=(n,v)=>{const x=n.ch?n.ch.reduce((s,c)=>s+ev(c,v)*(+c.w||0)/100,0):v[n.id];return n.r?rnd(x):x};
+const ev=(n,v)=>{let x;if(n.ch&&n.best){const a=n.ch.map(c=>ev(c,v)).sort((p,q)=>q-p).slice(0,n.best);x=a.reduce((s,y)=>s+y,0)/n.best}else x=n.ch?n.ch.reduce((s,c)=>s+ev(c,v)*(+c.w||0)/100,0):v[n.id];return n.r?rnd(x):x};
 const pass=a=>(S.rf?rnd(a):a)>=S.pm-1e-9;
 const inp=c=>{const v=S.g[c.id],f=v!==undefined&&v!=="",bd=f&&(+v>(c.mx||20)||+v<0);return `<label class="gi${f?" fl":""}${bd?" bad":""}"><input class="g" data-id="${c.id}" type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="6" placeholder="Por rendir" aria-label="Nota de ${c.n}" value="${v??""}"${f?` style="width:${String(v).length+.6}ch"`:""}><span class="sf">/${c.mx||20}</span></label>`};
 /* Modelo A: cada evaluación muestra su % sobre el total del curso (c.a se calcula en mkState). d:"" oculta el % (partes medidas en puntos). */
@@ -2022,7 +2047,7 @@ function setCourse(k){
   $("zm").innerHTML=`<div class="zb" id="zb">${L.map(x=>`<span class="zs" data-id="${x.id}" data-ids="${x.L?x.L.map(l=>l.id).join(","):x.id}" title="${x.n}" style="flex:${x.w};--sh:${SH[x.k%3]}%">${x.s}</span>`).join("")}</div>${lg}`}
  else $("zm").innerHTML="";
  let h="";
- G.forEach((g,i)=>{h+=`<div class="blk rv" data-b="${i}" style="--i:${i+4}"><div class="bh${g.ch?"":" lf"}"><div class="bn"><span class="pct">${fmt(g.w)}%</span><b>${g.n}</b></div>${g.ch?`<span class="sv" id="sv-${g.id}">—</span>`:inp(g)}</div>`;
+ G.forEach((g,i)=>{h+=`<div class="blk rv" data-b="${i}" style="--i:${i+4}"><div class="bh${g.ch?"":" lf"}"><div class="bn"><span class="pct">${fmt(g.w)}%</span><b>${g.n}${g.best?`<span class="bst">Cuentan los ${g.best} mejores de ${g.ch.length}</span>`:""}</b></div>${g.ch?`<span class="sv" id="sv-${g.id}">—</span>`:inp(g)}</div>`;
   if(g.ch){h+=`<div class="bb">`;walk(g,(c,d)=>{h+=row(c,d)});h+=`</div>`}
   h+=`</div>`});
  $("tree").innerHTML=h;
@@ -2041,7 +2066,7 @@ function renderInfo(k){
  const jn=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" y "+a[a.length-1];
  let h="";
  S.root.ch.forEach((g,i)=>{const c=wbc(i),kids=g.ch?g.ch.map(x=>escL(x.n)+(dv(x)?" ("+dv(x)+")":"")):null,
-  txt=kids?`Se forma con ${jn(kids)}.`:"Se ingresa como una sola nota.";
+  txt=g.best?`Se forma con ${g.ch.length} controles, pero solo cuentan los ${g.best} mejores (se descartan los ${g.ch.length-g.best} más bajos).`:kids?`Se forma con ${jn(kids)}.`:"Se ingresa como una sola nota.";
   h+=`<div class="sti"><div class="stt"><span class="tag" style="background:${c[0]};color:${c[1]}">${escL(g.n)} · ${fmt(g.a)}%</span></div><p>${txt}</p></div>`});
  h+=`<div class="sti"><div class="stt"><span class="tag w">Promedio final</span></div><p>Suma cada parte según su peso${S.rf?" y se redondea al entero (el .5 sube)":""}.</p></div>`;
  const nt=(C[k].i||"").split(/\.\s+/).map(x=>x.replace(/\.$/,"")+".").filter(x=>/sobre 10|se asume|no indica/i.test(x));
