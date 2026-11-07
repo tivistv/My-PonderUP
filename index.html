@@ -212,6 +212,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   - Se ELIMINO el recuadro "NUEVO · Cursos añadidos" (ver Ronda 9).
   - Etica (eti) va en el grupo "Cursos Sellos UP" (gp:2), no en "Cursos".
   - Matematicas II (mat2, grupo Cursos): Nota de Trabajo 40% (promedio simple de 4 PCs), Parcial 30%, Final 30%. Misma estructura que Matematicas III. Redondeo asumido igual que en Matematicas I y III.
+  - Economia General II (eco2, grupo Cursos, junto a Economia General I): Practicas Calificadas 35% (promedio de 4 PCs), Parcial 30%, Final 35%. Redondeo asumido como en Economia General I.
   - ORDEN de los cursos: lo define el arreglo KS (los grupos del menu filtran KS en ese orden; el color de cada tarjeta sale de su posicion en KS). Se reordeno por parecido de nombre/tema:
     Cursos = Matematicas I-II-III, Estadistica I, Analitica de Datos, Herramientas de Programacion | Lenguaje I | Economia General I, Macroeconomia I, Sistemas Financieros | contabilidades |
     Fundamentos de Ciencias Empresariales y cursos de gestion | introducciones (Ingenieria, Politica) | Derecho. Sellos UP = Filosofia, Etica, Religiones, Pensamiento Social, Sociologia, Psicologia, Historia Economica, Investigacion Academica, Liderazgo.
@@ -1921,6 +1922,9 @@ der1:{n:"Introducción al Derecho",pre:"",rf:1,i:"No hay examen parcial ni final
  {id:"cl",n:"Controles de Lectura",w:30,ch:[{id:"c1",n:"Control 1",s:"C1",w:T},{id:"c2",n:"Control 2",s:"C2",w:T},{id:"c3",n:"Control 3",s:"C3",w:T}]},
  {id:"pc",n:"Prácticas Calificadas",w:40,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
  {id:"ec",n:"Evaluación Continua",w:30,ch:[{id:"a1",n:"Actividad 1",s:"A1",w:T},{id:"a2",n:"Actividad 2",s:"A2",w:T},{id:"a3",n:"Actividad 3",s:"A3",w:T}]}]}},
+eco2:{n:"Economía General II",pre:"",rf:1,i:"Las Prácticas Calificadas pesan 35% y son el promedio de 4 prácticas calificadas que valen lo mismo (8.75% del curso cada una). El Examen Parcial pesa 30% y el Examen Final 35%. Se asume que las Prácticas Calificadas, el parcial, el final y el promedio final se redondean al entero (el .5 sube), como en Economía General I.",root:{ch:[
+ {id:"pc",n:"Prácticas Calificadas",s:"Prácticas",w:35,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
 cfi:{n:"Contabilidad Financiera Intermedia",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con Prácticas Calificadas (28%, cinco prácticas que valen lo mismo: 5.6% cada una), Controles de Lectura (9%) y Participación en Clase (3%). El examen parcial y el final pesan 30% cada uno. Controles de Lectura y Participación se ingresan como una sola nota cada uno. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"tr",n:"Trabajos",w:40,r:1,ch:[
   {id:"pc",n:"Prácticas Calificadas",w:70,ch:[{id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:20},{id:"pc4",n:"PC4",w:20},{id:"pc5",n:"PC5",w:20}]},
@@ -2053,7 +2057,7 @@ dos:{n:"Diseño Organizacional y Estrategia",pre:"",rf:1,i:"La Nota de Trabajo p
   {id:"ti",n:"Trabajo Integrador",s:"Trabajo Integrador",w:30}]},
  {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
