@@ -192,6 +192,17 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   - NUEVO en el motor: la propiedad best:N en un grupo (ver ev()). El grupo promedia solo sus N mejores hijos (todos con el mismo peso) y descarta los demas.
     Con d:"" en cada hijo se oculta su % individual (cada control cuenta 7.5% del curso solo si esta entre los 6 mejores). El bloque muestra "Cuentan los N mejores de M" (clase .bst).
     Las notas por rendir cuentan 0 en "Mi promedio hasta ahora" y 20 en el mejor caso, asi que el aviso de aprobado y la tabla de combinaciones siguen funcionando.
+15) RONDA 10
+  - Curso nuevo: Herramientas de Programacion (hdp, grupo Cursos). Orden en pantalla: Nota por Trabajos 40%, Examen Parcial 25%, Examen Final 35%.
+    Nota por Trabajos = (0.35*PC1 + 0.35*PC2 + 0.2*Labs + 0.1*Otras) x Factor_Proyecto.
+    Nota_Proyecto = (0.4*Entrega 1 + 0.6*Entrega 2 + Modificador_Exposicion) x Factor_Evaluacion_Pares, limitada a 0-20; si no fue a la exposicion (casilla), vale 0.
+    El silabo escribe "0.4*Entrega_1 * 0.6*Entrega_2": se tomo el segundo * como suma. Factor_Proyecto sale de la Tabla 1 del silabo.
+    Redondeo: Nota por Trabajos, parcial, final y promedio final. La nota del proyecto NO se muestra redondeada, pero para buscar el factor se usa el entero mas cercano (la tabla usa enteros).
+  - NUEVO en el motor:
+    * fp:"id" en un grupo: la nota de ese hijo NO se suma (w:0 y d:"" para ocultar su %), se convierte con la Tabla 1 (funcion fpj) y MULTIPLICA el resultado del grupo.
+    * np:1 en un grupo: es la Nota del Proyecto; ev() le aplica el modificador (S.mo, de -10 a +1), la evaluacion de pares (S.pr: 1.05, 1, 0.9, 0.8) y la inasistencia (S.ns).
+    * pjCtl(): dibuja bajo las entregas los dos selectores y la casilla (atributo data-px, manejados en h(); clases .pjx/.pjt/.pjs). Se guardan en mp-progress como e.px = {mo,pr,ns} solo si no son los valores por defecto.
+    * Como el factor puede ser 1.05, el promedio final de este curso puede pasar de 20 (el silabo no indica tope).
 =====================================================================
 -->
 <meta charset="utf-8">
@@ -1609,6 +1620,12 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 .nwb:active{transform:scale(.97)}
 @media (hover:hover){.nwb:hover{background:rgba(255,255,255,.2);transform:translateY(-2px)}}
 @media (min-width:1100px){.sidec{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:20px;width:350px;max-width:none;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-width:thin;margin:0;z-index:5}.sidec .addb{position:static;width:auto;box-shadow:0 14px 34px rgba(0,0,0,.35)}}
+.pjx{border-top:1px solid var(--line);padding:12px 0 6px}
+.pjt{font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.pjs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:8px;align-items:center;padding:6px 0;color:var(--ink);font-size:.95rem}
+.pjs select{width:100%;min-height:44px;font:600 .92rem Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:8px 10px;border:1px solid var(--lines);border-radius:2px;background:var(--fld);color:var(--ink);cursor:pointer}
+.pjs select:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(0,240,60,.45)}
+@media(max-width:560px){.pjs{grid-template-columns:1fr;gap:4px}}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -2001,22 +2018,38 @@ psi:{n:"Psicología",pre:"",gp:2,rf:1,i:"La Nota de Trabajo pesa 45% y se forma 
  {id:"nt",n:"Nota de Trabajo",w:45,r:1,ch:[
   {id:"ei",n:"Evaluación Individual",w:2000/45,ch:[{id:"m1",n:"Miniensayo 1",s:"ME1",w:50},{id:"m2",n:"Miniensayo 2",s:"ME2",w:50}]},
   {id:"eg",n:"Evaluación Grupal",w:2500/45,ch:[{id:"ai",n:"Aula Invertida",s:"Aula",w:20},{id:"lc",n:"Lectura Creativa",s:"Lectura",w:80}]}]},
- {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
+ {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+hdp:{n:"Herramientas de Programación",pre:"",rf:1,i:"La Nota por Trabajos pesa 40%, el Examen Parcial 25% y el Examen Final 35%. La Nota por Trabajos reúne la PC1 (35%), la PC2 (35%), los Laboratorios (20%) y Otras Actividades (10%), y ese resultado se multiplica por el Factor Proyecto. El factor sale de la nota del Proyecto Integrador, que es (0.4 x Entrega 1 + 0.6 x Entrega 2 + Modificador de exposición) x Evaluación de pares, según la tabla: 0 = 0.30, 1-2 = 0.50, 3-5 = 0.60, 6-8 = 0.70, 9-11 = 0.80, 12-14 = 0.90, 15-17 = 1.00 y 18-20 = 1.05. Si faltas a la exposición sin justificar, la nota del proyecto es 0. Se asume que la nota del proyecto suma las dos entregas (el sílabo escribe un * entre ambas) y que no pasa de 20. Se asume que, para buscar el factor, la nota del proyecto se redondea al entero más cercano (el .5 sube), porque la tabla usa enteros. Al inicio el modificador está en Suficiente (0) y la evaluación de pares en 1.00: cámbialos debajo de las entregas. La Nota por Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota por Trabajos",w:40,r:1,fp:"pj",ch:[
+  {id:"p1",n:"Práctica Calificada 1",s:"PC1",w:35},
+  {id:"p2",n:"Práctica Calificada 2",s:"PC2",w:35},
+  {id:"lb",n:"Laboratorios",s:"Labs",w:20},
+  {id:"oa",n:"Otras Actividades",s:"Otras",w:10},
+  {id:"pj",n:"Proyecto Integrador (factor)",s:"Proyecto",w:0,d:"",np:1,ch:[
+   {id:"e1",n:"Entrega 1",s:"E1",w:40,d:""},
+   {id:"e2",n:"Entrega 2",s:"E2",w:60,d:""}]}]},
+ {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}}
 };
-const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce","ipfe","cdc","gdp","soc","sf","psi"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce","ipfe","cdc","gdp","soc","sf","psi","hdp"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
 const isP=id=>{const g=S.g[id];return g===undefined||g===""||isNaN(+g)};
 const pend=()=>leaves(S.root).filter(l=>isP(l.id));
 const full=o=>{const v={};leaves(S.root).forEach(l=>{const m=l.mx||20;v[l.id]=isP(l.id)?(o[l.id]??0):Math.min(m,Math.max(0,+S.g[l.id]))*20/m});return v};
-const ev=(n,v)=>{let x;if(n.ch&&n.best){const a=n.ch.map(c=>ev(c,v)).sort((p,q)=>q-p).slice(0,n.best);x=a.reduce((s,y)=>s+y,0)/n.best}else x=n.ch?n.ch.reduce((s,c)=>s+ev(c,v)*(+c.w||0)/100,0):v[n.id];return n.r?rnd(x):x};
+/* Tabla de equivalencias del Factor Proyecto (nota vigesimal entera -> factor). Se usa con la propiedad fp de un grupo (ver Ronda 10). */
+const fpj=x=>{x=rnd(x);return x<1?.3:x<3?.5:x<6?.6:x<9?.7:x<12?.8:x<15?.9:x<18?1:1.05};
+const ev=(n,v)=>{let x;if(n.ch&&n.best){const a=n.ch.map(c=>ev(c,v)).sort((p,q)=>q-p).slice(0,n.best);x=a.reduce((s,y)=>s+y,0)/n.best}else x=n.ch?n.ch.reduce((s,c)=>s+ev(c,v)*(+c.w||0)/100,0):v[n.id];if(n.np)x=S.ns?0:Math.min(20,Math.max(0,(x+S.mo)*S.pr));if(n.fp)x*=fpj(ev(n.ch.find(c=>c.id===n.fp),v));return n.r?rnd(x):x};
 const pass=a=>(S.rf?rnd(a):a)>=S.pm-1e-9;
 const inp=c=>{const v=S.g[c.id],f=v!==undefined&&v!=="",bd=f&&(+v>(c.mx||20)||+v<0);return `<label class="gi${f?" fl":""}${bd?" bad":""}"><input class="g" data-id="${c.id}" type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="6" placeholder="Por rendir" aria-label="Nota de ${c.n}" value="${v??""}"${f?` style="width:${String(v).length+.6}ch"`:""}><span class="sf">/${c.mx||20}</span></label>`};
 /* Modelo A: cada evaluación muestra su % sobre el total del curso (c.a se calcula en mkState). d:"" oculta el % (partes medidas en puntos). */
 const dv=c=>c.d===""?"":fmt(c.a)+"%";
 const absW=(n,p)=>(n.ch||[]).forEach(c=>{c.a=p*(+c.w||0)/100;absW(c,c.a)});
-const mkState=k=>{const root=clone(C[k].root);absW(root,100);return{root,g:{},rf:!!C[k].rf,pm:11}};
+/* Controles del Proyecto Integrador (solo cursos con fp): modificador de exposicion, evaluacion de pares y falta a la exposicion. Se guardan en S.mo, S.pr y S.ns. */
+const pjCtl=()=>{const mo=[[1,"Sobresaliente (+1)"],[0,"Suficiente (0)"]].concat([1,2,3,4,5,6,7,8,9,10].map(i=>[-i,"Insuficiente (-"+i+")"])),
+ pr=[[1.05,"Sobresaliente sobre el promedio (1.05)"],[1,"En el promedio (1.00)"],[.9,"Por debajo del promedio (0.90)"],[.8,"Muy por debajo del promedio (0.80)"]];
+ return `<div class="pjx"><div class="pjt">Ajustes del proyecto</div><label class="pjs"><span>Modificador de exposición</span><select data-px="mo" aria-label="Modificador de exposición">${mo.map(([v,t])=>`<option value="${v}"${S.mo===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="pjs"><span>Evaluación de pares</span><select data-px="pr" aria-label="Evaluación de pares">${pr.map(([v,t])=>`<option value="${v}"${S.pr===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="ck"><input type="checkbox" data-px="ns"${S.ns?" checked":""}> No fui a la exposición (sin justificar): el proyecto cuenta 0</label></div>`};
+const mkState=k=>{const root=clone(C[k].root);absW(root,100);return{root,g:{},rf:!!C[k].rf,pm:11,mo:0,pr:1,ns:0}};
 const row=(c,d)=>`<div class="row${c.ch?" grp":""}${c.b?" bd":""}" style="--d:${d}"><span class="nm">${c.n}${dv(c)?`<em>${dv(c)}</em>`:""}</span>${c.ch?`<span class="sv" id="sv-${c.id}">—</span>`:inp(c)}</div>`;
 
 const sl=(g,flat)=>{const o=[];const rec=(n,sh,k)=>{if(!n.ch||(n.z&&!flat)){o.push({id:n.id,n:n.n,s:n.s||n.n,w:sh,k,L:n.ch?leaves(n):null});return}const t=n.ch.reduce((a,x)=>a+(+x.w||0),0)||100;n.ch.forEach(x=>rec(x,sh*(+x.w||0)/t,k))};
@@ -2062,7 +2095,7 @@ function setCourse(k){
  else $("zm").innerHTML="";
  let h="";
  G.forEach((g,i)=>{h+=`<div class="blk rv" data-b="${i}" style="--i:${i+4}"><div class="bh${g.ch?"":" lf"}"><div class="bn"><span class="pct">${fmt(g.w)}%</span><b>${g.n}${g.best?`<span class="bst">Cuentan los ${g.best} mejores de ${g.ch.length}</span>`:""}</b></div>${g.ch?`<span class="sv" id="sv-${g.id}">—</span>`:inp(g)}</div>`;
-  if(g.ch){h+=`<div class="bb">`;walk(g,(c,d)=>{h+=row(c,d)});h+=`</div>`}
+  if(g.ch){h+=`<div class="bb">`;walk(g,(c,d)=>{h+=row(c,d)});if(g.fp)h+=pjCtl();h+=`</div>`}
   h+=`</div>`});
  $("tree").innerHTML=h;
  {const L=document.querySelectorAll("#tree input.g");if(L.length)L[L.length-1].setAttribute("enterkeyhint","done")}
@@ -2327,6 +2360,9 @@ const nd=t=>{let v=t.value.replace(/,/g,".").replace(/[^0-9.]/g,"");const i=v.in
 const h=e=>{const t=e.target,id=t.dataset.id;
  if(t.classList.contains("g")){let nv=nd(t);const mxv=idx[id].mx||20;let over=false;if(nv!==""&&+nv>mxv){over=true;nv=String(S.g[id]??"");t.value=nv}S.g[id]=nv;if(e.type==="input"&&t.value!==""&&!seenTyp.has(cur)){seenTyp.add(cur);track("nota_escribiendo",{curso:cur})}const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);const bd=f&&(+t.value>(idx[id].mx||20)||+t.value<0);gi.classList.toggle("bad",bd);if(bd&&typeof badFx==="function")badFx(gi,t,idx[id].mx||20);if(bd){const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}t.style.width=f?(t.value.length+.6)+"ch":"";if(over){gi.classList.add("bad");if(typeof badFx==="function")badFx(gi,t,mxv);clearTimeout(gi._bd);gi._bd=setTimeout(()=>gi.classList.remove("bad"),1100);const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}}}
  else if(t.dataset.r)idx[t.dataset.r].r=t.checked?1:0;
+ else if(t.dataset.px==="mo")S.mo=+t.value;
+ else if(t.dataset.px==="pr")S.pr=+t.value;
+ else if(t.dataset.px==="ns")S.ns=t.checked?1:0;
  else if(t.id==="rf")S.rf=t.checked;
  else if(t.id==="pm"){let v=nd(t),over=false;if(v!==""&&+v>20){over=true;v=String(S.pm);t.value=v}S.pm=Math.max(0,Math.min(20,+v||0));if(over){const ml=t.closest(".minl");if(ml){ml.classList.add("bad");if(typeof badFx==="function")badFx(ml,t,20);clearTimeout(ml._bd);ml._bd=setTimeout(()=>ml.classList.remove("bad"),1100)}}}
  else return;
@@ -2456,6 +2492,7 @@ function save(){try{const o={};
   if(Object.keys(g).length)e.g=g;
   if(t.pm!==11)e.pm=t.pm;
   if(t.rf!==!!C[k].rf)e.rf=t.rf;
+  if(t.mo||t.pr!==1||t.ns)e.px={mo:t.mo,pr:t.pr,ns:t.ns?1:0};
   const d=defR(k),r={};walk(t.root,c=>{if((c.r?1:0)!==d[c.id])r[c.id]=c.r?1:0});
   if(Object.keys(r).length)e.r=r;
   if(Object.keys(e).length)o[k]=e}
@@ -2466,6 +2503,7 @@ function load(){try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(!j|
   if(e.g)for(const id in e.g){const v=String(e.g[id]);if(lv[id]&&v!==""&&isFinite(+v)&&+v>=0)t.g[id]=+v>(nd[id].mx||20)?String(nd[id].mx||20):v}
   if(typeof e.pm==="number"&&e.pm>=0&&e.pm<=20)t.pm=e.pm;
   if(typeof e.rf==="boolean")t.rf=e.rf;
+  if(e.px){const m=+e.px.mo,q=+e.px.pr;if(Number.isInteger(m)&&m>=-10&&m<=1)t.mo=m;if([1.05,1,.9,.8].includes(q))t.pr=q;t.ns=e.px.ns?1:0}
   if(e.r)for(const id in e.r)if(nd[id])nd[id].r=e.r[id]?1:0}
  const wg=k=>ST[k]&&Object.keys(ST[k].g).length>0;
  return (C[j.cur]&&wg(j.cur))?j.cur:(KS.find(wg)||null)}catch(_){return null}}
