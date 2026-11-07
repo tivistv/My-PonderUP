@@ -183,7 +183,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   - "Agrega tu curso" usa el mismo puntero propio (punto + aro) de la bienvenida; en los campos de texto vuelve el cursor de escribir.
   - Interruptor claro/oscuro: flota apenas (keyframes tgf).
 14) RONDA 9
-  - Recuadro "NUEVO · Cursos añadidos" debajo de "Agrega tu curso" (#sidec agrupa ambos; #nwp, constante NEW_C en el JavaScript). Muestra solos los ULTIMOS 5 cursos de KS: al agregar un curso nuevo al final de KS, el recuadro se actualiza solo.
+  - (ELIMINADO en la Ronda 11) Recuadro "NUEVO · Cursos añadidos" (#nwp, NEW_C). Ya no existe; #sidec ahora solo contiene "Agrega tu curso".
   - Psicologia (psi, Sellos UP): Nota de Trabajo 45% (Evaluacion Individual 20% = 2 miniensayos de 10%; Evaluacion Grupal 25% = Aula Invertida 5% + Lectura Creativa 20%), Parcial 25%, Final 30%. Redondeo asumido: Nota de Trabajo, parcial, final y promedio final.
   - Cursos nuevos: Sociologia (soc, grupo Sellos UP: gp:2) y Sistemas Financieros (sf, grupo Cursos).
   - Sociologia: Evaluacion de Proceso 30% (4 PC = 90% del bloque, Participacion = 10%), Parcial 20%, Final Oral 30%, Trabajo Grupal Integrador 20%.
@@ -203,6 +203,13 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     * np:1 en un grupo: es la Nota del Proyecto; ev() le aplica el modificador (S.mo, de -10 a +1), la evaluacion de pares (S.pr: 1.05, 1, 0.9, 0.8) y la inasistencia (S.ns).
     * pjCtl(): dibuja bajo las entregas los dos selectores y la casilla (atributo data-px, manejados en h(); clases .pjx/.pjt/.pjs). Se guardan en mp-progress como e.px = {mo,pr,ns} solo si no son los valores por defecto.
     * Como el factor puede ser 1.05, el promedio final de este curso puede pasar de 20 (el silabo no indica tope).
+16) RONDA 11
+  - Cursos nuevos (grupo Cursos): Etica (eti), Analitica de Datos para los Negocios (adn) y Diseno Organizacional y Estrategia (dos).
+    Etica: Nota de Trabajo 35% = Trabajos de analisis grupal de casos 20% + Asistencia y Participacion 15% (los % del autor suman 35, o sea sobre el total del curso; por eso w:2000/35 y 1500/35). Parcial 30%, Final 35%.
+    Analitica: Practicas Calificadas 30% (PC1 y PC2, se asume que valen lo mismo), Parcial 35%, Final 35%.
+    Diseno Organizacional: Nota de Trabajo 50% = Practica Calificada 40% + Ejercicios Aplicativos 30% + Trabajo Integrador 30% (aqui los % del autor suman 100, o sea relativos a la Nota de Trabajo). Parcial 20%, Final 30%.
+    Redondeos asumidos (no indicados): el grupo de trabajo/practicas, el parcial, el final y el promedio final.
+  - Se ELIMINO el recuadro "NUEVO · Cursos añadidos" (ver Ronda 9).
 =====================================================================
 -->
 <meta charset="utf-8">
@@ -1610,15 +1617,6 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 /* Nuevos cursos al costado de "Elige tu curso" (en celular van debajo del titulo) */
 .sidec{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px;max-width:760px;margin-top:34px}
 .sidec .addb{margin-top:0}
-.nwp{position:relative;z-index:1;margin:0;padding:20px 20px 18px;background:rgba(6,31,71,.65);border:1px solid rgba(255,255,255,.16);border-left:6px solid var(--green)}
-.nwp:empty{display:none}
-.nwk{display:flex;align-items:center;gap:10px;margin-bottom:14px;font:800 .8rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
-.nwk i{font-style:normal;background:var(--green);color:var(--navy);padding:5px 9px;font-size:.78rem;letter-spacing:.06em}
-.nwl{display:flex;flex-direction:column;gap:9px}
-.nwb{width:100%;background:rgba(255,255,255,.1);border:0;border-bottom:4px solid var(--s,#00F03C);color:#fff;padding:16px 16px;font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;text-align:left;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .2s,transform .25s cubic-bezier(.34,1.56,.64,1)}
-.nwb:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.nwb:active{transform:scale(.97)}
-@media (hover:hover){.nwb:hover{background:rgba(255,255,255,.2);transform:translateY(-2px)}}
 @media (min-width:1100px){.sidec{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:20px;width:350px;max-width:none;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-width:thin;margin:0;z-index:5}.sidec .addb{position:static;width:auto;box-shadow:0 14px 34px rgba(0,0,0,.35)}}
 .pjx{border-top:1px solid var(--line);padding:12px 0 6px}
 .pjt{font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
@@ -1647,7 +1645,7 @@ window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.g
 <div id="v-pick" class="wel" hidden><button type="button" class="bkc" id="pickback" aria-label="Volver al inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg><span>Atrás</span></button><button type="button" class="addc" id="addc"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><div class="wrap wc">
 <h1 class="wt eq"><span class="t1 mr" style="--i:0">Elige tu</span><span class="t2 mr" style="--i:1">curso</span></h1>
 <div class="pgs" id="plist"></div>
-<div class="sidec" id="sidec"><div class="addb" id="addb"><span class="addb-k">¿Falta tu curso?</span><b>Agrégalo tú mismo</b><span class="addb-t">Envíanos el sílabo o reglamento y lo sumamos a My PonderUP.</span><button type="button" class="btn addb-b" id="addc2"><span aria-hidden="true">+</span> Agrega tu curso</button></div><div class="nwp" id="nwp"></div></div>
+<div class="sidec" id="sidec"><div class="addb" id="addb"><span class="addb-k">¿Falta tu curso?</span><b>Agrégalo tú mismo</b><span class="addb-t">Envíanos el sílabo o reglamento y lo sumamos a My PonderUP.</span><button type="button" class="btn addb-b" id="addc2"><span aria-hidden="true">+</span> Agrega tu curso</button></div></div>
 </div>
 </div>
 
@@ -2029,8 +2027,24 @@ hdp:{n:"Herramientas de Programación",pre:"",rf:1,i:"La Nota por Trabajos pesa 
    {id:"e1",n:"Entrega 1",s:"E1",w:40,d:""},
    {id:"e2",n:"Entrega 2",s:"E2",w:60,d:""}]}]},
  {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}}
+,
+eti:{n:"Ética",pre:"",rf:1,i:"La Nota de Trabajo pesa 35% y se forma con los Trabajos de análisis grupal de casos (20% del curso) y la Asistencia y Participación (15% del curso). El Examen Parcial pesa 30% y el Examen Final 35%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:35,r:1,ch:[
+  {id:"ac",n:"Trabajos de Análisis Grupal de Casos",s:"Casos",w:2000/35},
+  {id:"ap",n:"Asistencia y Participación",s:"Asist. y Part.",w:1500/35,b:1}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
+adn:{n:"Analítica de Datos para los Negocios",pre:"",rf:1,i:"Las Prácticas Calificadas pesan 30% (PC1 y PC2), el Examen Parcial 35% y el Examen Final 35%. No se indicó el peso de cada práctica ni los redondeos, por eso se asume que las 2 prácticas valen lo mismo y que se redondean al entero las Prácticas Calificadas, el parcial, el final y el promedio final (el .5 sube).",root:{ch:[
+ {id:"pc",n:"Prácticas Calificadas",s:"Prácticas",w:30,r:1,ch:[
+  {id:"pc1",n:"PC1",w:50},{id:"pc2",n:"PC2",w:50}]},
+ {id:"pa",n:"Examen Parcial",w:35,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
+dos:{n:"Diseño Organizacional y Estrategia",pre:"",rf:1,i:"La Nota de Trabajo pesa 50% y se forma con la Práctica Calificada (40%, o sea 20% del curso), los Ejercicios Aplicativos (30%, 15% del curso) y el Trabajo Integrador (30%, 15% del curso). El Examen Parcial pesa 20% y el Examen Final 30%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:50,r:1,ch:[
+  {id:"pc",n:"Práctica Calificada",s:"Práctica",w:40},
+  {id:"ea",n:"Ejercicios Aplicativos",s:"Ejercicios",w:30},
+  {id:"ti",n:"Trabajo Integrador",s:"Trabajo Integrador",w:30}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
 };
-const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce","ipfe","cdc","gdp","soc","sf","psi","hdp"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce","ipfe","cdc","gdp","soc","sf","psi","hdp","eti","adn","dos"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
@@ -2405,8 +2419,6 @@ function nextNota(el,d){const L=[...document.querySelectorAll("#tree input.g")],
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeList();
  const t=e.target;if(e.key==="Enter"&&!e.isComposing&&t&&t.matches){if(t.matches("#tree input.g")){e.preventDefault();nextNota(t,e.shiftKey?-1:1)}else if(t.id==="pm"){e.preventDefault();t.blur()}}});
 $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+GR.map(([t,g])=>`<section class="pg"><h2 class="gt">${t}<i>${inG(g).length}</i></h2><div class="pl">${inG(g).map(x=>{const i=KS.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`}).join("")}</div></section>`).join("");
-const NEW_C=KS.slice(-5);
-$("nwp").innerHTML=`<div class="nwk"><i>NUEVO</i>Cursos añadidos</div><div class="nwl">`+NEW_C.map(x=>`<button type="button" class="nwb" style="--s:${SC[KS.indexOf(x)%4]}" data-c="${x}" data-p="1">${C[x].n}</button>`).join("")+`</div>`;
 const pb=document.querySelector("#sum .pbar");let drag=false,raf=0;
 const setPm=v=>{v=Math.max(0,Math.min(20,Math.round(v)));if(v===S.pm)return;S.pm=v;anim("barra_nota_minima");trackCalc();clearTimeout(pmT);pmT=setTimeout(()=>track("meta_cambiada",{curso:cur,valor:S.pm,via:"barra"}),1200);$("pm").value=v;if(!raf)raf=requestAnimationFrame(()=>{raf=0;update()})};
 const fromX=x=>{const r=pb.getBoundingClientRect();return r.width?(x-r.left)/r.width*20:S.pm};
