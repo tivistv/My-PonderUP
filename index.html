@@ -211,6 +211,11 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     Redondeos asumidos (no indicados): el grupo de trabajo/practicas, el parcial, el final y el promedio final.
   - Se ELIMINO el recuadro "NUEVO · Cursos añadidos" (ver Ronda 9).
   - Etica (eti) va en el grupo "Cursos Sellos UP" (gp:2), no en "Cursos".
+  - Matematicas II (mat2, grupo Cursos): Nota de Trabajo 40% (promedio simple de 4 PCs), Parcial 30%, Final 30%. Misma estructura que Matematicas III. Redondeo asumido igual que en Matematicas I y III.
+  - ORDEN de los cursos: lo define el arreglo KS (los grupos del menu filtran KS en ese orden; el color de cada tarjeta sale de su posicion en KS). Se reordeno por parecido de nombre/tema:
+    Cursos = Matematicas I-II-III, Estadistica I, Analitica de Datos, Herramientas de Programacion | Lenguaje I | Economia General I, Macroeconomia I, Sistemas Financieros | contabilidades |
+    Fundamentos de Ciencias Empresariales y cursos de gestion | introducciones (Ingenieria, Politica) | Derecho. Sellos UP = Filosofia, Etica, Religiones, Pensamiento Social, Sociologia, Psicologia, Historia Economica, Investigacion Academica, Liderazgo.
+    Para agregar un curso nuevo: ponerlo en C y en KS junto a los que se le parecen.
 =====================================================================
 -->
 <meta charset="utf-8">
@@ -1901,6 +1906,9 @@ mat1:{n:"Matemáticas I",pre:"",rf:1,i:"Trabajos pesa 40% y se arma con 2 contro
   {id:"ct",n:"Controles",w:10,ch:[{id:"c1",n:"Control 1",s:"C1",w:50,mx:10},{id:"c2",n:"Control 2",s:"C2",w:50,mx:10}]},
   {id:"pc",n:"Prácticas Calificadas",w:90,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+mat2:{n:"Matemáticas II",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio simple de las 4 prácticas calificadas (10% del curso cada una). El examen parcial y el final pesan 30% cada uno. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube), como en Matemáticas I y III.",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
 len1:{n:"Lenguaje I",pre:"",rf:1,i:"Trabajos pesa 35% y está formado por 3 prácticas calificadas que valen lo mismo (11.67% cada una). El examen parcial pesa 30% y el final 35%. El reglamento no indica pesos distintos para las prácticas, por eso se asume que pesan igual. Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"tr",n:"Trabajos",w:35,r:1,ch:[
   {id:"pc",n:"Prácticas Calificadas",w:100,ch:[{id:"pc1",n:"PC1",w:T},{id:"pc2",n:"PC2",w:T},{id:"pc3",n:"PC3",w:T}]}]},
@@ -2045,7 +2053,7 @@ dos:{n:"Diseño Organizacional y Estrategia",pre:"",rf:1,i:"La Nota de Trabajo p
   {id:"ti",n:"Trabajo Integrador",s:"Trabajo Integrador",w:30}]},
  {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
 };
-const KS=["mat","len","inf","con","fce","int","der1","mat1","len1","eco1","cfi","mat3","mac1","hee","inv","est1","ctd","dcg","gct","psc","lid","fil","rce","ipfe","cdc","gdp","soc","sf","psi","hdp","eti","adn","dos"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
