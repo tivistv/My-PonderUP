@@ -232,7 +232,7 @@ body{margin:0;background:var(--bg);color:var(--txt);font:500 16px/1.55 Montserra
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .rv{animation:up .7s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*100ms)}
-@media(prefers-reduced-motion:reduce){.gr,.ring,.dash,.dt,.cp,.sq,.core,.wp,.halo,.sp,.pt,.beam,.tg,.lg-v,.hero::after,.hero::before,.wel::before,footer::before,footer::after,.btn::after,.wb::after,.zs::after,#pf::after,#mpf::after{animation:none!important}}
+
 .btn{display:inline-block;background:var(--green);color:var(--navy);font:700 .8rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.03em;text-transform:uppercase;padding:14px 18px;border:0;border-radius:2px;cursor:pointer;text-decoration:none}
 .btn.xl{font-size:1rem;padding:18px 36px;margin-top:8px}
 .logo{font-weight:800;font-size:1.15rem;letter-spacing:.03em;text-transform:uppercase}
@@ -1593,15 +1593,12 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 
 /* ===== RENDIMIENTO ===== */
 .off,.off *,.off::before,.off::after,.off *::before,.off *::after{animation-play-state:paused!important}
-footer,.faq{content-visibility:auto;contain-intrinsic-size:auto 640px}
-.hero,.wel,#v-welcome,#v-pick{contain:paint}
 /* html.lo = equipo lento (JS mide los fps): sin bucles decorativos, sin blur/sombras animadas; entradas y transiciones se mantienen */
-html.lo .gr,html.lo .ring,html.lo .dash,html.lo .dt,html.lo .cp,html.lo .sq,html.lo .core,html.lo .wp,html.lo .sp,html.lo .pt,html.lo .tg,html.lo .lg-v,html.lo .hero::after,html.lo .hero::before,html.lo .wel::before,html.lo footer::before,html.lo footer::after,html.lo .btn::after,html.lo .wb::after,html.lo .zs::after,html.lo #pf::after,html.lo #mpf::after{animation:none!important;will-change:auto!important}
 html.lo .beam,html.lo .halo{display:none!important}
+html.lo .lg-v{animation:none!important}
 html.lo *,html.lo *::before,html.lo *::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 html.lo .wb,html.lo .zb{filter:none}
 html.lo .hero h1 .t2.mr,html.lo .hero h1 .t2.mr.lt,html.lo #v-welcome .wt .t1.mr{animation:mask .9s cubic-bezier(.2,.8,.2,1) backwards!important;animation-delay:calc(var(--i,0)*120ms)!important}
-html.lo .hero h1 .ltr{will-change:auto}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -3123,14 +3120,14 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
 })();
 </script>
 <script>document.addEventListener("input",function(e){var t=e.target;if(t&&t.matches&&t.matches('#sim input[type=range]')){var mx=parseFloat(t.max)||20;t.style.setProperty("--p",(parseFloat(t.value)/mx*100)+"%")}});</script>
-<script>/* RENDIMIENTO: detecta equipos lentos (fps reales, ahorro de datos, poca RAM/CPU) y pausa animaciones fuera de pantalla */
-(function(){var d=document.documentElement,c=navigator.connection||{};
- if(c.saveData||(navigator.deviceMemory&&navigator.deviceMemory<=2)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=2))d.classList.add("lo");
- function probe(done){var t=[],last=0,n=0;function f(now){if(last)t.push(now-last);last=now;if(++n<50&&!document.hidden)requestAnimationFrame(f);else{t.sort(function(a,b){return a-b});done(t.length>10?t[t.length>>1]:0)}}requestAnimationFrame(f)}
- function run(){probe(function(m){if(m>22)d.classList.add("lo")})}
- window.addEventListener("load",function(){setTimeout(run,600);setTimeout(run,5000)});
- if("IntersectionObserver"in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle("off",!e.isIntersecting)})},{rootMargin:"120px"});
-  document.querySelectorAll("footer,.hero,.wel,#v-welcome,#v-pick").forEach(function(e){io.observe(e)})}
+<script>/* RENDIMIENTO: modo liviano solo si el equipo va realmente mal (<25 fps medidos dos veces seguidas). Forzar: ?fx=full o ?fx=low */
+(function(){var d=document.documentElement,q=location.search.match(/fx=(full|low)/),bad=0;
+ if(q){if(q[1]==="low")d.classList.add("lo");return}
+ function probe(done){var t=[],last=0,n=0;function f(now){if(last)t.push(now-last);last=now;if(++n<60&&!document.hidden)requestAnimationFrame(f);else{t.sort(function(a,b){return a-b});done(t.length>20?t[t.length>>1]:0)}}requestAnimationFrame(f)}
+ function run(){probe(function(m){if(m>40){if(++bad>=2)d.classList.add("lo")}else bad=0})}
+ window.addEventListener("load",function(){setTimeout(run,3000);setTimeout(run,7000)});
+ if("IntersectionObserver"in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle("off",!e.isIntersecting)})},{rootMargin:"200px"});
+  document.querySelectorAll("footer,.hero,.wel").forEach(function(e){io.observe(e)})}
 })();</script>
 </body>
 </html>
