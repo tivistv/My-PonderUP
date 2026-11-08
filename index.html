@@ -1,251 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!--
-=====================================================================
-MY PONDERUP  (por @matiastf_ y @fabi_mvi)  -  NOTAS PARA QUIEN EDITE ESTE ARCHIVO
-=====================================================================
-Este comentario no se ve en la web. Resume todo lo que se le explico a Claude para armarla,
-asi que otro chat o persona puede continuar sin volver a pasar la informacion.
-
-0) ESTADO ACTUAL DEL FACTOR DE INSCRIPCION: OCULTO
-  La seccion de FI esta terminada pero DESACTIVADA a pedido del autor (falta mejorarla). Nadie la ve ni puede abrirla.
-  Todo su codigo (HTML de #v-fi, CSS, JavaScript) y sus datos (planes de las 12 carreras, bonificaciones, reglas) siguen aqui.
-  Para ACTIVARLA: en el JavaScript cambiar  const FI_ACTIVO=false;  por  true.  Eso muestra el boton "Calcular mi FI"
-  (pantalla de eleccion, lista de cursos y pie) y cambia el titulo a "Elige tu cálculo".
-  Opcional al activar: cambiar los dos meta description (description y og:description) por
-  "Calcula tu ponderado, mira qué notas necesitas para aprobar y calcula tu factor de inscripción."
-
-1) QUE ES
-Un solo archivo HTML (CSS y JavaScript incluidos, sin librerias). Pantallas: bienvenida, elegir calculo,
-calculadora de ponderado por curso y calculadora de FACTOR DE INSCRIPCION (FI).
-Fuera de este archivo usa: la fuente Montserrat alojada en /fonts/ (ya no depende de Google Fonts), logos en /img/ (WebP),
-el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta api/).
-
-2) FORMULA DEL FI
-  Desde el 2do ciclo:  FI = (promedio del ultimo semestre x 10) + creditos academicos acumulados + bonificaciones
-  Primer ciclo:        FI = (promedio del semestre x 10) + creditos matriculados + bonificaciones
-  - Creditos matriculados = suma de los creditos de los cursos con nota de ese semestre.
-  - Promedio semestral = suma(nota x creditos) / suma(creditos). Ponderado por creditos.
-  - El promedio NO se redondea al entero ni antes de multiplicar por 10. Se muestra con 2 decimales.
-    El FI tampoco se redondea al entero: solo muestra decimales si los tiene (max. 2).
-    Interruptor en el codigo: FI_REDONDEA_PROMEDIO (false = 143.33, true = 143.3).
-  - Ejemplo oficial corregido: promedio 14.33 x 10 = 143.33, mas 32 creditos acumulados, mas 16 de bonificacion = 191.33.
-    (En el video salia 143.80 y era un error. Tambien salia 37 creditos acumulados en la tabla: esos 37 incluian
-    cursos EFE, y para el FI se usan 32.)
-  - Ejemplo de primer ciclo: Nivelacion en Informatica 12 (3 cr), Lenguaje I 15 (4), Matematicas I 14 (5),
-    Sociologia 16 (4): suma de creditos 16, suma N x C 230, promedio 14.375 (se muestra 14.38).
-
-3) CURSOS EFE (Experiencias Formativas Estudiantiles)
-  Todos los cursos EFE (arte, cultura, deporte, servicio social, innovacion e investigacion, taller de
-  competencias profesionales) NO cuentan para el FI: no entran al promedio ni a los creditos acumulados.
-  Solo sirven porque la universidad exige minimo 4 creditos EFE y los cobra.
-  Decision del autor: NO mencionar EFE en la web. Por eso la web solo dice que se escriban "los creditos que cuentan para el FI".
-
-4) NIVELACIONES
-  Tienen 0 creditos academicos en los planes, pero para el FI valen como creditos administrativos:
-  Nivelacion en Matematicas = 4, Nivelacion en Lenguaje = 3, Nivelacion en Informatica = 3.
-  En la web se usan solo como peso en el promedio ponderado.
-
-5) BONIFICACIONES (el alumno marca solo las que tiene; no hay tope; se suman)
-  Encuesta (de docentes y encargados de practica) = 16 | Intercambio = 16 | Matricula preventiva = 16 |
-  Deportista = 16 | REA = 8 | REDA = 8.
-
-6) CREDITOS DE REFERENCIA
-  Economia General I = 5 | Fundamentos de las Ciencias Empresariales = 4 | Fundamentos de Contabilidad = 4 |
-  Introduccion a la Ingenieria = 4 | Matematicas I = 5 | Lenguaje I = 4 (Lenguaje II tambien 4).
-
-7) DATOS DE LAS CARRERAS (constante PLN en el JavaScript)
-  Fuente: los PDFs de planes de estudio de las 12 carreras: Administracion (2022), Contabilidad (2022), Derecho (2022),
-  Economia (2022-II), Finanzas (2022-II), Humanidades Digitales (2024), Ingenieria de la Informacion (2022),
-  Ingenieria Empresarial (2022), Ingenieria en Innovacion y Diseno (2024), Marketing (2022),
-  Negocios Internacionales (2022), Politica, Filosofia y Economia (2024-I).
-  Formato de cada curso: "nombre|creditos|codigo|horas teoricas (T)|horas practicas (P)".
-  Se ignora el D.A. (departamento academico). Los creditos de cada ciclo se verificaron contra los totales de cada PDF.
-  Los cursos de bloque (Sello UP: ciencias sociales, pensamiento critico, procesos sociales, quehacer cientifico,
-  desarrollo personal) son 15 cursos de 4 creditos, comunes a todas las carreras (constante FI_BL).
-  Cuando un PDF difiere de los demas se respeto el PDF de esa carrera:
-    - Derecho: Investigacion Academica 3 T / 0 P; Historia Critica del Peru figura con codigo 124022 (los demas usan 122005).
-    - Derecho: las nivelaciones salen con horas T/P distintas a las otras carreras (probable error de extraccion del PDF);
-      aqui se usan las de las demas carreras.
-    - Negocios Internacionales: Fundamentos de Contabilidad 2 T / 3 P y Analisis Multivariado 3 T / 2 P.
-    - Ingenieria de la Informacion: Ingenieria de Datos 4 T / 3 P.
-    - Humanidades Digitales: Tecnologia y Medios de Comunicacion figura con codigo 170346 (en Innovacion y Diseno es 170456).
-      Su PDF no trae total de creditos.
-    - Derecho: 24 creditos electivos (15 de derecho y 9 de otras carreras); no hay lista de electivos, se usa "Otro curso".
-    - Ingenieria Empresarial: las concentraciones (analitica de negocios, sistemas de informacion, finanzas corporativas)
-      estan en la lista de electivos. En las otras ingenierias las concentraciones estan en un documento aparte.
-
-8) NOTAS TECNICAS PARA EDITAR
-  - Los inputs del FI NO deben usar la clase "g": el manejador global del ponderado la usa y fallaria.
-  - Ids y clases del FI empiezan con "fi" o "f" (v-fi, fi-main, fisum, fimini, fbar...). El estado del FI esta en FS.
-  - localStorage: mp-theme (modo claro/oscuro) y mp-progress (notas, nota minima y redondeos de cada curso). Solo se guardan
-    los datos que el alumno cambio; los pesos salen siempre de la constante C. Si hay notas guardadas, al abrir la pagina se
-    vuelve directo al curso donde estaba (funciones save() y load()).
-  - Los % que se ven en cada evaluacion son sobre el TOTAL del curso (modelo A) y se calculan solos a partir de w (c.a).
-    d:"" en un nodo oculta su % (partes medidas en puntos, como los laboratorios de Introduccion a la Ingenieria).
-  - Todos los cursos redondean parcial, final y promedio final al entero (el .5 sube).
-  - Grupos del menu de cursos (constante GR; Nivelacion va sin titulo, ver Ronda 13). Tipo de curso: Nivelacion (pre distinto de ""), Cursos y "Cursos Sellos UP". Un curso va a Sellos UP con gp:2 en su
-    entrada de C (Liderazgo y Filosofia). Sin gp, el grupo sale de pre (pre:"" = Cursos).
-  - nz:1 en un curso apaga la barra de zoom de la primera seccion (se usa en Filosofia, donde las unidades no son "trabajos").
-  - La barra de pesos (WB) tiene 5 colores: un curso admite hasta 5 evaluaciones principales (Derecho Constitucional General e Historia Economica y Empresarial usan 5). Si un curso trae mas, wbc() repite colores en vez de romper la pagina. IMPORTANTE: si setCourse() lanza un error, el titulo cambia pero el resto de la pagina se queda con el curso anterior.
-  - Contabilidad Financiera Intermedia: Controles de Lectura (9%) y Participacion (3%) son una sola nota cada uno (no se indico cuantos controles hay).
-  - Combinaciones para aprobar: filas en escalera (primeras evaluaciones mas altas, ultimas mas bajas) con diferencia D = 0, 3, 6, 9, 12.
-  - Compartir: boton en la barra superior y en el pie (menu de compartir en celular, copiar enlace en computadora).
-  - Sugerencias: formulario en el pie que envia JSON con fetch a /api/sugerencia (funcion de Vercel, ver punto 9). La funcion lo valida y lo reenvia
-    a Formspree o Resend; la direccion de Formspree ya NO esta en este archivo (vive en la variable de entorno FORMSPREE_ENDPOINT).
-  - Analiticas: PostHog (constantes PH_KEY y PH_REGION al inicio del script). Eventos con track(nombre, datos): pantalla, empezar_click,
-    curso_elegido, primera_nota, nota_ingresada, calculo_actualizado, combos_vistos, resumen_visto, faq_abierta, compartir_*, sugerencia_*,
-    tema_cambiado, nota_escribiendo, nota_fuera_de_rango, meta_cambiada, instagram_click (lugar: resultado|pie), etc. Todos los eventos llevan tema_actual (claro|oscuro) para saber que modo ve cada visita, no solo quien toca el interruptor.
-    Nunca se envian los valores de las notas. Las grabaciones enmascaran todos los campos.
-  - Rendimiento: la fuente Montserrat (variable, solo latin, 38 KB) se sirve desde /fonts/ con preload y una fuente de respaldo con las mismas
-    medidas ("Montserrat Fallback") para que el texto no salte al cargar. El logo de bienvenida tiene preload y prioridad alta; los demas logos
-    prioridad baja. PostHog y favicon se cargan al final (idle()). vercel.json da cache de 365 dias a /fonts y agrega cabeceras de seguridad.
-    404.html es la pagina de error (Vercel la usa sola si esta junto a index).
-  - Formulario: protecciones en el navegador (trampa _gotcha, tiempo minimo, sin enlaces, sin repetidos, 3 al dia: clave mp-sg).
-    Son solo comodidad: cualquiera puede saltarselas. Las protecciones reales estan en el servidor (api/sugerencia.js), ver punto 9.
-  - No se guardan notas en ningun servidor; lo unico que sale del navegador es el mensaje que el alumno envia por el formulario.
-
-9) ARCHIVOS DEL PROYECTO (todos en la raiz del proyecto de Vercel)
-  index.html          esta pagina
-  404.html            pagina de error personalizada (Vercel la usa sola y responde con estado 404)
-  vercel.json         cabeceras de seguridad y cache largo para /fonts
-  fonts/montserrat-latin-wght-normal.woff2    fuente Montserrat variable (solo latin) alojada en el propio sitio
-  api/sugerencia.js   funcion de Vercel: recibe el formulario, lo valida y lo reenvia
-  Variables de entorno (Vercel > Settings > Environment Variables):
-    obligatoria, UNA de estas dos:  FORMSPREE_ENDPOINT (https://formspree.io/f/xxxx)  |  RESEND_API_KEY + CONTACT_TO (correo que recibe)
-    opcionales: TURNSTILE_SECRET | UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN (o KV_REST_API_URL + KV_REST_API_TOKEN)
-                | GLOBAL_DAILY_CAP (def. 20) | GLOBAL_MONTHLY_CAP (def. 45) | IP_DAILY_MAX (def. 10) | ALLOWED_ORIGINS | SITE_URL
-  Capas contra spam y abuso, de afuera hacia adentro:
-    1) Regla de Vercel Firewall (Rate Limit por IP sobre /api/sugerencia). Se crea en el panel, sin codigo.
-    2) La funcion: solo POST con JSON, origen permitido, trampa _gotcha, largo, sin enlaces, captcha Turnstile (si hay TURNSTILE_SECRET),
-       espera entre envios y maximo por dia por IP, mensaje repetido, y tope global por dia y por mes (protege el limite mensual de Formspree).
-    3) El navegador (solo comodidad): tiempo minimo y 3 al dia.
-  Sin Upstash los contadores viven en la memoria de cada instancia de la funcion: sirven de freno, pero no son estrictos.
-  Para activar Turnstile: poner la clave del sitio en TS_SITEKEY (bloque "Comentarios o sugerencias" del JavaScript) y TURNSTILE_SECRET en Vercel.
-  Logos: alojados en /img/ (WebP). La vista previa del enlace usa /img/og.png (1200x630) con URL absoluta en og:image y og:url.
-
-10) AGREGA TU CURSO (boton arriba a la derecha en "Elige tu curso", tambien en celular; a la izquierda esta el boton "Atras" (#pickback) que vuelve a la bienvenida. Pantalla de envio: #v-up)
-  El alumno envia el silabo o reglamento de un curso que falta. Maximo 3 archivos, 3 MB en total, solo PDF, Word (.docx), PNG y JPG
-  (se excluyen Excel y .doc antiguo porque pueden llevar macros). El navegador revisa extension, tipo y firma del archivo; el servidor
-  (api/subir-curso.js) lo repite, rechaza PDFs con JavaScript/Launch y .docx con macros, y envia los archivos por correo con Resend a
-  myponderup@gmail.com. Los archivos nunca se publican en la web. Variables de entorno: RESEND_API_KEY (obligatoria), CONTACT_TO (def. myponderup@gmail.com),
-  RESEND_FROM (def. onboarding@resend.dev), ALLOWED_ORIGINS | SITE_URL, UP_GLOBAL_DAILY_CAP (def. 30), UP_IP_DAILY_MAX (def. 5).
-  Tambien aparece DENTRO del curso (pantalla #v-tool): boton en la barra superior (data-add="barra"; solo icono + en celular), entrada fija al final del
-  desplegable de cursos (data-add="lista", .caddw) y enlace en el pie (data-add="pie").
-  Todos usan el atributo data-add. Al salir de la pantalla de envio, leaveUp() vuelve al curso (misma posicion de scroll) si se vino de uno, o a la lista de cursos si no.
-
-11) NOVEDADES (ronda 3)
-  - Analitica por tu dominio: PostHog se carga desde /_u/ (reglas "rewrites" en vercel.json, ver vercel-rewrites-posthog.json) para que los bloqueadores no la
-    confundan con publicidad. Orden: /_u/ -> PostHog directo -> "modo ligero" (POST pequeno con track()). Siempre se respeta "No rastrear" (DNT).
-  - Pie del curso: Comentarios/sugerencias debajo de "Compartir pagina", "Agrega tu curso" entre los comentarios e Instagram, y listas de cursos con "Ver mas" (3 visibles; Nivelacion no lleva).
-  - Modo claro/oscuro: solo el interruptor sol/luna (sin boton Auto ni horario). Sin eleccion guardada sigue al sistema.
-  - Se quito la barra Anterior/Siguiente/Listo del iPhone. Enter / Siguiente sigue funcionando en teclados que lo traen.
-  - Aviso de aprobado con 4 estados (funciones outlook() y vtxt()): ya aprobaste | aun puedes aprobar (promedio necesario en lo pendiente) |
-    ya no se puede llegar a la minima | aprobado/desaprobado solo cuando no queda nada por rendir.
-    Evento estado_aprobacion (una vez por curso y estado) y propiedad estado en calculo_actualizado. Nunca se envian las notas.
-  - Compartir mi resultado (#rib, modal #rim): imagen PNG hecha con canvas en el navegador, formatos Historia 9:16 y Publicacion 4:5, notas ocultas por defecto
-    (casilla #rin). En celular usa el menu de compartir con archivo; en PC descarga o copia. Lleva SITE_HOST al pie. Eventos resultado_imagen_abierta y resultado_compartido.
-  - Simulador "¿Y si saco...?" (#sim, funciones simR() y simU()): deslizadores por evaluacion pendiente; "Usar" copia el valor a la casilla real.
-  - Valoracion "¿Te ayudo a planificar tus notas?" (#mpv, funciones fbSync() y fbPaint()): aparece con la primera nota; 1 voto por curso y navegador (localStorage mp-fb).
-    Eventos valoracion_vista, resultado_util (valor si|no) y resultado_util_comentar (el "No mucho" lleva al cuadro de comentarios #sgm).
-  - Visitante nuevo/recurrente (constante VIS): localStorage mp-vis (primera visita y n de visitas = sesiones). Propiedades en TODOS los eventos: visitante, visitas,
-    dias_desde_primera_visita. before_send en posthog.init tambien fija app, interno y etapa en el primer $pageview.
-
-12) ANIMACIONES, TABLA Y MEDICION (ronda 4)
-  - Titulo del curso (#ctitle): cada letra es un <span class="ltr"> (setLetters()); solo salta la letra tocada (hopLetter(), Web Animations API). "Calcula tu ponderado de" no se anima.
-    El brillo es uno solo para todo el titulo: la propiedad --sp (0 a 1) la anima .t2 y cada letra lo dibuja segun su posicion (--ox) y el ancho total (--tw, measureLetters()).
-  - Version tactil de varios hovers: clase .tapfx unos instantes (bloque final "AL TOCAR"). Franjas, "Bienvenido a", tarjetas, logo y titulos del pie.
-  - Tabla de combinaciones: tocar o hacer clic en una nota deja la fila resaltada (.hl) y la celda (.hc) hasta tocar/hacer clic FUERA de las celdas. Mover el dedo (scroll) o arrastrar NO la quita:
-    solo cuenta un toque corto (menos de 10 px de movimiento). Se vuelve a marcar sola cuando la tabla se redibuja.
-  - Indicadores de animaciones: UN evento "animacion" con propiedades nombre, dispositivo (mouse|tactil), via (hover|toque|clic, si aplica), vista y curso. Funcion anim(nombre,extra),
-    maximo una vez cada 8 s por animacion y 60 por visita. En PostHog: Trends > evento "animacion" > desglosar por "nombre" (y por "dispositivo").
-    Nombres: titulo_letra_salto, bienvenida_titulo, franja_bienvenida, franja_curso, bienvenida_inclinar_logo, bienvenida_estrellitas, bienvenida_explosion, boton_onda, boton_empezar,
-    bienvenida_instagram, tarjeta_elegir_curso, tarjeta_nota_brillo, paso_agregar_curso, tabla_resaltado, tabla_fila_marcada, menu_cursos_fila, menu_cursos_despliegue, faq_resaltado, faq_despliegue,
-    botones_barra, boton_compartir_resultado, tema_interruptor, tema_interruptor_hover, logo_encabezado, pie_logo, pie_instagram, pie_comentarios, pie_titulos, simulador_resaltado,
-    simulador_despliegue, buscador_lista, subir_zona_arrastre, barra_nota_minima, barra_agua, confeti_aprobar, nota_temblor,
-    (ronda 5) nota_minima_temblor, boton_principal_hover, subir_zona_icono, valoracion_botones, valoracion_gracias, pie_enlaces_curso, barra_marcador_hover, menu_cursos_boton,
-    zona_barra_pop, aviso_emergente, mini_resumen_aparece y mini_resumen_fi_aparece (estas dos solo una vez por visita).
-    Ronda 7: pie_notas_cursor (entra el cursor o el dedo al pie) y pie_notas_ola (clic o toque en el pie): campo de numeros del 0 al 20 que solo aparece cerca del cursor o del dedo, donde cuenta hacia 20; en blanco, sin colores. tarjeta_elegir_curso ahora cuenta solo con movimiento real del mouse.
-    La propiedad nombre de curso_elegido, primera_nota y resultado_util lleva el nombre completo (cname), p. ej. "Nivelación en Matemáticas"; la propiedad curso sigue siendo la clave corta (mat, len, inf...).
-    Las animaciones que corren solas (aurora, brillo de barras, flotar) no se pueden medir porque no dependen de la persona.
-13) RONDA 8
-  - Cursos nuevos: Comportamiento del Consumidor (cdc) y Gestion de Personas (gdp). En gdp los pesos de la Nota de Trabajo suman 95 y no 100 (40+25+10+10+10); el codigo los
-    reparte sobre 95 (w:4000/95...) para que el maximo siga siendo 20. Si el silabo corrige algun peso, cambiar solo esos w. Redondeos de cdc: Trabajo y Participacion, Parcial,
-    Trabajo Final y promedio final (no indicados por el autor: se asumio lo habitual).
-  - Elige tu curso: las tarjetas terminan de aparecer a los 0.89 s (animation-duration .45s + delay maximo 440ms en "#v-pick .pl button.rv").
-  - Mi promedio hasta ahora: sin brillo verde que pasa; el brillo verde sale con el cursor (hover) como los otros bloques (#sum). En celular el texto va en dos lineas
-    ("Mi promedio" / "hasta ahora"). El aviso dice "No puedes llegar a X". La barra dice "4.4 de 11". Se quito el cuadro "Ya tienes el X asegurado...".
-  - Las notas no pasan del maximo de la casilla (20, o 10 en los controles sobre 10): el ultimo digito se rechaza y sale "Maximo 20". Tambien la nota minima.
-  - Simulador: sin los textos "Estas a X puntos..." ni "Pasas justo...". Quedan la etiqueta Aprobarias/Desaprobarias y el promedio simulado.
-  - "Restablecer redondeos" (pregunta 2) solo vuelve los redondeos a los del curso (defR); ya no borra notas ni la nota minima.
-  - Preguntas 03 y 04 rediseñadas (tarjetas .q3c y .q4t). Pregunta 04: "Solo en tu navegador y en tu dispositivo...".
-  - "Agrega tu curso" usa el mismo puntero propio (punto + aro) de la bienvenida; en los campos de texto vuelve el cursor de escribir.
-  - Interruptor claro/oscuro: flota apenas (keyframes tgf).
-14) RONDA 9
-  - (ELIMINADO en la Ronda 11) Recuadro "NUEVO · Cursos añadidos" (#nwp, NEW_C). Ya no existe; #sidec ahora solo contiene "Agrega tu curso".
-  - Psicologia (psi, Sellos UP): Nota de Trabajo 45% (Evaluacion Individual 20% = 2 miniensayos de 10%; Evaluacion Grupal 25% = Aula Invertida 5% + Lectura Creativa 20%), Parcial 25%, Final 30%. Redondeo asumido: Nota de Trabajo, parcial, final y promedio final.
-  - Cursos nuevos: Sociologia (soc, grupo Sellos UP: gp:2) y Sistemas Financieros (sf, grupo Cursos).
-  - Sociologia: Evaluacion de Proceso 30% (4 PC = 90% del bloque, Participacion = 10%), Parcial 20%, Final Oral 30%, Trabajo Grupal Integrador 20%.
-    Se asumio que las 4 PC valen lo mismo y que se redondean al entero: Evaluacion de Proceso, parcial, final, trabajo grupal y promedio final (no indicado por el autor).
-  - Sistemas Financieros: Evaluacion Continua 45% (8 controles, solo cuentan los 6 mejores), Parcial 20%, Final 35%. Se asumio redondeo al entero en las 3 partes y en el promedio final.
-  - NUEVO en el motor: la propiedad best:N en un grupo (ver ev()). El grupo promedia solo sus N mejores hijos (todos con el mismo peso) y descarta los demas.
-    Con d:"" en cada hijo se oculta su % individual (cada control cuenta 7.5% del curso solo si esta entre los 6 mejores). El bloque muestra "Cuentan los N mejores de M" (clase .bst).
-    Las notas por rendir cuentan 0 en "Mi promedio hasta ahora" y 20 en el mejor caso, asi que el aviso de aprobado y la tabla de combinaciones siguen funcionando.
-15) RONDA 10
-  - Curso nuevo: Herramientas de Programacion (hdp, grupo Cursos). Orden en pantalla: Nota por Trabajos 40%, Examen Parcial 25%, Examen Final 35%.
-    Nota por Trabajos = (0.35*PC1 + 0.35*PC2 + 0.2*Labs + 0.1*Otras) x Factor_Proyecto.
-    Nota_Proyecto = (0.4*Entrega 1 + 0.6*Entrega 2 + Modificador_Exposicion) x Factor_Evaluacion_Pares, limitada a 0-20; si no fue a la exposicion (casilla), vale 0.
-    El silabo escribe "0.4*Entrega_1 * 0.6*Entrega_2": se tomo el segundo * como suma. Factor_Proyecto sale de la Tabla 1 del silabo.
-    Redondeo: Nota por Trabajos, parcial, final y promedio final. La nota del proyecto NO se muestra redondeada, pero para buscar el factor se usa el entero mas cercano (la tabla usa enteros).
-  - NUEVO en el motor:
-    * fp:"id" en un grupo: la nota de ese hijo NO se suma (w:0 y d:"" para ocultar su %), se convierte con la Tabla 1 (funcion fpj) y MULTIPLICA el resultado del grupo.
-    * np:1 en un grupo: es la Nota del Proyecto; ev() le aplica el modificador (S.mo, de -10 a +1), la evaluacion de pares (S.pr: 1.05, 1, 0.9, 0.8) y la inasistencia (S.ns).
-    * pjCtl(): dibuja bajo las entregas los dos selectores y la casilla (atributo data-px, manejados en h(); clases .pjx/.pjt/.pjs). Se guardan en mp-progress como e.px = {mo,pr,ns} solo si no son los valores por defecto.
-    * Como el factor puede ser 1.05, el promedio final de este curso puede pasar de 20 (el silabo no indica tope).
-16) RONDA 11
-  - Cursos nuevos (grupo Cursos): Etica (eti), Analitica de Datos para los Negocios (adn) y Diseno Organizacional y Estrategia (dos).
-    Etica: Nota de Trabajo 35% = Trabajos de analisis grupal de casos 20% + Asistencia y Participacion 15% (los % del autor suman 35, o sea sobre el total del curso; por eso w:2000/35 y 1500/35). Parcial 30%, Final 35%.
-    Analitica: Practicas Calificadas 30% (PC1 y PC2, se asume que valen lo mismo), Parcial 35%, Final 35%.
-    Diseno Organizacional: Nota de Trabajo 50% = Practica Calificada 40% + Ejercicios Aplicativos 30% + Trabajo Integrador 30% (aqui los % del autor suman 100, o sea relativos a la Nota de Trabajo). Parcial 20%, Final 30%.
-    Redondeos asumidos (no indicados): el grupo de trabajo/practicas, el parcial, el final y el promedio final.
-  - Se ELIMINO el recuadro "NUEVO · Cursos añadidos" (ver Ronda 9).
-  - Etica (eti) va en el grupo "Cursos Sellos UP" (gp:2), no en "Cursos".
-  - Matematicas II (mat2, grupo Cursos): Nota de Trabajo 40% (promedio simple de 4 PCs), Parcial 30%, Final 30%. Misma estructura que Matematicas III. Redondeo asumido igual que en Matematicas I y III.
-  - Economia General II (eco2, grupo Cursos, junto a Economia General I): Practicas Calificadas 35% (promedio de 4 PCs), Parcial 30%, Final 35%. Redondeo asumido como en Economia General I.
-  - ORDEN de los cursos: lo define el arreglo KS (los grupos del menu filtran KS en ese orden; el color de cada tarjeta sale de su posicion en KS). Se reordeno por parecido de nombre/tema:
-    Cursos = Matematicas I-II-III, Estadistica I, Analitica de Datos, Herramientas de Programacion | Lenguaje I | Economia General I, Macroeconomia I, Sistemas Financieros | contabilidades |
-    Fundamentos de Ciencias Empresariales y cursos de gestion | introducciones (Ingenieria, Politica) | Derecho. Sellos UP = Filosofia, Etica, Religiones, Pensamiento Social, Sociologia, Psicologia, Historia Economica, Investigacion Academica, Liderazgo.
-    Para agregar un curso nuevo: ponerlo en C y en KS junto a los que se le parecen.
-17) RONDA 12
-  - Curso nuevo: Antropologia (ant, grupo Sellos UP: gp:2, va junto a Sociologia en KS). Aprendizaje Continuo 30% (evaluacion individual y grupal de lecturas semanales,
-    se ingresa como UNA sola nota), Examen Parcial (ensayo) 20%, Actividades de Exploracion Etnografica 30%, Examen Final (oral) 20%. Redondeo asumido igual que en los demas
-    cursos Sellos UP: cada parte y el promedio final al entero (el .5 sube).
-  - ORDEN DE LOS CURSOS: 2 modos (los modos "tema" y "mis" se ELIMINARON en la Ronda 13), guardados en localStorage mp-ord ("az" | "pop"); por defecto "az". "Mis cursos" ya no es un modo: es una seccion fija (ver Ronda 13).
-      El orden (funcion flat()) se aplica dentro de cada grupo: Nivelacion sin titulo, Cursos y Cursos Sellos UP (ver Ronda 13); cada tarjeta indica su tipo en la etiqueta pequena: "Nivelación en", "Curso" o "Curso Sellos UP" (lbl(), gp, gof).
-      az   = todos los cursos juntos, de la A a la Z (ignora tildes, localeCompare "es").
-      pop  = todos juntos por POP (claves de curso, del mas elegido al menos); lo que no esta en POP va al final en A-Z. POP sale de /api/populares (api/populares.js,
-             consulta a PostHog el evento curso_elegido de los ultimos 90 dias; variables POSTHOG_PERSONAL_API_KEY, POSTHOG_PROJECT_ID y opcional POSTHOG_HOST). Se pide solo la primera vez
-             que se usa ese modo. Si la API falla o no esta configurada se usa MAS_USADOS (arreglo de respaldo, vacio = A-Z).
-             En el desplegable de dentro del curso tambien sale el curso actual aunque no tenga notas. La lista se vuelve a armar cada vez que se abre Elige tu curso.
-      tema = el orden del arreglo KS descrito en la Ronda 11, con los 3 grupos.
-    Interfaz: en "Elige tu curso" un boton junto al buscador (.srow > #ordrow) abre un menu con los 4 modos (#ordmenu); dentro del desplegable de cursos (.ordw) van 4 botoncitos.
-    Funciones: ordMode, ORDS, flat(), ORD(), hn(), pr(), ordBtn(), ordChips(), renderOrd(), ordMenu(), popLoad(), reOrd(), renderPick(), renderClist(), renderFl(), setOrd().
-    Evento PostHog orden_cursos_cambiado (modo). El color de cada tarjeta ahora sale de su posicion en el orden mostrado (ORD()), no de KS. Para agregar un curso nuevo sigue siendo: ponerlo en C y en KS (el alfabetico se arma solo).
-18) RONDA 13
-  - Se ELIMINO el orden "Por tema". Los grupos se mantienen SOLO como separacion fija (constante GR, funciones inG() y secs()): las Nivelaciones NO se separan: cuentan como un curso mas dentro de "Cursos" (gg() devuelve 2 para Sellos UP y 1 para todo lo demas; gof() se conserva solo para el tracking). GR = "Cursos" y "Cursos Sellos UP". Dentro de cada grupo se aplica el orden elegido (az, pop o mis). Aplica a Elige tu curso, al desplegable y al pie (con "Ver mas" por grupo).
-    Si mp-ord guardaba "tema" o "mis", se usa "az". Un grupo sin cursos no se muestra.
-  - "Mis cursos" es una SECCION FIJA arriba (primer elemento de secs()): aparece solo si hay cursos con notas guardadas (hn()), en A-Z, y esos cursos NO se repiten en los grupos de abajo.
-    Esta en Elige tu curso (se vuelve a armar cada vez que se entra, en showView) y en el desplegable de dentro del curso (se vuelve a armar al abrirlo). El pie no la lleva.
-  - Ronda 14: en Elige tu curso y en el desplegable los cursos Sellos UP van MEZCLADOS con los Cursos en un solo grupo "Cursos" (secs() ya no separa; mantienen su etiqueta pequena "Curso Sellos UP").
-    Las nivelaciones se muestran como "Niv. Informatica", "Niv. Lenguaje", "Niv. Matematicas" (funcion dn(), tambien usada para el orden A-Z) con etiqueta pequena "Curso Nivelacion". El titulo del curso ya elegido y los nombres para tracking NO cambian.
-    El PIE conserva sus grupos con FGR/fg(): "Cursos", "Cursos Sellos UP" y el nuevo "Cursos de nivelación" (las 3 nivelaciones salen de "Cursos" para no repetirse). Sus botones siguen diciendo "Nivelación en ...".
-  - En el desplegable queda un encabezado .gh.gh0 invisible: el buscador (bqD) agrupa los botones usando los .gh, asi que no se debe quitar.
-=====================================================================
--->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>My PonderUP</title>
+<title>My PonderUP: calculadora de ponderado y nota necesaria para aprobar</title>
+<link rel="canonical" href="https://myponderup.vercel.app/">
+<meta name="robots" content="index,follow,max-image-preview:large">
 <script>document.documentElement.classList.add("js");/* tema antes de pintar: la eleccion guardada, o si no hay, el del sistema */
 (function(){try{var d=document.documentElement,v=localStorage.getItem("mp-theme"),m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches;d.dataset.theme=(v==="dark"||v==="light")?v:(m?"dark":"light")}catch(e){}})()</script>
 <meta name="description" content="Calcula tu ponderado y mira qué notas necesitas para aprobar.">
@@ -257,6 +17,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
 <meta property="og:url" content="https://myponderup.vercel.app/">
 <meta property="og:site_name" content="My PonderUP">
 <meta property="og:locale" content="es_PE">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"My PonderUP","url":"https://myponderup.vercel.app/","applicationCategory":"EducationalApplication","operatingSystem":"Any","browserRequirements":"Requiere JavaScript","inLanguage":"es-PE","description":"Calcula tu ponderado y mira qué notas necesitas para aprobar cada curso.","offers":{"@type":"Offer","price":"0","priceCurrency":"PEN"}}</script>
 <meta property="og:image" content="https://myponderup.vercel.app/img/og.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
@@ -291,7 +52,7 @@ body{margin:0;background:var(--bg);color:var(--txt);font:500 16px/1.55 Montserra
 .btn.xl{font-size:1rem;padding:18px 36px;margin-top:8px}
 .logo{font-weight:800;font-size:1.15rem;letter-spacing:.03em;text-transform:uppercase}
 .logo b{color:var(--green)}
-.soon{font-style:normal;background:var(--green);color:var(--navy);font-size:.62rem;padding:2px 6px;border-radius:3px;margin-left:6px;letter-spacing:.05em}
+.soon{font-style:normal;background:var(--green);color:var(--navy);font-size:.7rem;padding:2px 6px;border-radius:3px;margin-left:6px;letter-spacing:.05em}
 .strip{display:flex;width:150px;height:6px;margin:0 0 20px;transform-origin:left;animation:grow .8s .5s cubic-bezier(.2,.7,.2,1) backwards}.strip i{flex:1}
 /* Bienvenida y elección de curso */
 .wel{min-height:100vh;min-height:100svh;background:var(--navy);color:#fff;position:relative;overflow:hidden;display:flex;align-items:center}
@@ -305,7 +66,7 @@ body{margin:0;background:var(--bg);color:var(--txt);font:500 16px/1.55 Montserra
 .pl button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;background:rgba(255,255,255,.07);border:0;border-bottom:4px solid var(--s);color:#fff;padding:18px 18px 16px;font:800 1.1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .2s}
 .pl button:hover:not(:disabled){background:rgba(255,255,255,.15);transform:translateY(-2px)}
 .pl button:disabled{opacity:.55;cursor:default}
-.pl small,#clist small,#cbtn .cq{font-size:.62rem;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.7)}
+.pl small,#clist small,#cbtn .cq{font-size:.7rem;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.7)}
 /* Cabecera */
 .hd,.hero,.faq,footer{background:var(--navy);color:#fff}
 .hd{position:relative;z-index:30}
@@ -380,7 +141,7 @@ td.pfc{background:rgba(0,240,60,.2);font-weight:800}
 /* Resumen compacto fijo */
 #mini{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--navy);color:#fff;display:flex;align-items:center;gap:14px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));border-top:3px solid var(--green);transform:translateY(115%);transition:transform .35s cubic-bezier(.2,.7,.2,1)}
 #mini.on{transform:none}
-.ml{font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1.25;max-width:90px}
+.ml{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1.25;max-width:90px}
 .mb{position:relative;flex:1;height:8px;background:rgba(255,255,255,.2)}
 .mb span{position:absolute;top:0;bottom:0;left:0}
 #mpf{transition:width .35s ease,background .3s}
@@ -439,7 +200,7 @@ footer{border-top:1px solid rgba(255,255,255,.2);padding:28px 0 128px;font-size:
 @keyframes pulse{from{transform:scale(.92) rotate(-3deg)}to{transform:scale(1.06) rotate(3deg)}}
 #v-pick .core{display:none}
 
-.wm{position:absolute;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:2;text-align:center;font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);text-decoration:none;animation:fade 1.2s 1.4s backwards}
+.wm{position:absolute;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:2;text-align:center;font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);text-decoration:none;animation:fade 1.2s 1.4s backwards}
 .wm b,.fw b{color:var(--green);font-weight:800;letter-spacing:.04em;text-transform:none}
 .wm:hover b,.fw a:hover b{text-decoration:underline}
 .fw{margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.15);font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6)}
@@ -456,11 +217,12 @@ footer{border-top:1px solid rgba(255,255,255,.2);padding:28px 0 128px;font-size:
 .fl a.ig:hover{text-decoration:underline}
 .tip{margin:12px 0 0;padding-left:12px;border-left:3px solid var(--green);font-size:.85rem;color:var(--mut)}
 .tip b{color:var(--ink);letter-spacing:.04em}
+.q4n{margin:12px 0 0;font-size:.8rem;line-height:1.5;color:rgba(255,255,255,.78)}
 .wb span{position:relative}
 .wb span::after{content:"";position:absolute;left:0;bottom:0;height:5px;width:var(--f,0%);background:var(--wc);transition:width .35s ease}
 .zm{margin-top:16px}
 .zm:empty{display:none}
-.zl{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.72)}
+.zl{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.72)}
 .zl::before{content:"";width:8px;height:8px;background:var(--wb)}
 .zb{display:flex;gap:2px;height:30px}
 .zs{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;white-space:nowrap;font-size:.7rem;font-weight:800;color:var(--wc);background:color-mix(in srgb,var(--wb) var(--sh),#061F47);transform-origin:left;animation:grow .7s .9s cubic-bezier(.2,.7,.2,1) backwards}
@@ -618,7 +380,7 @@ input.g:placeholder-shown+.sf{display:none}
 .sc td.pfc{background:color-mix(in srgb,#00F03C 20%,var(--card))}
 /* Combinaciones en celular: misma tabla con scroll, mas compacta y con "Promedio final" en dos filas */
 @media (max-width:600px){
- .sc th{min-width:58px;padding:9px 5px;font-size:.62rem;letter-spacing:.02em}
+ .sc th{min-width:58px;padding:9px 5px;font-size:.7rem;letter-spacing:.02em}
  .sc td{padding:9px 5px;font-size:.92rem}
  .sc th.pfc,.sc td.pfc{min-width:64px;padding-left:6px;padding-right:6px}
  .sc td.pfc{border-left:1px solid var(--line)}
@@ -728,7 +490,7 @@ input.g:placeholder-shown+.sf{display:none}
  .pm{width:26px;height:26px}
  .ans{padding:0 6px 0 52px}
  .ans::after{height:20px}
- .lg2,.lg{font-size:.66rem}
+ .lg2,.lg{font-size:.7rem}
 }
 
 /* ===== Cursos agrupados ===== */
@@ -736,7 +498,7 @@ input.g:placeholder-shown+.sf{display:none}
 .pg+.pg{margin-top:28px}
 .gt{display:flex;align-items:center;gap:12px;margin:0;font:800 .74rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
 .gt::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.22)}
-.gt i{order:2;font-style:normal;font-size:.62rem;letter-spacing:.06em;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 8px}
+.gt i{order:2;font-style:normal;font-size:.7rem;letter-spacing:.06em;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:3px 8px}
 .pgs .pl{margin-top:14px}
 .gh{padding:12px 14px 6px;font:800 .62rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--green);border-top:1px solid rgba(255,255,255,.12)}
 .gh:first-child{border-top:0}
@@ -755,7 +517,7 @@ input.g:placeholder-shown+.sf{display:none}
 
 /* ===== Factor de inscripción ===== */
 .fback{display:flex;align-items:center;gap:10px;width:100%;background:rgba(255,255,255,.08);border:0;border-bottom:4px solid var(--green);color:#fff;padding:12px 14px;font:800 .95rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;text-align:left;cursor:pointer}
-.fback small{font-size:.62rem;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.7)}
+.fback small{font-size:.7rem;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.7)}
 .fback b{flex:1;font-weight:800}
 .fch2{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:0 0 10px}
 .fch2 button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--mut);color:var(--ink);padding:16px 18px;font:inherit;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s}
@@ -830,7 +592,7 @@ input.g:placeholder-shown+.sf{display:none}
 @media (max-width:600px){
  .fhd{display:none}
  .frow{grid-template-columns:78px 104px minmax(0,1fr) 38px;grid-template-areas:"nm nm nm nm" "cr nt nc del";align-items:end}
- .flb small,.fnc small{display:block;font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:3px}
+ .flb small,.fnc small{display:block;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:3px}
  .fnc{align-self:end;padding-bottom:7px}
  .fdel{align-self:end}
  #fibig{font-size:3rem}
@@ -846,7 +608,7 @@ input.g:placeholder-shown+.sf{display:none}
 .bar .shb{background:var(--green);color:var(--navy);border-color:var(--green)}
 .bar .shb:hover,.bar .shb:focus-visible{background:var(--green);color:var(--navy);filter:brightness(1.1)}
 .shf{margin-top:16px;height:44px;padding:0 16px}
-@media (max-width:480px){.hr{gap:6px}.hd1 .btn{padding:12px 10px;font-size:.66rem}.lg-h{max-width:calc(100vw - 190px)}}
+@media (max-width:480px){.hr{gap:6px}.hd1 .btn{padding:12px 10px;font-size:.7rem}.lg-h{max-width:calc(100vw - 190px)}}
 .sgf{margin:8px 0 0;max-width:460px}
 .sgr{display:flex;gap:8px;align-items:stretch}
 .sgf textarea{flex:1;min-width:0;min-height:52px;max-height:130px;resize:none;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.32);border-radius:2px;padding:12px;font:500 .85rem/1.35 Montserrat,"Montserrat Fallback",Arial,sans-serif;transition:border-color .2s,background .2s}
@@ -925,7 +687,7 @@ input.g:placeholder-shown+.sf{display:none}
 .upl2:empty{display:none}
 .upl2 li{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.09);border-left:4px solid var(--c,#00F03C);padding:10px 8px 10px 12px;animation:up .35s both}
 .upl2 li[data-t=pdf]{--c:#00F03C}.upl2 li[data-t=docx]{--c:#0A5CFF}.upl2 li[data-t=png],.upl2 li[data-t=jpg],.upl2 li[data-t=jpeg]{--c:#F000F0}
-.upl2 .fx{flex:none;min-width:46px;text-align:center;font-size:.64rem;font-weight:800;letter-spacing:.06em;background:var(--c);color:var(--navy);padding:6px 6px}
+.upl2 .fx{flex:none;min-width:46px;text-align:center;font-size:.7rem;font-weight:800;letter-spacing:.06em;background:var(--c);color:var(--navy);padding:6px 6px}
 .upl2 li[data-t=docx] .fx{color:#fff}
 .upl2 .fi{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .upl2 .fn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.9rem;font-weight:700}
@@ -976,12 +738,12 @@ input.g:placeholder-shown+.sf{display:none}
  .upst b{font-size:.72rem}
  .upf textarea{min-height:120px}
  .upd .fm{gap:5px}
- .upd .fm span{font-size:.64rem;padding:4px 7px}
+ .upd .fm span{font-size:.7rem;padding:4px 7px}
  .upd .tx b{font-size:1rem}
  .upn{font-size:.82rem}
 }
 @media (max-width:380px){
- .upv .bar .hr .shb{padding:10px 9px;font-size:.62rem}
+ .upv .bar .hr .shb{padding:10px 9px;font-size:.7rem}
  .upv .bar .hd1 .logo{font-size:.78rem}
  .upf textarea{min-height:140px}
  .upd .tx b{font-size:.92rem}
@@ -1017,9 +779,9 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 .bkc:hover svg,.bkc:focus-visible svg{transform:translateX(-3px)}
 @media (max-width:700px){
  #v-pick .wc{padding-top:calc(72px + env(safe-area-inset-top,0px))}
- .addc{display:inline-flex;top:calc(12px + env(safe-area-inset-top,0px));right:12px;gap:7px;padding:8px 10px 8px 8px;font-size:.64rem}
+ .addc{display:inline-flex;top:calc(12px + env(safe-area-inset-top,0px));right:12px;gap:7px;padding:8px 10px 8px 8px;font-size:.7rem}
  .addc i{width:18px;height:18px;font-size:1rem}
- .bkc{top:calc(12px + env(safe-area-inset-top,0px));left:12px;gap:6px;padding:8px 10px 8px 8px;font-size:.64rem}
+ .bkc{top:calc(12px + env(safe-area-inset-top,0px));left:12px;gap:6px;padding:8px 10px 8px 8px;font-size:.7rem}
  .bkc svg{width:16px;height:16px}
 }
 
@@ -1409,7 +1171,7 @@ footer .fl.fcm{transition:border-color .25s,box-shadow .3s}
 /* Instagram: insignia con degradado, "Síguenos en" pequeño, usuario en grande y flecha */
 footer .fl a.ig{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;height:auto;min-height:58px;padding:9px 14px;background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.22);border-radius:0;color:#fff;font-weight:600}
 footer .fl a.ig svg{box-sizing:content-box;flex:none;width:18px;height:18px;padding:8px;color:#fff;background:linear-gradient(135deg,#F000F0,#0A5CFF);border-radius:10px;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
-footer .fl a.ig>span{display:flex;flex-direction:column;align-items:flex-start;gap:4px;line-height:1;font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.62);white-space:nowrap}
+footer .fl a.ig>span{display:flex;flex-direction:column;align-items:flex-start;gap:4px;line-height:1;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.62);white-space:nowrap}
 footer .fl a.ig b,footer .fl a.ig:hover b{font-size:.98rem;font-weight:800;letter-spacing:0;text-transform:none;color:#fff}
 footer .fl a.ig::after{content:"";margin-left:auto;flex:none;width:8px;height:8px;border-top:2px solid var(--green);border-right:2px solid var(--green);transform:translateX(-4px) rotate(45deg);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
 @media (hover:hover){
@@ -1656,9 +1418,9 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 .ordb{display:flex;align-items:center;gap:11px;width:100%;background:rgba(255,255,255,.08);color:#fff;border:2px solid rgba(255,255,255,.55);border-radius:2px;padding:10px 14px 10px 12px;font:800 .72rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-align:left;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .2s,color .2s,border-color .2s,transform .25s cubic-bezier(.34,1.56,.64,1)}
 .ordb svg{width:20px;height:20px;flex:none;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
 .ordb .ordk{flex:1;display:flex;flex-direction:column;gap:3px}
-.ordb small{font-size:.58rem;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.7)}
+.ordb small{font-size:.7rem;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.7)}
 .ordb b{font-size:.95rem;font-weight:900;letter-spacing:.04em;color:var(--green)}
-.ordb em{font-style:normal;font-size:.6rem;font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.7)}
+.ordb em{font-style:normal;font-size:.7rem;font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.7)}
 .ordb:hover,.ordb:focus-visible{background:#fff;color:var(--navy);border-color:#fff}
 .ordb:hover small,.ordb:hover em,.ordb:focus-visible small,.ordb:focus-visible em{color:rgba(6,31,71,.7)}
 .ordb:hover b,.ordb:focus-visible b{color:var(--navy)}
@@ -1704,6 +1466,7 @@ window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.g
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body class="dk">
+<noscript><p style="margin:0;padding:24px;background:#061F47;color:#fff;font:600 16px/1.5 Arial,sans-serif;text-align:center">My PonderUP necesita JavaScript para calcular tu ponderado. Actívalo en tu navegador y vuelve a cargar la página.</p></noscript>
 
 <div id="v-welcome" class="wel"><div class="wrap wc">
 <div class="wt wtop"><span class="t1 mr" style="--i:1">Bienvenido a</span></div>
@@ -1724,7 +1487,7 @@ window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.g
 
 <div id="v-up" class="wel upv" hidden>
 <div class="updeco" aria-hidden="true"><i class="sq" style="left:4%;top:24%"></i><i class="sq b" style="right:7%;top:38%"></i><i class="sq g" style="left:9%;top:72%"></i><i class="sp" style="left:88%;top:16%;--s:18px;--d:.4s"></i><i class="sp" style="left:93%;top:62%;--s:14px;--d:1.3s"></i><i class="sp" style="left:3%;top:50%;--s:16px;--d:2s"></i><i class="sp" style="left:80%;top:88%;--s:20px;--d:.9s"></i></div>
-<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="uphome" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb" id="upback"><span>← Volver a cursos</span></button></div></div></div>
+<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="uphome" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" loading="lazy" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb" id="upback"><span>← Volver a cursos</span></button></div></div></div>
 <div class="wrap wc upw"><div class="upin">
 <div class="gt rv" style="--i:0">Ayúdanos a crecer</div>
 <h1 class="wt"><span class="t1 mr" style="--i:1">Agrega tu</span><span class="t2 mr" style="--i:2">curso</span></h1>
@@ -1756,7 +1519,7 @@ window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.g
 </div>
 
 <div id="v-tool" hidden>
-<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb adb" data-add="barra" aria-label="Agrega tu curso" title="Agrega tu curso"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div></div>
+<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" loading="lazy" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb adb" data-add="barra" aria-label="Agrega tu curso" title="Agrega tu curso"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div></div>
 <header class="hd">
 <div class="wrap cs rv" style="--i:1"><button id="cbtn" type="button" aria-controls="clist" aria-expanded="false"><span class="cq">Curso:</span><span class="cv" id="cval"></span><i class="chev"></i></button><div id="clist" hidden></div></div>
 </header>
@@ -1781,15 +1544,15 @@ window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.g
 <details class="qa"><summary><span class="no">01</span><span class="q">¿Cómo se calcula la nota de este curso?</span><i class="pm"></i></summary><div class="ans"><div class="stl" id="cinfo"></div></div></details>
 <details class="qa"><summary><span class="no">02</span><span class="q">¿Cómo se redondea?</span><i class="pm"></i></summary><div class="ans"><div id="rules"></div></div></details>
 <details class="qa"><summary><span class="no">03</span><span class="q">¿Qué significa "Por rendir"?</span><i class="pm"></i></summary><div class="ans"><div class="q3g"><div class="q3c b"><span class="q3t">La dejas en blanco</span><span class="q3f e" aria-hidden="true"><i>Por rendir</i><b>/20</b></span><span class="tag m">Pendiente</span><p>Cuenta como 0 en "Mi promedio hasta ahora" y la tabla te dice cuánto necesitas sacar en ella.</p></div><div class="q3c g"><span class="q3t">Escribes un 0</span><span class="q3f" aria-hidden="true"><i>0</i><b>/20</b></span><span class="tag y">Rendida</span><p>Cuenta como una nota ya rendida: el 0 entra al promedio tal cual.</p></div></div></div></details>
-<details class="qa"><summary><span class="no">04</span><span class="q">¿Se guardan mis notas?</span><i class="pm"></i></summary><div class="ans"><div class="q4g"><div class="q4t" style="--c:#0A5CFF;--cc:#fff"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></span><b>Dónde</b><p>Solo en tu navegador y en tu dispositivo. Al volver, tus notas siguen ahí.</p></div><div class="q4t" style="--c:#00F03C;--cc:#061F47"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b>Privacidad</b><p>No se envían a ningún servidor y nadie más puede verlas.</p></div><div class="q4t" style="--c:#F000F0;--cc:#061F47"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 12a1.5 1.5 0 0 0 1.5 1.4h7A1.5 1.5 0 0 0 17 19l1-12M9 7V4h6v3"/></svg></span><b>Para borrarlas</b><p>Vacía la casilla de cada nota o borra los datos del sitio desde tu navegador.</p></div></div></div></details>
+<details class="qa"><summary><span class="no">04</span><span class="q">¿Se guardan mis notas?</span><i class="pm"></i></summary><div class="ans"><div class="q4g"><div class="q4t" style="--c:#0A5CFF;--cc:#fff"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></span><b>Dónde</b><p>Solo en tu navegador y en tu dispositivo. Al volver, tus notas siguen ahí.</p></div><div class="q4t" style="--c:#00F03C;--cc:#061F47"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b>Privacidad</b><p>No se envían a ningún servidor y nadie más puede verlas.</p></div><div class="q4t" style="--c:#F000F0;--cc:#061F47"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 12a1.5 1.5 0 0 0 1.5 1.4h7A1.5 1.5 0 0 0 17 19l1-12M9 7V4h6v3"/></svg></span><b>Para borrarlas</b><p>Vacía la casilla de cada nota o borra los datos del sitio desde tu navegador.</p></div></div><p class="q4n">Tus notas nunca salen de tu dispositivo. Para mejorar la página medimos de forma anónima cómo se usa (pantallas, cursos elegidos y clics) y, en algunos casos, grabamos la sesión con los campos de texto ocultos. Si tu navegador tiene activado «No rastrear», no medimos nada. El mensaje que envías por el formulario sí llega a nosotros.</p></div></details>
 <details class="qa"><summary><span class="no">05</span><span class="q">¿Qué significan los avisos de aprobado?</span><i class="pm"></i></summary><div class="ans"><div class="stl"><div class="sti"><div class="stt"><span class="tag y">Ya aprobaste</span></div><p>Aunque saques 0 en lo que falta, llegas a tu nota mínima.</p></div><div class="sti"><div class="stt"><span class="tag m">Aún puedes aprobar</span></div><p>Todavía se puede. Te decimos qué promedio necesitas en lo que falta.</p></div><div class="sti"><div class="stt"><span class="tag n">No puedes llegar</span></div><p>Ni con 20 en todo lo que falta alcanzas tu nota mínima.</p></div><div class="sti"><div class="stt"><span class="tag y">Aprobado</span><span class="tag n">Desaprobado</span></div><p>Solo aparecen cuando ya no queda ninguna evaluación por rendir.</p></div></div></div></details>
 </div></section>
-<footer><div class="wrap fc fcx"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>My PonderUP te ayuda a calcular tu promedio ponderado en segundos: ingresa tus notas, mira cuánto necesitas sacar en lo que falta y planifica cómo aprobar cada curso.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl fcm"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form><div class="fadd"><b>¿Falta tu curso?</b><button type="button" class="shb adb" data-add="pie"><i>+</i><span>Agrega tu curso</span></button></div><div class="igs"><a class="ig" data-ig="pie" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>Síguenos en <b class="igu">@myponderup</b></span></a></div></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Todos los derechos reservados</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
+<footer><div class="wrap fc fcx"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" loading="lazy" decoding="async" fetchpriority="low"><p>My PonderUP te ayuda a calcular tu promedio ponderado en segundos: ingresa tus notas, mira cuánto necesitas sacar en lo que falta y planifica cómo aprobar cada curso.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl fcm"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form><div class="fadd"><b>¿Falta tu curso?</b><button type="button" class="shb adb" data-add="pie"><i>+</i><span>Agrega tu curso</span></button></div><div class="igs"><a class="ig" data-ig="pie" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>Síguenos en <b class="igu">@myponderup</b></span></a></div></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Todos los derechos reservados</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
 </div>
 
 
 <div id="v-fi" hidden>
-<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home2" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div>
+<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home2" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" loading="lazy" decoding="async" fetchpriority="low"></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div>
 <header class="hd"><div class="wrap"><button type="button" class="fback" data-pick="1"><small>Ir a</small><b>Ponderado de un curso</b></button></div></header>
 <section class="hero"><div class="hdeco" aria-hidden="true"><i class="dt" style="width:16px;height:16px;background:#00F03C;top:12%;right:8%;--x:-10px;--y:14px;--t:7s"></i><i class="dt" style="width:11px;height:11px;background:#0A5CFF;top:27%;right:21%;--x:8px;--y:-14px;--t:9s;--d:-3s"></i><i class="sq" style="top:34%;right:6%;width:34px;height:34px;border-width:2px"></i></div><div class="wrap">
 <h1><span class="t1 mr" style="--i:1">Calcula tu</span><span class="t2 mr" style="--i:2">Factor de inscripción</span></h1>
@@ -1858,7 +1621,7 @@ window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.g
 <details class="qa"><summary><span class="no">05</span><span class="q">¿Se redondea el resultado?</span><i class="pm"></i></summary><div class="ans"><p>No. El promedio y el FI no se redondean al entero. Verás decimales solo cuando el resultado los tenga, con un máximo de dos.</p></div></details>
 <details class="qa"><summary><span class="no">06</span><span class="q">¿Es una herramienta oficial?</span><i class="pm"></i></summary><div class="ans"><p>No. Es una calculadora para que te hagas una idea de tu FI. El valor oficial es el que publica la universidad.</p></div></details>
 </div></section>
-<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>My PonderUP te ayuda a calcular tu factor de inscripción paso a paso: ingresa tus cursos, tus notas y tus bonificaciones, y mira cómo queda tu resultado.</p></div><div class="fl" id="ffl"><b>Otras herramientas</b><button type="button" data-pick="1">Ponderado de un curso</button></div><div class="fl"><b>Comentarios o sugerencias</b></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Todos los derechos reservados</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
+<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" loading="lazy" decoding="async" fetchpriority="low"><p>My PonderUP te ayuda a calcular tu factor de inscripción paso a paso: ingresa tus cursos, tus notas y tus bonificaciones, y mira cómo queda tu resultado.</p></div><div class="fl" id="ffl"><b>Otras herramientas</b><button type="button" data-pick="1">Ponderado de un curso</button></div><div class="fl"><b>Comentarios o sugerencias</b></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Todos los derechos reservados</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
 </div>
 
 <div class="tgw off" id="tgw"><button type="button" class="tg" id="tg" role="switch" aria-checked="false" aria-label="Modo oscuro"><svg class="ti s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><svg class="ti m" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.6 9.6 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z"/></svg><span class="tk"><svg class="s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><svg class="m" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.6 9.6 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z"/></svg></span></button></div>
@@ -2032,11 +1795,11 @@ gct:{n:"Gestión del Cambio y Transformación Cultural",pre:"",rf:1,i:"La Nota d
   {id:"pp",n:"Participación y Asistencia",s:"Participación",w:20}]},
  {id:"pa",n:"Examen Parcial",w:20,r:1,ch:[
   {id:"av",n:"Avance del Trabajo",s:"Avance",w:20},
-  {id:"eo",n:"Examen Oral",s:"Oral",w:80}]},
+  {id:"eo1",n:"Examen Oral",s:"Oral",w:80}]},
  {id:"fi",n:"Examen Final",w:35,r:1,ch:[
   {id:"tr",n:"Trabajo de Investigación",s:"Trabajo",w:40},
   {id:"ep",n:"Exposición",s:"Exposición",w:10},
-  {id:"eo",n:"Examen Oral",s:"Oral",w:50}]}]}},
+  {id:"eo2",n:"Examen Oral",s:"Oral",w:50}]}]}},
 psc:{n:"Pensamiento Social Contemporáneo",pre:"",gp:2,rf:1,i:"Las Notas de Trabajos pesan 50%, el Examen Parcial 20% y el Examen Final 30%. Las Notas de Trabajos se ingresan como una sola nota. La nota de trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Trabajos",s:"Trabajos",w:50,r:1},
  {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
@@ -2129,6 +1892,13 @@ ant:{n:"Antropología",pre:"",gp:2,rf:1,i:"El Aprendizaje Continuo pesa 30% (eva
  {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}}
 };
 const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+/* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
+let rtLock=false,rtBoot=false;
+const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
+function routeGet(){const h=(location.hash||"").slice(1);if(h==="cursos")return{v:"pick"};if(h==="agregar-curso")return{v:"up"};if(/^[a-z0-9]+$/.test(h)&&Object.prototype.hasOwnProperty.call(C,h))return{v:"tool",k:h};return{v:null}}
+function routeSync(){try{document.title=(view==="tool"&&cur&&C[cur])?(((C[cur].pre??"Nivelación en ")+C[cur].n)+": calcula tu ponderado | My PonderUP"):BASE_TITLE}catch(_){}
+ if(rtLock)return;const want=view==="pick"?"cursos":view==="up"?"agregar-curso":(view==="tool"&&cur)?cur:"",have=(location.hash||"").slice(1);if(want===have)return;
+ try{const u=want?"#"+want:location.pathname+location.search;history[rtBoot?"replaceState":"pushState"](null,"",u)}catch(_){}}
 /* MAS_USADOS: orden de respaldo de "Más usados" (claves de curso, del más elegido al menos). Se reemplaza solo con lo que devuelve /api/populares (PostHog). Vacío = cae a A-Z */
 const MAS_USADOS=[];let POP=MAS_USADOS;
 let ordMode=(()=>{try{const m=localStorage.getItem("mp-ord");return m==="pop"?m:"az"}catch(_){return"az"}})();
@@ -2172,7 +1942,7 @@ const chk=()=>{const mOn=view==="tool"&&bodyIn&&!sumIn&&!faqIn,fm=$("fimini"),
  if(mOn&&!miniAn&&!$("mini").classList.contains("on")){miniAn=true;anim("mini_resumen_aparece")}$("mini").classList.toggle("on",mOn);
  $("tgw").classList.toggle("off",!tOn);
  $("tgw").classList.toggle("low",!(mOn||(fm&&fm.classList.contains("on"))))};
-function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;if(v==="pick"){renderPick();const qi=$("bqp");if(qi&&qi.value)bqU(qi)}document.body.classList.toggle("dk",v==="welcome"||v==="pick"||v==="up");track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
+function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;if(v==="pick"){renderPick();const qi=$("bqp");if(qi&&qi.value)bqU(qi)}document.body.classList.toggle("dk",v==="welcome"||v==="pick"||v==="up");track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo();routeSync()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
 /* "Agrega tu curso": recuerda desde donde se abrio para volver al mismo lugar */
 function updUpLabels(){const t=upFrom==="tool"&&cur,s=document.querySelector("#upback span"),g=$("upgo");if(s)s.textContent=t?"← Volver a mi curso":"← Volver a cursos";if(g)g.textContent=t?"Volver a mi curso":"Volver a cursos"}
@@ -2239,6 +2009,7 @@ function setCourse(k){
  $("pm").value=S.pm;
  prevOk=null;prevA=null;prevK=null;prevNum=null;
  update();
+ routeSync();
 }
 
 /* Pregunta 1 de "Cómo funciona": una fila por evaluación (con su peso total) y una fila de "Ten en cuenta" con las aclaraciones propias del curso */
@@ -2645,7 +2416,7 @@ function load(){try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(!j|
 /* ===== Compartir ===== */
 function toast(m){anim("aviso_emergente");const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2600)}
 async function doShare(o){track("compartir_click",{origen:o});
- const url=location.origin+location.pathname+"?utm_source=share",d={title:"My PonderUP",text:"Calcula tu ponderado y mira qué notas necesitas para aprobar.",url};
+ const url=location.origin+location.pathname+"?utm_source=share"+((view==="tool"&&cur)?"#"+cur:""),d={title:"My PonderUP",text:"Calcula tu ponderado y mira qué notas necesitas para aprobar.",url};
  if(navigator.share&&window.matchMedia&&matchMedia("(pointer:coarse)").matches){try{await navigator.share(d);track("compartir_ok",{origen:o,metodo:"nativo"});return}catch(e){if(e&&e.name==="AbortError")return}}
  try{await navigator.clipboard.writeText(url);toast("Enlace copiado");track("compartir_ok",{origen:o,metodo:"copiar"})}
  catch(_){const ta=document.createElement("textarea");ta.value=url;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"Enlace copiado":url)}}
@@ -3047,8 +2818,13 @@ if("IntersectionObserver" in window){const b=$("mpv");
 /* Si hay notas guardadas, se vuelve directo al curso donde estaba el alumno */
 const back=load();
 if(back)track("progreso_restaurado",{curso:back});
-setCourse(back||"mat");
-showView(back?"tool":"welcome");
+/* Si la direccion trae #curso o #cursos, manda sobre el progreso guardado */
+{const R0=routeGet();let k0=back||"mat",v0=back?"tool":"welcome";
+ if(R0.v==="tool"){k0=R0.k;v0="tool"}else if(R0.v==="pick"||R0.v==="up"){v0="pick"}
+ rtLock=true;setCourse(k0);showView(v0);rtLock=false;rtBoot=true;routeSync();rtBoot=false}
+/* Atras / Adelante del navegador o del celular */
+window.addEventListener("popstate",()=>{const r=routeGet();rtLock=true;
+ try{closeList();if(r.v==="tool"){if(cur!==r.k)setCourse(r.k);showView("tool")}else if(r.v==="up"){updUpLabels();showView("up")}else if(r.v==="pick")showView("pick");else showView("welcome")}finally{rtLock=false;routeSync()}});
 </script>
 <script>/* Nota fuera de rango: mensaje, temblor (se reinicia en cada intento) y vibración corta en celulares que la soportan */
 window.badFx=function(gi,t,mx){anim(gi&&gi.classList&&gi.classList.contains("minl")?"nota_minima_temblor":"nota_temblor");var v=parseFloat(String(t.value).replace(",","."));gi.setAttribute("data-msg",v<0?"Mínimo 0":"Máximo "+mx);gi.classList.remove("sk");void gi.offsetWidth;gi.classList.add("sk");clearTimeout(gi._sk);gi._sk=setTimeout(function(){gi.classList.remove("sk")},460);try{if(navigator.vibrate)navigator.vibrate(22)}catch(_){}};
