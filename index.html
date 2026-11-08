@@ -217,6 +217,15 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     Cursos = Matematicas I-II-III, Estadistica I, Analitica de Datos, Herramientas de Programacion | Lenguaje I | Economia General I, Macroeconomia I, Sistemas Financieros | contabilidades |
     Fundamentos de Ciencias Empresariales y cursos de gestion | introducciones (Ingenieria, Politica) | Derecho. Sellos UP = Filosofia, Etica, Religiones, Pensamiento Social, Sociologia, Psicologia, Historia Economica, Investigacion Academica, Liderazgo.
     Para agregar un curso nuevo: ponerlo en C y en KS junto a los que se le parecen.
+17) RONDA 12
+  - Curso nuevo: Antropologia (ant, grupo Sellos UP: gp:2, va junto a Sociologia en KS). Aprendizaje Continuo 30% (evaluacion individual y grupal de lecturas semanales,
+    se ingresa como UNA sola nota), Examen Parcial (ensayo) 20%, Actividades de Exploracion Etnografica 30%, Examen Final (oral) 20%. Redondeo asumido igual que en los demas
+    cursos Sellos UP: cada parte y el promedio final al entero (el .5 sube).
+  - ORDEN DE LOS CURSOS: ahora es ALFABETICO por defecto (dentro de cada grupo: Nivelacion, Cursos, Cursos Sellos UP; ignora tildes, localeCompare "es"). Un boton "Orden de los
+    cursos" (atributo data-ord) alterna entre A-Z y "Por tema" (el orden del arreglo KS descrito en la Ronda 11). Esta en 3 lugares: en "Elige tu curso" a un costado (en el panel
+    .sidec en pantallas de 1100 px o mas, y arriba de la lista en celular, #ordrow) y dentro del desplegable de cursos del calculo (.ordw). La eleccion se guarda en localStorage
+    mp-ord ("az" | "tema"). Funciones: ordMode, inG(), ORD(), ordBtn(), renderOrd(), renderPick(), renderClist(), renderFl(), setOrd(). Evento PostHog orden_cursos_cambiado (modo).
+    El color de cada tarjeta ahora sale de su posicion en el orden mostrado (ORD()), no de KS. Para agregar un curso nuevo sigue siendo: ponerlo en C y en KS (el alfabetico se arma solo).
 =====================================================================
 -->
 <meta charset="utf-8">
@@ -1625,6 +1634,32 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 .sidec{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px;max-width:760px;margin-top:34px}
 .sidec .addb{margin-top:0}
 @media (min-width:1100px){.sidec{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:20px;width:350px;max-width:none;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-width:thin;margin:0;z-index:5}.sidec .addb{position:static;width:auto;box-shadow:0 14px 34px rgba(0,0,0,.35)}}
+
+/* ===== Boton de orden de los cursos (A-Z / Por tema) ===== */
+.ordb{display:flex;align-items:center;gap:11px;width:100%;background:rgba(255,255,255,.08);color:#fff;border:2px solid rgba(255,255,255,.55);border-radius:2px;padding:10px 14px 10px 12px;font:800 .72rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-align:left;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .2s,color .2s,border-color .2s,transform .25s cubic-bezier(.34,1.56,.64,1)}
+.ordb svg{width:20px;height:20px;flex:none;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.ordb .ordk{flex:1;display:flex;flex-direction:column;gap:3px}
+.ordb small{font-size:.58rem;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.7)}
+.ordb b{font-size:.95rem;font-weight:900;letter-spacing:.04em;color:var(--green)}
+.ordb em{font-style:normal;font-size:.6rem;font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.7)}
+.ordb:hover,.ordb:focus-visible{background:#fff;color:var(--navy);border-color:#fff}
+.ordb:hover small,.ordb:hover em,.ordb:focus-visible small,.ordb:focus-visible em{color:rgba(6,31,71,.7)}
+.ordb:hover b,.ordb:focus-visible b{color:var(--navy)}
+.ordb:hover svg,.ordb:focus-visible svg{transform:rotate(180deg)}
+.ordb:active{transform:scale(.98)}
+.ordrow{position:relative;z-index:2;max-width:760px;margin-top:18px}
+.ordrow .ordb{width:auto;display:inline-flex;padding-right:16px}
+.ordrow .ordb em{margin-left:6px}
+@media (min-width:1100px){.ordrow{display:none}}
+@media (max-width:1099px){.ordside{display:none}}
+#clist .ordw{padding:10px 14px;border-top:1px solid rgba(255,255,255,.12)}
+#clist .ordw button,#clist .ordw .ordb{flex-direction:row;align-items:center;gap:11px;width:100%;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.4);border-radius:2px;padding:8px 12px;font-size:.72rem;text-transform:uppercase}
+#clist .ordw .ordb small{font-size:.56rem}
+#clist .ordw .ordb b{font-size:.85rem}
+#clist .ordw .ordb:hover,#clist .ordw .ordb:focus-visible{background:#fff;color:var(--navy);border-color:#fff}
+#clist .ordw .ordb:hover small,#clist .ordw .ordb:hover em,#clist .ordw .ordb:focus-visible small,#clist .ordw .ordb:focus-visible em{color:rgba(6,31,71,.7)}
+#clist .ordw .ordb:hover b,#clist .ordw .ordb:focus-visible b{color:var(--navy)}
+@media (prefers-reduced-motion:reduce){.ordb:hover svg,.ordb:focus-visible svg,.ordb:active{transform:none}}
 .pjx{border-top:1px solid var(--line);padding:12px 0 6px}
 .pjt{font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
 .pjs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:8px;align-items:center;padding:6px 0;color:var(--ink);font-size:.95rem}
@@ -1651,8 +1686,9 @@ window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.g
 
 <div id="v-pick" class="wel" hidden><button type="button" class="bkc" id="pickback" aria-label="Volver al inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg><span>Atrás</span></button><button type="button" class="addc" id="addc"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><div class="wrap wc">
 <h1 class="wt eq"><span class="t1 mr" style="--i:0">Elige tu</span><span class="t2 mr" style="--i:1">curso</span></h1>
+<div class="ordrow" id="ordrow"></div>
 <div class="pgs" id="plist"></div>
-<div class="sidec" id="sidec"><div class="addb" id="addb"><span class="addb-k">¿Falta tu curso?</span><b>Agrégalo tú mismo</b><span class="addb-t">Envíanos el sílabo o reglamento y lo sumamos a My PonderUP.</span><button type="button" class="btn addb-b" id="addc2"><span aria-hidden="true">+</span> Agrega tu curso</button></div></div>
+<div class="sidec" id="sidec"><div class="ordside" id="ordside"></div><div class="addb" id="addb"><span class="addb-k">¿Falta tu curso?</span><b>Agrégalo tú mismo</b><span class="addb-t">Envíanos el sílabo o reglamento y lo sumamos a My PonderUP.</span><button type="button" class="btn addb-b" id="addc2"><span aria-hidden="true">+</span> Agrega tu curso</button></div></div>
 </div>
 </div>
 
@@ -2055,10 +2091,16 @@ dos:{n:"Diseño Organizacional y Estrategia",pre:"",rf:1,i:"La Nota de Trabajo p
   {id:"pc",n:"Práctica Calificada",s:"Práctica",w:40},
   {id:"ea",n:"Ejercicios Aplicativos",s:"Ejercicios",w:30},
   {id:"ti",n:"Trabajo Integrador",s:"Trabajo Integrador",w:30}]},
- {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
+ {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+ant:{n:"Antropología",pre:"",gp:2,rf:1,i:"El Aprendizaje Continuo pesa 30% (evaluación individual y grupal de las lecturas semanales) y se ingresa como una sola nota. El Examen Parcial (ensayo) pesa 20%, las Actividades de Exploración Etnográfica 30% y el Examen Final (oral) 20%. No se indicó cómo se redondea, por eso se asume que el aprendizaje continuo, el parcial, las actividades etnográficas, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"ac",n:"Aprendizaje Continuo",s:"Aprend. Continuo",w:30,r:1},
+ {id:"pa",n:"Examen Parcial (Ensayo)",s:"Parcial",w:20,r:1},
+ {id:"ee",n:"Actividades de Exploración Etnográfica",s:"Etnografía",w:30,r:1},
+ {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
-const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+let ordMode=(()=>{try{return localStorage.getItem("mp-ord")==="tema"?"tema":"az"}catch(_){return"az"}})();
+const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),azc=(a,b)=>C[a].n.localeCompare(C[b].n,"es",{sensitivity:"base"}),inG=g=>{const l=KS.filter(x=>gof(x)===g);return ordMode==="az"?l.sort(azc):l},ORD=()=>ordMode==="az"?GR.flatMap(([,g])=>inG(g)):KS,cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
 const isP=id=>{const g=S.g[id];return g===undefined||g===""||isNaN(+g)};
@@ -2100,17 +2142,37 @@ function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expande
 function updUpLabels(){const t=upFrom==="tool"&&cur,s=document.querySelector("#upback span"),g=$("upgo");if(s)s.textContent=t?"← Volver a mi curso":"← Volver a cursos";if(g)g.textContent=t?"Volver a mi curso":"Volver a cursos"}
 function leaveUp(){const t=upFrom==="tool"&&cur;showView(t?"tool":"pick");if(t)window.scrollTo({top:upY,behavior:"instant"})}
 
+/* ===== Orden de los cursos: A-Z (por defecto) o "Por tema" (orden del arreglo KS). Se guarda en mp-ord ===== */
+const ordBtn=c=>`<button type="button" class="ordb ${c}" data-ord="1" aria-label="Cambiar el orden de los cursos. Orden actual: ${ordMode==="az"?"alfabético":"por tema"}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16"/><path d="M3.5 16.5L7 20l3.5-3.5"/><path d="M17 20V4"/><path d="M13.5 7.5L17 4l3.5 3.5"/></svg><span class="ordk"><small>Orden de los cursos</small><b>${ordMode==="az"?"A–Z":"Por tema"}</b></span><em>Cambiar</em></button>`;
+function renderOrd(){const a=$("ordrow"),b=$("ordside");if(a)a.innerHTML=ordBtn("ordtop");if(b)b.innerHTML=ordBtn("ordsd")}
+function renderClist(k){
+ $("cbtn").style.setProperty("--s",SC[ORD().indexOf(k)%4]);
+ $("clist").innerHTML=BQ(0)+`<div class="ordw">${ordBtn("ordin")}</div>`+GR.map(([t,g])=>`<div class="gh">${t}</div>`+inG(g).map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
+}
+function renderFl(){
+ $("fl").innerHTML=GR.map(([t,g],j)=>{const xs=inG(g),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`,L=FLIM,open=fexp.has(j);
+  return `<b${j?' class="sp2"':""}>${t}</b>`+(xs.length<=L?xs.map(mk).join(""):xs.slice(0,L).map(mk).join("")+`<div class="fmore" id="fm${j}"${open?"":" hidden"}>${xs.slice(L).map(mk).join("")}</div><button type="button" class="vm" data-vm="${j}" aria-expanded="${open}" aria-controls="fm${j}">${open?"Ver menos":`Ver ${xs.length-L} más`}</button>`)}).join("")+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
+}
+function renderPick(){
+ $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+GR.map(([t,g])=>`<section class="pg"><h2 class="gt">${t}<i>${inG(g).length}</i></h2><div class="pl">${inG(g).map(x=>{const i=ORD().indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`}).join("")}</div></section>`).join("");
+}
+function setOrd(m){
+ if(m===ordMode)return;ordMode=m;try{localStorage.setItem("mp-ord",m)}catch(_){}
+ track("orden_cursos_cambiado",{modo:m,vista:view});
+ renderOrd();renderPick();
+ if(cur){renderClist(cur);renderFl()}
+ const i=$("bqp");if(i&&i.value)bqU(i)
+}
+
 function setCourse(k){
  cur=k;S=ST[k]||(ST[k]=mkState(k));
  idx={};walk(S.root,c=>idx[c.id]=c);
  $("cval").textContent=(C[k].pre??"Nivelación en ")+C[k].n;
- $("cbtn").style.setProperty("--s",SC[KS.indexOf(k)%4]);
- $("clist").innerHTML=BQ(0)+GR.map(([t,g])=>`<div class="gh">${t}</div>`+inG(g).map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
+ renderClist(k);
  closeList();
  setLetters($("ctitle"),(C[k].pre??"Nivelación en ")+C[k].n);
  {const t=$("ctitle");t.classList.remove("mr");void t.offsetWidth;t.classList.add("mr")}
- $("fl").innerHTML=GR.map(([t,g],j)=>{const xs=inG(g),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`,L=FLIM,open=fexp.has(j);
-  return `<b${j?' class="sp2"':""}>${t}</b>`+(xs.length<=L?xs.map(mk).join(""):xs.slice(0,L).map(mk).join("")+`<div class="fmore" id="fm${j}"${open?"":" hidden"}>${xs.slice(L).map(mk).join("")}</div><button type="button" class="vm" data-vm="${j}" aria-expanded="${open}" aria-controls="fm${j}">${open?"Ver menos":`Ver ${xs.length-L} más`}</button>`)}).join("")+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
+ renderFl();
  const G=S.root.ch;
  $("wbar").innerHTML=G.map((g,i)=>`<span data-i="${i}" style="flex:${g.w};--wb:${wbc(i)[0]};--wc:${wbc(i)[1]}">${fmt(g.w)}%</span>`).join("");
  $("lgd").innerHTML=G.map((g,i)=>`<span style="--wb:${wbc(i)[0]}">${g.n}</span>`).join("");
@@ -2410,6 +2472,7 @@ document.addEventListener("click",e=>{
  if(e.target.closest("a[href='#faq']"))track("como_funciona_click");
  {const ig=e.target.closest("a[data-ig]");if(ig)track("instagram_click",{lugar:ig.dataset.ig})}
  const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.ord){setOrd(ordMode==="az"?"tema":"az");const nb=document.querySelector(b.closest("#clist")?"#clist .ordb":(b.closest("#ordside")?"#ordside .ordb":"#ordrow .ordb"));if(nb)nb.focus({preventScroll:true});return}
  if(b.hasAttribute("data-share"))doShare(b.classList.contains("shf")?"pie":"barra");
  else if(b.id==="go"){track("empezar_click");showView("pick")}
  else if(b.id==="addc"||b.id==="addc2"||b.dataset.add){upFrom=view==="tool"?"tool":"pick";upY=window.scrollY;track("subir_curso_abierto",{origen:b.dataset.add||(b.id==="addc"?"pick_arriba":"pick_bloque")});closeList();$("upok").hidden=true;$("upf").hidden=false;showView("up");updUpLabels()}
@@ -2431,7 +2494,7 @@ function nextNota(el,d){const L=[...document.querySelectorAll("#tree input.g")],
  else if(d>0){el.blur();$("sum").scrollIntoView({block:"center",behavior:RM?"auto":"smooth"})}}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeList();
  const t=e.target;if(e.key==="Enter"&&!e.isComposing&&t&&t.matches){if(t.matches("#tree input.g")){e.preventDefault();nextNota(t,e.shiftKey?-1:1)}else if(t.id==="pm"){e.preventDefault();t.blur()}}});
-$("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+GR.map(([t,g])=>`<section class="pg"><h2 class="gt">${t}<i>${inG(g).length}</i></h2><div class="pl">${inG(g).map(x=>{const i=KS.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${C[x].pre===""?"Curso":"Nivelación en"}</small>${C[x].n}</button>`}).join("")}</div></section>`).join("");
+renderPick();renderOrd();
 const pb=document.querySelector("#sum .pbar");let drag=false,raf=0;
 const setPm=v=>{v=Math.max(0,Math.min(20,Math.round(v)));if(v===S.pm)return;S.pm=v;anim("barra_nota_minima");trackCalc();clearTimeout(pmT);pmT=setTimeout(()=>track("meta_cambiada",{curso:cur,valor:S.pm,via:"barra"}),1200);$("pm").value=v;if(!raf)raf=requestAnimationFrame(()=>{raf=0;update()})};
 const fromX=x=>{const r=pb.getBoundingClientRect();return r.width?(x-r.left)/r.width*20:S.pm};
