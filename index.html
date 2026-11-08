@@ -221,13 +221,12 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   - Curso nuevo: Antropologia (ant, grupo Sellos UP: gp:2, va junto a Sociologia en KS). Aprendizaje Continuo 30% (evaluacion individual y grupal de lecturas semanales,
     se ingresa como UNA sola nota), Examen Parcial (ensayo) 20%, Actividades de Exploracion Etnografica 30%, Examen Final (oral) 20%. Redondeo asumido igual que en los demas
     cursos Sellos UP: cada parte y el promedio final al entero (el .5 sube).
-  - ORDEN DE LOS CURSOS: 3 modos (el modo "tema" se ELIMINO en la Ronda 13), guardados en localStorage mp-ord ("az" | "mis" | "pop"); por defecto "az".
+  - ORDEN DE LOS CURSOS: 2 modos (los modos "tema" y "mis" se ELIMINARON en la Ronda 13), guardados en localStorage mp-ord ("az" | "pop"); por defecto "az". "Mis cursos" ya no es un modo: es una seccion fija (ver Ronda 13).
       El orden (funcion flat()) se aplica dentro de cada grupo: Nivelacion sin titulo, Cursos y Cursos Sellos UP (ver Ronda 13); cada tarjeta indica su tipo en la etiqueta pequena: "Nivelación en", "Curso" o "Curso Sellos UP" (lbl(), gp, gof).
       az   = todos los cursos juntos, de la A a la Z (ignora tildes, localeCompare "es").
       pop  = todos juntos por POP (claves de curso, del mas elegido al menos); lo que no esta en POP va al final en A-Z. POP sale de /api/populares (api/populares.js,
              consulta a PostHog el evento curso_elegido de los ultimos 90 dias; variables POSTHOG_PERSONAL_API_KEY, POSTHOG_PROJECT_ID y opcional POSTHOG_HOST). Se pide solo la primera vez
              que se usa ese modo. Si la API falla o no esta configurada se usa MAS_USADOS (arreglo de respaldo, vacio = A-Z).
-      mis  = "Mis cursos": SOLO los cursos con notas guardadas (hn(), lee ST), en A-Z. Si no hay ninguno, Elige tu curso muestra un aviso con el boton "Ver todos los cursos" (pasa a az).
              En el desplegable de dentro del curso tambien sale el curso actual aunque no tenga notas. La lista se vuelve a armar cada vez que se abre Elige tu curso.
       tema = el orden del arreglo KS descrito en la Ronda 11, con los 3 grupos.
     Interfaz: en "Elige tu curso" un boton junto al buscador (.srow > #ordrow) abre un menu con los 4 modos (#ordmenu); dentro del desplegable de cursos (.ordw) van 4 botoncitos.
@@ -236,8 +235,9 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
 18) RONDA 13
   - Se ELIMINO el orden "Por tema". Los grupos se mantienen SOLO como separacion fija (constante GR, funciones inG() y secs()): los cursos de Nivelacion van de frente SIN titulo (primer
     elemento de GR con titulo ""), luego "Cursos" y "Cursos Sellos UP" con su titulo. Dentro de cada grupo se aplica el orden elegido (az, pop o mis). Aplica a Elige tu curso, al desplegable y al pie (con "Ver mas" por grupo).
-    Si mp-ord guardaba "tema", se usa "az". Un grupo sin cursos no se muestra (en "mis" solo salen los grupos que tienen cursos con notas).
-  - "Mis cursos": muestra SOLO los cursos con notas guardadas, tambien dentro del desplegable (ya no aparece el curso actual si no tiene notas). Si no hay ninguno, el desplegable dice "Aun no tienes cursos con notas" y Elige tu curso muestra el aviso con "Ver todos los cursos".
+    Si mp-ord guardaba "tema" o "mis", se usa "az". Un grupo sin cursos no se muestra.
+  - "Mis cursos" es una SECCION FIJA arriba (primer elemento de secs()): aparece solo si hay cursos con notas guardadas (hn()), en A-Z, y esos cursos NO se repiten en los grupos de abajo.
+    Esta en Elige tu curso (se vuelve a armar cada vez que se entra, en showView) y en el desplegable de dentro del curso (se vuelve a armar al abrirlo). El pie no la lleva.
   - En el desplegable queda un encabezado .gh.gh0 invisible: el buscador (bqD) agrupa los botones usando los .gh, asi que no se debe quitar.
 =====================================================================
 -->
@@ -1663,6 +1663,7 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 .ordb:hover svg,.ordb:focus-visible svg{transform:rotate(180deg)}
 .ordb:active{transform:scale(.98)}
 .srow{display:flex;align-items:stretch;gap:10px;max-width:760px;margin-top:22px}
+#v-pick .srow{border-top:0;padding:0}
 .srow .bqw{flex:1;min-width:0;margin-top:0}
 .ordrow{flex:none;display:flex}
 .ordempty{max-width:760px;margin-top:22px;padding:18px 18px 16px;border-left:4px solid var(--green);background:rgba(255,255,255,.07);color:#fff}
@@ -2128,11 +2129,11 @@ ant:{n:"Antropología",pre:"",gp:2,rf:1,i:"El Aprendizaje Continuo pesa 30% (eva
 const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* MAS_USADOS: orden de respaldo de "Más usados" (claves de curso, del más elegido al menos). Se reemplaza solo con lo que devuelve /api/populares (PostHog). Vacío = cae a A-Z */
 const MAS_USADOS=[];let POP=MAS_USADOS;
-let ordMode=(()=>{try{const m=localStorage.getItem("mp-ord");return["mis","pop"].includes(m)?m:"az"}catch(_){return"az"}})();
+let ordMode=(()=>{try{const m=localStorage.getItem("mp-ord");return m==="pop"?m:"az"}catch(_){return"az"}})();
 const gof=x=>C[x].gp??(C[x].pre===""?1:0),azc=(a,b)=>C[a].n.localeCompare(C[b].n,"es",{sensitivity:"base"}),hn=x=>{const t=ST[x];return t&&t.g&&Object.values(t.g).some(v=>v!==undefined&&v!=="")?1:0},pr=x=>{const i=POP.indexOf(x);return i<0?999:i},
-flat=()=>{const l=KS.slice();if(ordMode==="pop")return l.sort((a,b)=>pr(a)-pr(b)||azc(a,b));if(ordMode==="mis")return l.filter(hn).sort(azc);return l.sort(azc)},
+flat=()=>{const l=KS.slice();if(ordMode==="pop")return l.sort((a,b)=>pr(a)-pr(b)||azc(a,b));return l.sort(azc)},
 lbl=x=>gof(x)===2?"Curso Sellos UP":(C[x].pre===""?"Curso":"Nivelación en"),
-inG=g=>flat().filter(x=>gof(x)===g),GR=[["",0],["Cursos",1],["Cursos Sellos UP",2]],secs=()=>GR.map(([t,g])=>[t,inG(g)]).filter(s=>s[1].length),
+inG=g=>flat().filter(x=>gof(x)===g),GR=[["",0],["Cursos",1],["Cursos Sellos UP",2]],secs=()=>{const m=KS.filter(hn).sort(azc),mm=new Set(m),o=GR.map(([t,g])=>[t,inG(g).filter(x=>!mm.has(x))]);return(m.length?[["Mis cursos",m]]:[]).concat(o).filter(s=>s[1].length)},
 ORD=()=>secs().flatMap(s=>s[1]),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
@@ -2169,14 +2170,14 @@ const chk=()=>{const mOn=view==="tool"&&bodyIn&&!sumIn&&!faqIn,fm=$("fimini"),
  if(mOn&&!miniAn&&!$("mini").classList.contains("on")){miniAn=true;anim("mini_resumen_aparece")}$("mini").classList.toggle("on",mOn);
  $("tgw").classList.toggle("off",!tOn);
  $("tgw").classList.toggle("low",!(mOn||(fm&&fm.classList.contains("on"))))};
-function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;if(v==="pick"&&ordMode==="mis"){renderPick();const qi=$("bqp");if(qi&&qi.value)bqU(qi)}document.body.classList.toggle("dk",v==="welcome"||v==="pick"||v==="up");track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
+function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;if(v==="pick"){renderPick();const qi=$("bqp");if(qi&&qi.value)bqU(qi)}document.body.classList.toggle("dk",v==="welcome"||v==="pick"||v==="up");track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
 /* "Agrega tu curso": recuerda desde donde se abrio para volver al mismo lugar */
 function updUpLabels(){const t=upFrom==="tool"&&cur,s=document.querySelector("#upback span"),g=$("upgo");if(s)s.textContent=t?"← Volver a mi curso":"← Volver a cursos";if(g)g.textContent=t?"Volver a mi curso":"Volver a cursos"}
 function leaveUp(){const t=upFrom==="tool"&&cur;showView(t?"tool":"pick");if(t)window.scrollTo({top:upY,behavior:"instant"})}
 
 /* ===== Orden de los cursos: A-Z (por defecto) o "Por tema" (orden del arreglo KS). Se guarda en mp-ord ===== */
-const ORDS={az:["A–Z","Todos juntos, de la A a la Z"],pop:["Más usados","Todos juntos, los más elegidos primero"],mis:["Mis cursos","Solo los que ya tienen notas"]};
+const ORDS={az:["A–Z","De la A a la Z"],pop:["Más usados","Los más elegidos primero"]};
 const ordIco='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16"/><path d="M3.5 16.5L7 20l3.5-3.5"/><path d="M17 20V4"/><path d="M13.5 7.5L17 4l3.5 3.5"/></svg>';
 const ordBtn=()=>`<button type="button" class="ordb ordtop" data-ord="menu" aria-haspopup="true" aria-expanded="false" title="Cambiar el orden de los cursos" aria-label="Orden de los cursos: ${ORDS[ordMode][0]}. Cambiar">${ordIco}<b>${ORDS[ordMode][0]}</b></button><div class="ordmenu" id="ordmenu" hidden role="menu">${Object.keys(ORDS).map(m=>`<button type="button" role="menuitemradio" aria-checked="${m===ordMode}" class="ordo${m===ordMode?" on":""}" data-ordm="${m}"><b>${ORDS[m][0]}</b><small>${ORDS[m][1]}</small></button>`).join("")}</div>`;
 const ordChips=()=>`<span class="ordl">Orden</span><div class="ordch" role="group" aria-label="Orden de los cursos">${Object.keys(ORDS).map(m=>`<button type="button" class="ordc${m===ordMode?" on":""}" data-ordm="${m}" aria-pressed="${m===ordMode}">${ORDS[m][0]}</button>`).join("")}</div>`;
@@ -2187,7 +2188,7 @@ function popLoad(){if(popTried)return;popTried=true;try{fetch("/api/populares",{
 function reOrd(){renderOrd();renderPick();if(cur){renderClist(cur);renderFl()}const i=$("bqp");if(i&&i.value)bqU(i)}
 function renderClist(k){
  const L=ORD(),ci=L.indexOf(k);$("cbtn").style.setProperty("--s",SC[(ci<0?0:ci)%4]);
- $("clist").innerHTML=BQ(0)+`<div class="ordw">${ordChips()}</div>`+(L.length?"":`<div class="sno">Aún no tienes cursos con notas.</div>`)+secs().map(([t,xs])=>`<div class="gh${t?"":" gh0"}"${t?"":' aria-hidden="true"'}>${t}</div>`+xs.map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${lbl(x)}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
+ $("clist").innerHTML=BQ(0)+`<div class="ordw">${ordChips()}</div>`+secs().map(([t,xs])=>`<div class="gh${t?"":" gh0"}"${t?"":' aria-hidden="true"'}>${t}</div>`+xs.map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${lbl(x)}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
 }
 function renderFl(){
  const base=ordMode==="pop"?flat():KS.slice().sort(azc),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`,L=FLIM;
@@ -2195,8 +2196,8 @@ function renderFl(){
   return (t?`<b${j?' class="sp2"':""}>${t}</b>`:"")+(xs.length<=L?xs.map(mk).join(""):xs.slice(0,L).map(mk).join("")+`<div class="fmore" id="fm${j}"${open?"":" hidden"}>${xs.slice(L).map(mk).join("")}</div><button type="button" class="vm" data-vm="${j}" aria-expanded="${open}" aria-controls="fm${j}">${open?"Ver menos":`Ver ${xs.length-L} más`}</button>`)}).join("")+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
 }
 function renderPick(){
- const L=ORD(),vacio=ordMode==="mis"&&!L.length;
- $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+(vacio?`<div class="ordempty"><p>Aún no tienes cursos con notas. Elige un curso e ingresa tus notas, y aparecerá aquí.</p><button type="button" data-ordm="az">Ver todos los cursos</button></div>`:secs().map(([t,xs])=>`<section class="pg">${t?`<h2 class="gt">${t}<i>${xs.length}</i></h2>`:""}<div class="pl">${xs.map(x=>{const i=L.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${lbl(x)}</small>${C[x].n}</button>`}).join("")}</div></section>`).join(""));
+ const L=ORD();
+ $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+(secs().map(([t,xs])=>`<section class="pg">${t?`<h2 class="gt">${t}<i>${xs.length}</i></h2>`:""}<div class="pl">${xs.map(x=>{const i=L.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${lbl(x)}</small>${C[x].n}</button>`}).join("")}</div></section>`).join(""));
 }
 function setOrd(m){
  if(m===ordMode||!ORDS[m])return;ordMode=m;try{localStorage.setItem("mp-ord",m)}catch(_){}
@@ -2523,7 +2524,7 @@ document.addEventListener("click",e=>{
  else if(b.id==="pickback"){track("volver_inicio");closeList();showView("welcome")}
  else if(b.id==="uphome"){closeList();showView("welcome")}
  else if(b.id==="home"){track("volver_inicio");closeList();showView("welcome")}
- else if(b.id==="cbtn"){const o=$("clist").hidden;if(o){anim("menu_cursos_despliegue");track("menu_cursos_abierto",{curso:cur})}$("clist").hidden=!o;b.setAttribute("aria-expanded",String(o))}
+ else if(b.id==="cbtn"){const o=$("clist").hidden;if(o){if(cur)renderClist(cur);anim("menu_cursos_despliegue");track("menu_cursos_abierto",{curso:cur})}$("clist").hidden=!o;b.setAttribute("aria-expanded",String(o))}
  else if(b.dataset.fi){closeList();showView("fi")}
  else if(b.dataset.c){track("curso_elegido",{curso:b.dataset.c,nombre:cname(b.dataset.c),grupo:["nivelacion","curso","sello_up"][gof(b.dataset.c)],origen:b.dataset.p?"pantalla_elegir":b.dataset.f?"pie":"menu"});
   /* Desde "Elige tu curso" el trabajo pesado (armar la calculadora) espera un cuadro para que primero se pinte el efecto de tocar y el telefono responda al instante */
