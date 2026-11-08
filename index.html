@@ -233,8 +233,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     Funciones: ordMode, ORDS, flat(), ORD(), hn(), pr(), ordBtn(), ordChips(), renderOrd(), ordMenu(), popLoad(), reOrd(), renderPick(), renderClist(), renderFl(), setOrd().
     Evento PostHog orden_cursos_cambiado (modo). El color de cada tarjeta ahora sale de su posicion en el orden mostrado (ORD()), no de KS. Para agregar un curso nuevo sigue siendo: ponerlo en C y en KS (el alfabetico se arma solo).
 18) RONDA 13
-  - Se ELIMINO el orden "Por tema". Los grupos se mantienen SOLO como separacion fija (constante GR, funciones inG() y secs()): los cursos de Nivelacion van de frente SIN titulo (primer
-    elemento de GR con titulo ""), luego "Cursos" y "Cursos Sellos UP" con su titulo. Dentro de cada grupo se aplica el orden elegido (az, pop o mis). Aplica a Elige tu curso, al desplegable y al pie (con "Ver mas" por grupo).
+  - Se ELIMINO el orden "Por tema". Los grupos se mantienen SOLO como separacion fija (constante GR, funciones inG() y secs()): las Nivelaciones NO se separan: cuentan como un curso mas dentro de "Cursos" (gg() devuelve 2 para Sellos UP y 1 para todo lo demas; gof() se conserva solo para el tracking). GR = "Cursos" y "Cursos Sellos UP". Dentro de cada grupo se aplica el orden elegido (az, pop o mis). Aplica a Elige tu curso, al desplegable y al pie (con "Ver mas" por grupo).
     Si mp-ord guardaba "tema" o "mis", se usa "az". Un grupo sin cursos no se muestra.
   - "Mis cursos" es una SECCION FIJA arriba (primer elemento de secs()): aparece solo si hay cursos con notas guardadas (hn()), en A-Z, y esos cursos NO se repiten en los grupos de abajo.
     Esta en Elige tu curso (se vuelve a armar cada vez que se entra, en showView) y en el desplegable de dentro del curso (se vuelve a armar al abrirlo). El pie no la lleva.
@@ -2133,7 +2132,7 @@ let ordMode=(()=>{try{const m=localStorage.getItem("mp-ord");return m==="pop"?m:
 const gof=x=>C[x].gp??(C[x].pre===""?1:0),azc=(a,b)=>C[a].n.localeCompare(C[b].n,"es",{sensitivity:"base"}),hn=x=>{const t=ST[x];return t&&t.g&&Object.values(t.g).some(v=>v!==undefined&&v!=="")?1:0},pr=x=>{const i=POP.indexOf(x);return i<0?999:i},
 flat=()=>{const l=KS.slice();if(ordMode==="pop")return l.sort((a,b)=>pr(a)-pr(b)||azc(a,b));return l.sort(azc)},
 lbl=x=>gof(x)===2?"Curso Sellos UP":(C[x].pre===""?"Curso":"Nivelación en"),
-inG=g=>flat().filter(x=>gof(x)===g),GR=[["",0],["Cursos",1],["Cursos Sellos UP",2]],secs=()=>{const m=KS.filter(hn).sort(azc),mm=new Set(m),o=GR.map(([t,g])=>[t,inG(g).filter(x=>!mm.has(x))]);return(m.length?[["Mis cursos",m]]:[]).concat(o).filter(s=>s[1].length)},
+gg=x=>gof(x)===2?2:1,inG=g=>flat().filter(x=>gg(x)===g),GR=[["Cursos",1],["Cursos Sellos UP",2]],secs=()=>{const m=KS.filter(hn).sort(azc),mm=new Set(m),o=GR.map(([t,g])=>[t,inG(g).filter(x=>!mm.has(x))]);return(m.length?[["Mis cursos",m]]:[]).concat(o).filter(s=>s[1].length)},
 ORD=()=>secs().flatMap(s=>s[1]),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
@@ -2192,7 +2191,7 @@ function renderClist(k){
 }
 function renderFl(){
  const base=ordMode==="pop"?flat():KS.slice().sort(azc),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`,L=FLIM;
- $("fl").innerHTML=GR.map(([t,g],j)=>{const xs=base.filter(x=>gof(x)===g),open=fexp.has(j);if(!xs.length)return"";
+ $("fl").innerHTML=GR.map(([t,g],j)=>{const xs=base.filter(x=>gg(x)===g),open=fexp.has(j);if(!xs.length)return"";
   return (t?`<b${j?' class="sp2"':""}>${t}</b>`:"")+(xs.length<=L?xs.map(mk).join(""):xs.slice(0,L).map(mk).join("")+`<div class="fmore" id="fm${j}"${open?"":" hidden"}>${xs.slice(L).map(mk).join("")}</div><button type="button" class="vm" data-vm="${j}" aria-expanded="${open}" aria-controls="fm${j}">${open?"Ver menos":`Ver ${xs.length-L} más`}</button>`)}).join("")+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
 }
 function renderPick(){
@@ -3319,3 +3318,4 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
 <script>document.addEventListener("input",function(e){var t=e.target;if(t&&t.matches&&t.matches('#sim input[type=range]')){var mx=parseFloat(t.max)||20;t.style.setProperty("--p",(parseFloat(t.value)/mx*100)+"%")}});</script>
 </body>
 </html>
+
