@@ -217,31 +217,23 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     Cursos = Matematicas I-II-III, Estadistica I, Analitica de Datos, Herramientas de Programacion | Lenguaje I | Economia General I, Macroeconomia I, Sistemas Financieros | contabilidades |
     Fundamentos de Ciencias Empresariales y cursos de gestion | introducciones (Ingenieria, Politica) | Derecho. Sellos UP = Filosofia, Etica, Religiones, Pensamiento Social, Sociologia, Psicologia, Historia Economica, Investigacion Academica, Liderazgo.
     Para agregar un curso nuevo: ponerlo en C y en KS junto a los que se le parecen.
-17) RONDA 12 (mejora grande: ver README-ronda12.md para la puesta en marcha)
-  Todo el codigo nuevo esta al final del archivo en el bloque script id="r12" y los estilos en el bloque style id="r12" del head (no se dividio el archivo).
-  - ENLACE POR CURSO: /?c=mat2 abre el curso directo (tambien /curso/mat2 si vercel.json tiene la regla "rewrites"; URL_MODO="ruta" para generar ese formato).
-    La URL, el titulo de la pestaña y la meta description cambian con el curso (syncUrl/setMeta); el boton Atras del navegador funciona (popstate).
-    ?v=ciclo abre Mi ciclo, ?v=fi el FI, ?v=cursos la lista, ?cc=... importa un curso compartido, ?test=1 corre las pruebas del motor.
-  - VERIFICADO: etiqueta bajo el titulo (vfBadge). vf:1 / vf:0 en la entrada de C manda; si no esta, se deduce del texto i: "se asume" o "no indica" = "redondeo asumido".
-    VER_CICLO="2026-II" agrega el ciclo a la etiqueta. En "Elige tu curso" los verificados llevan un check verde (.vfi).
-  - "¿ALGO NO CUADRA?": modal #rpm; envia a /api/sugerencia con el prefijo "[Reporte · curso · tipo]" (misma API, sin cambios en el servidor).
-  - CURSOS PERSONALIZADOS (Mi curso): editor #v-cc (ccOpen). Modelo {n, rf, g:[{n,w,r,ch:[{n,w}]}]}, se guarda en localStorage mp-custom y entra a C/KS con gp:3 (grupo "Mis cursos").
-    "Crear mi version" prellena desde el curso actual (ccFromCourse). Compartir: ?cc=<base64url del modelo>; al abrirlo se importa una vez (id = hash del contenido).
-    Las notas de un curso personalizado se guardan en mp-progress como las de cualquier curso (ids g0, g0c1...).
-  - PASALO A TU GRUPO (#grp): WhatsApp (wa.me) o copiar el enlace directo del curso (urlCurso). Eventos grupo_compartir_click y enlace_curso_compartido.
-  - MI CICLO (#v-ciclo, cyRender): todos los cursos con alguna nota, promedio ponderado por creditos (creditos desde PLN por nombre; editables), FI proyectado
-    (primer ciclo / creditos acumulados / bonificaciones) y boton que lleva todo a la calculadora completa del FI (cyToFI). Estado en localStorage mp-ciclo. FI_ACTIVO paso a true.
-  - CUENTA Y SINCRONIZACION (cloud): opcional, con Supabase (SB_URL y SB_KEY). Vacios = el boton "Cuenta" no aparece. Google o enlace por correo. Un documento por persona en la
-    tabla mp_datos {progress, custom, ciclo}; mezcla por curso con la marca de tiempo t (save() la pone por curso). Se sube 1.5 s despues de cada cambio y se baja al volver a la pestaña.
-    Con sesion se llama posthog.identify(id de usuario) para medir alumnos activos reales. Politica de privacidad en #prm.
-  - APP INSTALABLE: manifest.webmanifest + sw.js (la pagina siempre va a la red primero; sin conexion usa la ultima copia). Banner #pwab tras la 2da visita o la primera nota.
-    Iconos en /img/icon-192.png, icon-512.png, icon-maskable-512.png y apple-touch-icon.png (los entregados son provisionales: reemplazar por el logo).
-  - PRUEBAS DEL MOTOR: mpTest() (consola) o ?test=1. Casos con resultado a mano (mat, len, inf, mat1, gdp, sf, hdp x3, int, der1, outlook) + invariantes para todos los cursos.
-  - ANIMACIONES NUEVAS: entrada de pantalla (.vin), giro del aviso de aprobado (.flip), anillo al confirmar una nota (.okp), brillo del promedio al subir (.upg),
-    filas de la tabla en cascada (.cas), inclinacion 3D de las tarjetas (--rx/--ry), brillo de la etiqueta verificado (.shine), anillos de progreso en Mi ciclo, banner de instalar.
-    Todas se apagan con "reducir movimiento". Eventos nuevos de animacion: aviso_gira, nota_confirmada, promedio_sube.
-  - ARREGLOS DE PASO: setNum ya no muestra NaN al pasar de "—" a un numero (FI); las etiquetas de bonificaciones del FI ya no salen blancas (choque con .fbt del pie);
-    un "change" tardio de una casilla que ya no esta en pantalla ya no rompe el cambio de curso.
+17) RONDA 12
+  - Curso nuevo: Antropologia (ant, grupo Sellos UP: gp:2, va junto a Sociologia en KS). Aprendizaje Continuo 30% (evaluacion individual y grupal de lecturas semanales,
+    se ingresa como UNA sola nota), Examen Parcial (ensayo) 20%, Actividades de Exploracion Etnografica 30%, Examen Final (oral) 20%. Redondeo asumido igual que en los demas
+    cursos Sellos UP: cada parte y el promedio final al entero (el .5 sube).
+  - ORDEN DE LOS CURSOS: 4 modos, guardados en localStorage mp-ord ("az" | "mis" | "pop" | "tema"); por defecto "az". Siempre se respetan los grupos (Nivelacion, Cursos, Cursos Sellos UP).
+      Los grupos (Nivelacion, Cursos, Cursos Sellos UP) siguen existiendo en el codigo (GR, gp, gof) y SOLO se muestran separados en "tema" y en el pie. En az, pop y mis la lista es UNA sola
+      (funciones flat() y secs()); cada tarjeta indica su tipo en la etiqueta pequena: "Nivelación en", "Curso" o "Curso Sellos UP" (lbl()).
+      az   = todos los cursos juntos, de la A a la Z (ignora tildes, localeCompare "es").
+      pop  = todos juntos por POP (claves de curso, del mas elegido al menos); lo que no esta en POP va al final en A-Z. POP sale de /api/populares (api/populares.js,
+             consulta a PostHog el evento curso_elegido de los ultimos 90 dias; variables POSTHOG_PERSONAL_API_KEY, POSTHOG_PROJECT_ID y opcional POSTHOG_HOST). Se pide solo la primera vez
+             que se usa ese modo. Si la API falla o no esta configurada se usa MAS_USADOS (arreglo de respaldo, vacio = A-Z).
+      mis  = "Mis cursos": SOLO los cursos con notas guardadas (hn(), lee ST), en A-Z. Si no hay ninguno, Elige tu curso muestra un aviso con el boton "Ver todos los cursos" (pasa a az).
+             En el desplegable de dentro del curso tambien sale el curso actual aunque no tenga notas. La lista se vuelve a armar cada vez que se abre Elige tu curso.
+      tema = el orden del arreglo KS descrito en la Ronda 11, con los 3 grupos.
+    Interfaz: en "Elige tu curso" un boton junto al buscador (.srow > #ordrow) abre un menu con los 4 modos (#ordmenu); dentro del desplegable de cursos (.ordw) van 4 botoncitos.
+    Funciones: ordMode, ORDS, inG(), ORD(), hn(), pr(), ordBtn(), ordChips(), renderOrd(), ordMenu(), popLoad(), reOrd(), renderPick(), renderClist(), renderFl(), setOrd().
+    Evento PostHog orden_cursos_cambiado (modo). El color de cada tarjeta ahora sale de su posicion en el orden mostrado (ORD()), no de KS. Para agregar un curso nuevo sigue siendo: ponerlo en C y en KS (el alfabetico se arma solo).
 =====================================================================
 -->
 <meta charset="utf-8">
@@ -265,13 +257,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
 <meta property="og:image:alt" content="My PonderUP">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="/img/favicon.png">
-<link rel="manifest" href="/manifest.webmanifest">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="My PonderUP">
-<meta name="application-name" content="My PonderUP">
-<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="/img/favicon.png">
 <link rel="preload" href="/fonts/montserrat-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="/img/logo-vertical.webp" type="image/webp" fetchpriority="high">
 <style>
@@ -1656,6 +1642,45 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 .sidec{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px;max-width:760px;margin-top:34px}
 .sidec .addb{margin-top:0}
 @media (min-width:1100px){.sidec{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:20px;width:350px;max-width:none;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-width:thin;margin:0;z-index:5}.sidec .addb{position:static;width:auto;box-shadow:0 14px 34px rgba(0,0,0,.35)}}
+
+/* ===== Boton de orden de los cursos (A-Z / Por tema) ===== */
+.ordb{display:flex;align-items:center;gap:11px;width:100%;background:rgba(255,255,255,.08);color:#fff;border:2px solid rgba(255,255,255,.55);border-radius:2px;padding:10px 14px 10px 12px;font:800 .72rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-align:left;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .2s,color .2s,border-color .2s,transform .25s cubic-bezier(.34,1.56,.64,1)}
+.ordb svg{width:20px;height:20px;flex:none;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.ordb .ordk{flex:1;display:flex;flex-direction:column;gap:3px}
+.ordb small{font-size:.58rem;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.7)}
+.ordb b{font-size:.95rem;font-weight:900;letter-spacing:.04em;color:var(--green)}
+.ordb em{font-style:normal;font-size:.6rem;font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.7)}
+.ordb:hover,.ordb:focus-visible{background:#fff;color:var(--navy);border-color:#fff}
+.ordb:hover small,.ordb:hover em,.ordb:focus-visible small,.ordb:focus-visible em{color:rgba(6,31,71,.7)}
+.ordb:hover b,.ordb:focus-visible b{color:var(--navy)}
+.ordb:hover svg,.ordb:focus-visible svg{transform:rotate(180deg)}
+.ordb:active{transform:scale(.98)}
+.srow{display:flex;align-items:stretch;gap:10px;max-width:760px;margin-top:22px}
+.srow .bqw{flex:1;min-width:0;margin-top:0}
+.ordrow{flex:none;display:flex}
+.ordempty{max-width:760px;margin-top:22px;padding:18px 18px 16px;border-left:4px solid var(--green);background:rgba(255,255,255,.07);color:#fff}
+.ordempty p{margin:0;font-weight:600;font-size:.95rem;line-height:1.5}
+.ordempty button{display:inline-block;margin-top:14px;background:var(--green);color:var(--navy);border:0;border-radius:2px;padding:11px 15px;font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;touch-action:manipulation}
+.ordempty button:hover,.ordempty button:focus-visible{background:#fff}
+.ordrow{position:relative}
+.ordmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:30;width:min(290px,calc(100vw - 32px));background:var(--navy);border:1px solid rgba(255,255,255,.28);border-radius:4px;box-shadow:0 16px 32px rgba(0,0,0,.5);overflow:hidden;animation:drop .2s both}
+.ordo{display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;background:none;border:0;border-top:1px solid rgba(255,255,255,.12);color:#fff;padding:12px 14px;text-align:left;font-family:inherit;cursor:pointer;transition:background .18s,box-shadow .18s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.ordo:first-child{border-top:0}
+.ordo b{font:800 .85rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;letter-spacing:.04em}
+.ordo small{font:600 .68rem/1.3 Montserrat,"Montserrat Fallback",Arial,sans-serif;color:rgba(255,255,255,.7)}
+.ordo:hover,.ordo:focus-visible{background:rgba(255,255,255,.09)}
+.ordo.on{box-shadow:inset 4px 0 0 var(--green)}
+.ordo.on b{color:var(--green)}
+#clist .ordw{padding:10px 14px 12px;border-top:1px solid rgba(255,255,255,.12)}
+#clist .ordl{display:block;margin-bottom:8px;font:800 .58rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+#clist .ordch{display:flex;flex-wrap:wrap;gap:6px}
+#clist .ordw .ordc{display:inline-flex;flex-direction:row;align-items:center;width:auto;gap:0;background:none;border:1.5px solid rgba(255,255,255,.4);border-radius:99px;padding:7px 11px;color:#fff;font:800 .66rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;touch-action:manipulation}
+#clist .ordw .ordc:hover,#clist .ordw .ordc:focus-visible{background:rgba(255,255,255,.14)}
+#clist .ordw .ordc.on{background:var(--green);border-color:var(--green);color:var(--navy)}
+.ordrow .ordb{width:auto;height:100%;min-height:48px;padding:0 14px;gap:9px;white-space:nowrap}
+.ordrow .ordb small,.ordrow .ordb em{display:none}
+.ordrow .ordb b{font-size:.8rem}
+@media (prefers-reduced-motion:reduce){.ordb:hover svg,.ordb:focus-visible svg,.ordb:active{transform:none}}
 .pjx{border-top:1px solid var(--line);padding:12px 0 6px}
 .pjt{font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
 .pjs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:8px;align-items:center;padding:6px 0;color:var(--ink);font-size:.95rem}
@@ -1667,213 +1692,6 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
 window.va("beforeSend",function(e){try{var h=location.hostname;if(localStorage.getItem("mp-int")==="1"||/^(localhost|127\.0\.0\.1)$/.test(h)||/^[a-z0-9-]+-[a-z0-9]{9}-[a-z0-9-]+\.vercel\.app$/.test(h))return null}catch(_){}return e});</script>
 <script defer src="/_vercel/insights/script.js"></script>
-<style id="r12">
-/* ===================================================================== RONDA 12 ===================================================================== */
-/* --- Boton Cuenta (barras y "Elige tu curso") --- */
-.accb{position:relative}
-.accb .accd{position:absolute;right:-4px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--mut);border:2px solid var(--navy);opacity:0;transform:scale(.6);transition:opacity .25s,transform .35s cubic-bezier(.34,1.56,.64,1),background .25s}
-.accb.in .accd{opacity:1;transform:scale(1);background:var(--green)}
-.accb.in.syncing .accd{background:#FFC400;animation:accp 1s ease-in-out infinite}
-.accb.in.err .accd{background:#ff7a7a}
-@keyframes accp{50%{transform:scale(1.35);opacity:.6}}
-.accb.in{color:#fff;border-color:rgba(255,255,255,.55)}
-.pktr{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:16px;z-index:3;display:flex;align-items:center;gap:8px}
-.pktr .addc{position:static;top:auto;right:auto}
-.pktr .pkacc{height:38px;min-width:38px;padding:0 12px;background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.45)}
-.pktr .pkacc.in{border-color:var(--green)}
-.pktr .pkacc .accd{border-color:var(--navy)}
-@media (max-width:640px){.pktr{top:calc(12px + env(safe-area-inset-top,0px));right:12px}.pktr .pkacc{padding:0;width:38px}.pktr .pkacc span{display:none}
- .bar .shb.accb{padding:0;width:40px}.bar .shb.accb span{display:none}}
-@media (pointer:coarse){.pktr .pkacc{height:42px;min-width:42px}}
-/* --- Etiqueta "Verificado" y acciones bajo el titulo del curso --- */
-.vfb{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:14px 0 2px;min-height:28px}
-.vf{position:relative;display:inline-flex;align-items:center;gap:7px;padding:5px 10px 5px 8px;border-radius:99px;font:800 .66rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;overflow:hidden}
-.vf i{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;flex:none}
-.vf i::before{content:"";width:8px;height:5px;border-left:2.4px solid currentColor;border-bottom:2.4px solid currentColor;transform:translateY(-1px) rotate(-45deg)}
-.vf.ok{background:rgba(0,240,60,.16);color:var(--green);border:1px solid rgba(0,240,60,.5)}
-.vf.ok i{background:var(--green);color:var(--navy)}
-.vf.as{background:rgba(255,196,0,.14);color:#FFD54A;border:1px solid rgba(255,196,0,.5)}
-.vf.as i{background:#FFC400;color:var(--navy)}
-.vf.as i::before{width:2.4px;height:7px;border:0;background:currentColor;border-radius:2px;transform:none;box-shadow:0 5px 0 0 currentColor;margin-top:-4px}
-.vf.mine{background:rgba(240,0,240,.16);color:#FF8CFF;border:1px solid rgba(240,0,240,.5)}
-.vf.mine i{background:#F000F0;color:#fff}
-.vf.mine i::before{width:6px;height:6px;border:0;border-radius:50%;background:currentColor;transform:none}
-.vf.shine::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.55) 50%,transparent 80%);transform:translateX(-120%);animation:vfs 1.1s .25s cubic-bezier(.2,.7,.2,1) forwards}
-@keyframes vfs{to{transform:translateX(120%)}}
-.vfl{display:inline-flex;align-items:center;gap:6px;background:none;border:0;border-bottom:1.5px dotted rgba(255,255,255,.5);padding:4px 0;color:rgba(255,255,255,.86);font:700 .74rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;cursor:pointer;transition:color .2s,border-color .2s}
-.vfl:hover,.vfl:focus-visible{color:var(--green);border-color:var(--green)}
-.vfl svg{flex:none;opacity:.8}
-#v-pick .pl button .vfi{position:absolute;right:12px;top:12px;width:18px;height:18px;border-radius:50%;background:var(--green);color:var(--navy);display:grid;place-items:center}
-#v-pick .pl button .vfi::before{content:"";width:8px;height:5px;border-left:2.4px solid currentColor;border-bottom:2.4px solid currentColor;transform:translateY(-1px) rotate(-45deg)}
-#v-pick .pl button{position:relative}
-/* Tarjetas de herramientas en "Elige tu curso" */
-.pl3 button.tl{gap:6px}
-.pl3 button.tl em{font-style:normal;text-transform:none;font-weight:500;font-size:.78rem;line-height:1.35;color:rgba(255,255,255,.72);letter-spacing:0}
-@media (hover:hover) and (pointer:fine){#v-pick .pl button{transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:background .2s,transform .18s ease-out}}
-/* --- "Pasalo a tu grupo" --- */
-.grp{display:grid;grid-template-columns:auto 1fr auto;gap:12px 16px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:6px solid #25D366;padding:14px 16px;margin:18px 0 0}
-.grpi{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:rgba(37,211,102,.14);color:#1aa851}
-:root[data-theme="dark"] .grpi{color:#4be38a}
-.grpt{display:grid;gap:3px;min-width:0}
-.grpt b{font:800 .95rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;color:var(--ink)}
-.grpt span{font-size:.85rem;color:var(--mut);line-height:1.4}
-.grpb{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.grpb .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 14px}
-.grpb .grpwa{background:#25D366;color:#073b1e}
-@media (max-width:640px){.grp{grid-template-columns:auto 1fr}.grpb{grid-column:1/-1;justify-content:stretch}.grpb .btn{flex:1;justify-content:center}}
-/* --- Enlaces discretos y botones de texto --- */
-.lnk{background:none;border:0;padding:4px 0;color:var(--mut);font:700 .82rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.lnk:hover,.lnk:focus-visible{color:var(--ink)}
-.lnk.dng{color:var(--rt);margin-top:16px}
-footer .fl button[data-acc],footer .fl button[data-install],footer .fl button[data-priv]{text-decoration:underline}
-/* --- Modales: reporte, cuenta, privacidad --- */
-#rpm,#acm,#prm{position:fixed;inset:0;z-index:58;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:rgba(3,12,28,.8);animation:fade .25s ease both}
-#rpm[hidden],#acm[hidden],#prm[hidden]{display:none}
-#rpm .rimc,#acm .rimc,#prm .rimc{animation:mup .38s cubic-bezier(.2,.7,.2,1) both}
-@keyframes mup{from{opacity:0;transform:translateY(16px) scale(.98)}}
-#rpx,#acx,#prx{width:36px;height:36px;background:transparent;border:0;color:var(--ink);font-size:1.6rem;line-height:1;cursor:pointer;border-radius:2px}
-#rpx:hover,#acx:hover,#prx:hover{background:var(--bg)}
-.rpi,.aci{margin:4px 0 12px;font-size:.92rem;line-height:1.5;color:var(--txt)}
-.rpk{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.rpk button{background:transparent;border:2px solid var(--line);color:var(--ink);border-radius:99px;padding:8px 12px;font:700 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;transition:background .2s,border-color .2s,color .2s,transform .2s}
-.rpk button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--navy)}
-.rpk button:active{transform:scale(.97)}
-#rpt,#ace{width:100%;font:500 .95rem/1.4 Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:12px;border:1px solid var(--lines);border-radius:2px;background:var(--fld);color:var(--ink);resize:vertical}
-#rpt:focus,#ace:focus{outline:none;box-shadow:0 0 0 3px rgba(0,240,60,.35);border-color:var(--green)}
-.rima{display:flex;gap:10px;margin-top:12px}
-.rpn{margin:12px 0 0;font-size:.8rem;color:var(--mut);line-height:1.4}
-.acl{margin:0 0 16px;padding-left:0;list-style:none;display:grid;gap:8px}
-.acl li{position:relative;padding-left:26px;font-size:.9rem;color:var(--txt)}
-.acl li::before{content:"";position:absolute;left:0;top:4px;width:16px;height:16px;border-radius:50%;background:var(--green)}
-.acl li::after{content:"";position:absolute;left:4px;top:8px;width:8px;height:5px;border-left:2.4px solid var(--navy);border-bottom:2.4px solid var(--navy);transform:rotate(-45deg)}
-.acg{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fff;color:#1f1f1f;border:1px solid var(--line);text-transform:none;letter-spacing:0;font-size:.95rem}
-:root[data-theme="dark"] .acg{background:#fff}
-.acor{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--mut);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
-.acor::before,.acor::after{content:"";flex:1;height:1px;background:var(--line)}
-#acf{display:flex;gap:8px}
-#acf .btn{flex:none;white-space:nowrap}
-@media (max-width:420px){#acf{flex-direction:column}}
-.acp{margin:12px 0 0;font-size:.78rem;color:var(--mut);line-height:1.45}
-.acp .lnk{font-size:inherit;padding:0}
-.acu{display:flex;align-items:center;gap:12px;margin:6px 0 16px}
-.acav{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--green);color:var(--navy);font:900 1.2rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-style:normal;flex:none}
-.acu b{display:block;font-size:.95rem;color:var(--ink);overflow-wrap:anywhere}
-.acs{display:block;font-size:.8rem;color:var(--mut);margin-top:2px}
-.acs.sync{color:#b38600}.acs.err{color:var(--rt)}.acs.ok{color:var(--gt)}
-.acacts{display:flex;gap:10px;flex-wrap:wrap}
-.acacts .btn{flex:1;min-height:46px;text-align:center}
-.prt p{margin:0 0 12px;font-size:.9rem;line-height:1.55;color:var(--txt)}
-/* --- Banner "Instalar la app" --- */
-#pwab{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:57;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;max-width:620px;margin:0 auto;background:var(--navy);color:#fff;border-left:6px solid var(--green);border-radius:4px;padding:12px 10px 12px 14px;box-shadow:0 18px 40px rgba(0,0,0,.4);transform:translateY(130%);opacity:0;transition:transform .45s cubic-bezier(.2,.7,.2,1),opacity .35s}
-#pwab.on{transform:none;opacity:1}
-#pwab[hidden]{display:none}
-#pwab .pwai{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.1);color:var(--green)}
-#pwab .pwat{font-size:.84rem;line-height:1.4}
-#pwab .pwat b{color:#fff}
-#pwab .btn.sm{padding:10px 12px;font-size:.7rem}
-#pwax{width:34px;height:34px;background:transparent;border:0;color:#fff;font-size:1.4rem;cursor:pointer;opacity:.7}
-.iosh{display:inline-block;width:12px;height:14px;border:2px solid currentColor;border-top:0;vertical-align:-2px;position:relative;margin:0 2px}
-.iosh::before{content:"";position:absolute;left:3px;top:-9px;width:2px;height:12px;background:currentColor}
-.iosh::after{content:"";position:absolute;left:1px;top:-9px;width:6px;height:6px;border-left:2px solid currentColor;border-top:2px solid currentColor;transform:rotate(45deg)}
-@media (max-width:520px){#pwab{grid-template-columns:auto 1fr auto}#pwab .btn.sm{grid-column:2;justify-self:start}#pwax{grid-column:3;grid-row:1}}
-/* Arreglo: ".fbt" tambien es la fila final del pie (texto blanco) y pisaba las etiquetas de las bonificaciones del FI */
-.fbon .fbt{display:block;margin:0;padding:0;border:0;color:var(--ink);font-size:.85rem;letter-spacing:.02em}
-.fbon .fbt span{color:inherit}
-/* --- Mi ciclo --- */
-.cyn{display:inline-block;margin-left:10px;font:700 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.06em;color:var(--mut);text-transform:uppercase;vertical-align:middle}
-.cyg{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));margin-top:14px}
-.cyc{position:relative;display:grid;gap:12px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--s,#0A5CFF);padding:14px 16px 12px;transition:transform .25s,box-shadow .25s}
-@media (hover:hover){.cyc:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(6,31,71,.14)}}
-.cyh{display:grid;gap:2px}
-.cyh small{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
-.cyh b{font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;color:var(--ink)}
-.cyn2{display:flex;align-items:center;gap:14px}
-.cyring{position:relative;width:64px;height:64px;flex:none;display:grid;place-items:center}
-.cyring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
-.cyring circle{fill:none;stroke:var(--line);stroke-width:4}
-.cyring circle.f{stroke:var(--s,#0A5CFF);stroke-linecap:round;stroke-dasharray:119.4;stroke-dashoffset:calc(119.4 - 119.4*var(--p,0)/100);transition:stroke-dashoffset 1s cubic-bezier(.2,.7,.2,1)}
-.cyring b{font:900 1.3rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-variant-numeric:tabular-nums}
-.cyring b.gn{color:var(--gt)}.cyring b.rd{color:var(--rt)}.cyring b.wn{color:var(--ink)}
-.cyt{display:grid;gap:6px;min-width:0}
-.cys{font-size:.78rem;color:var(--mut);line-height:1.35}
-.cyp{height:6px;background:var(--bg);border-radius:99px;overflow:hidden}
-.cyp i{display:block;height:100%;width:var(--f,0%);background:var(--s,#0A5CFF);border-radius:99px;transition:width .8s cubic-bezier(.2,.7,.2,1)}
-.cym{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.8rem;color:var(--mut)}
-.cycr{display:inline-flex;align-items:center;gap:8px;font-weight:700}
-.cycr .fin{width:58px;padding:6px}
-.cycr em{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#FFC400;color:var(--navy);font-style:normal;font-weight:900;font-size:.72rem;cursor:help}
-.cya{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;border-top:1px solid var(--line)}
-.cya .btn.sm{padding:10px 14px;font-size:.7rem}
-.cyempty{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);padding:22px 20px;display:grid;gap:8px;justify-items:start}
-.cyempty b{font:800 1rem/1.3 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;color:var(--ink)}
-.cyempty p{margin:0 0 6px;color:var(--mut)}
-.cyadd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 0 6px}
-.cysum,.cyfis{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);padding:14px 16px;margin:18px 0 4px}
-.cysum .sm1 b,.cyfis .sm1 b{font:800 1rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;color:var(--ink)}
-.cysum .l2,.cyfis .l2{display:block}
-.cybig{text-align:right}
-.cybig b{display:block;font:900 2.6rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)}
-.cybig b.gn{color:var(--gt)}.cybig b.rd{color:var(--rt)}.cybig b.na{color:var(--mut)}
-.cybig small{display:block;margin-top:4px;font-size:.76rem;color:var(--mut)}
-.cyokt{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--line);font-size:.84rem;font-weight:600;color:var(--txt)}
-.cyokt:empty{display:none}
-.cyh3{font:800 .76rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin:18px 0 10px}
-.cyfa{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.cyfa .btn{flex:1;min-height:46px;text-align:center}
-.fbk2{display:grid;gap:8px;grid-template-columns:1fr 1fr}
-@media (max-width:480px){.fbk2{grid-template-columns:1fr}}
-.cyfis .mut{line-height:1.4;max-width:46ch}
-/* --- Editor "Crea tu curso" --- */
-.ccin .upf{padding:28px 24px 26px}
-.ccbar{height:8px;background:rgba(255,255,255,.14);border-radius:99px;overflow:hidden;margin:0 0 14px}
-.ccbar i{display:block;height:100%;width:0;background:#FFC400;border-radius:99px;transition:width .4s cubic-bezier(.2,.7,.2,1),background .3s}
-.ccbar i.ok{background:var(--green)}.ccbar i.bad{background:#ff7a7a}
-.upc.ok{color:var(--green)}.upc.bad{color:#ff7a7a}
-.ccg{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-left:4px solid var(--green);padding:12px 12px 10px;margin-bottom:10px}
-.ccg:nth-child(4n+2){border-left-color:#0A5CFF}.ccg:nth-child(4n+3){border-left-color:#F000F0}.ccg:nth-child(4n+4){border-left-color:#FFC400}
-.ccgh{display:grid;grid-template-columns:auto minmax(0,1fr) 92px auto auto;gap:8px;align-items:center}
-.ccno{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--green);color:var(--navy);font:900 .8rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif}
-.ccf input[type=text],.ccf .ccgn,.ccf .ccc input:not([type=checkbox]),.ccf .ccw input{width:100%;font:600 .95rem Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:10px 12px;border:1px solid rgba(255,255,255,.3);border-radius:2px;background:rgba(6,31,71,.6);color:#fff}
-.ccf input::placeholder{color:rgba(255,255,255,.45)}
-.ccf input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(0,240,60,.3)}
-.ccw{display:flex;align-items:center;gap:4px;color:rgba(255,255,255,.8);font-weight:800;font-size:.85rem}
-.ccw input{text-align:center;padding:10px 6px!important}
-.ccr{display:flex;align-items:center;gap:6px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.75);cursor:pointer;white-space:nowrap}
-.ccr input{accent-color:var(--green);width:16px;height:16px}
-.ccx{width:32px;height:32px;background:transparent;border:0;color:rgba(255,255,255,.6);font-size:1.3rem;line-height:1;cursor:pointer;border-radius:2px}
-.ccx:hover,.ccx:focus-visible{background:rgba(255,122,122,.2);color:#ff7a7a}
-.ccsub{margin-top:8px;padding-left:34px}
-.ccsh{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.65);margin:6px 0 8px}
-.ccsh em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500}
-.ccc{display:grid;grid-template-columns:minmax(0,1fr) 86px minmax(90px,auto) auto;gap:8px;align-items:center;margin-bottom:6px}
-.ccc input{padding:8px 10px!important;font-size:.9rem!important}
-.ccof{font-size:.72rem;color:rgba(255,255,255,.6);text-align:right;white-space:nowrap}
-.ccaddc{background:transparent;border:1.5px dashed rgba(255,255,255,.35);color:rgba(255,255,255,.85);padding:8px 10px;border-radius:2px;font:700 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;margin-top:4px;transition:border-color .2s,color .2s,background .2s}
-.ccaddc:hover,.ccaddc:focus-visible{border-color:var(--green);color:var(--green);background:rgba(0,240,60,.08)}
-.ccadd{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.35);color:#fff;padding:12px 16px;border-radius:2px;font:800 .76rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;margin:4px 0 14px;transition:border-color .2s,background .2s,transform .2s}
-.ccadd:hover,.ccadd:focus-visible{border-color:var(--green);background:rgba(0,240,60,.12)}
-.ccadd span{font-size:1.2rem;line-height:1}
-.ccrfl{color:#fff;font-weight:600;font-size:.9rem;margin:8px 0 14px}
-.ccacts{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
-.ccacts .btn{flex:1;min-height:52px}
-.ccdel{background:transparent;color:#ff7a7a;border:2px solid #ff7a7a;flex:0 0 auto!important}
-@media (max-width:560px){.ccgh{grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-areas:"no nm nm x" "w w r r"}.ccgh .ccno{grid-area:no}.ccgh .ccgn{grid-area:nm}.ccgh .ccw{grid-area:w;width:120px;justify-self:start}.ccgh .ccr{grid-area:r;justify-self:end}.ccgh .ccx{grid-area:x}
- .ccsub{padding-left:0}.ccc{grid-template-columns:minmax(0,1fr) 78px auto}.ccof{grid-column:1/3;text-align:left}.ccc .ccx{grid-column:3;grid-row:1}}
-/* --- Animaciones nuevas --- */
-.vin{animation:vin .46s cubic-bezier(.2,.7,.2,1) both}
-@keyframes vin{from{opacity:0;transform:translateY(12px)}}
-#sl2 .tag.flip{animation:tflip .55s cubic-bezier(.2,.7,.2,1) both;transform-origin:center}
-@keyframes tflip{0%{transform:rotateX(90deg);opacity:0}60%{transform:rotateX(-12deg);opacity:1}100%{transform:none}}
-.gi.okp{animation:okp .6s ease-out both}
-@keyframes okp{0%{box-shadow:0 0 0 0 rgba(0,240,60,.65)}100%{box-shadow:0 0 0 12px rgba(0,240,60,0)}}
-#big.upg{animation:upg .7s ease-out both}
-@keyframes upg{0%{text-shadow:0 0 0 rgba(0,240,60,0)}35%{text-shadow:0 0 18px rgba(0,240,60,.55);transform:scale(1.04)}100%{text-shadow:0 0 0 rgba(0,240,60,0)}}
-.sc tbody tr.cas{animation:cas .4s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*45ms)}
-@keyframes cas{from{opacity:0;transform:translateY(6px)}}
-#toast button{margin-left:10px;background:var(--green);color:var(--navy);border:0;border-radius:2px;padding:6px 10px;font:800 .72rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-transform:uppercase;cursor:pointer}
-#toast.on{pointer-events:auto}
-@media (prefers-reduced-motion:reduce){.vin,#sl2 .tag.flip,.gi.okp,#big.upg,.sc tbody tr.cas,.vf.shine::after,#rpm .rimc,#acm .rimc,#prm .rimc,.accb.in.syncing .accd{animation:none}.cyring circle.f,.cyp i,#pwab{transition:none}#v-pick .pl button{transform:none}}
-</style>
 </head>
 <body class="dk">
 
@@ -1887,7 +1705,7 @@ footer .fl button[data-acc],footer .fl button[data-install],footer .fl button[da
 
 
 
-<div id="v-pick" class="wel" hidden><button type="button" class="bkc" id="pickback" aria-label="Volver al inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg><span>Atrás</span></button><div class="pktr"><button type="button" class="shb accb pkacc" data-acc aria-label="Iniciar sesión para sincronizar" title="Mi cuenta"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Cuenta</span><i class="accd" aria-hidden="true"></i></button><button type="button" class="addc" id="addc"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button></div><div class="wrap wc">
+<div id="v-pick" class="wel" hidden><button type="button" class="bkc" id="pickback" aria-label="Volver al inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg><span>Atrás</span></button><button type="button" class="addc" id="addc"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><div class="wrap wc">
 <h1 class="wt eq"><span class="t1 mr" style="--i:0">Elige tu</span><span class="t2 mr" style="--i:1">curso</span></h1>
 <div class="pgs" id="plist"></div>
 <div class="sidec" id="sidec"><div class="addb" id="addb"><span class="addb-k">¿Falta tu curso?</span><b>Agrégalo tú mismo</b><span class="addb-t">Envíanos el sílabo o reglamento y lo sumamos a My PonderUP.</span><button type="button" class="btn addb-b" id="addc2"><span aria-hidden="true">+</span> Agrega tu curso</button></div></div>
@@ -1928,13 +1746,12 @@ footer .fl button[data-acc],footer .fl button[data-install],footer .fl button[da
 </div>
 
 <div id="v-tool" hidden>
-<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb accb" data-acc aria-label="Iniciar sesión para sincronizar" title="Mi cuenta"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Cuenta</span><i class="accd" aria-hidden="true"></i></button><button type="button" class="shb adb" data-add="barra" aria-label="Agrega tu curso" title="Agrega tu curso"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div></div>
+<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb adb" data-add="barra" aria-label="Agrega tu curso" title="Agrega tu curso"><i aria-hidden="true">+</i><span>Agrega tu curso</span></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div></div>
 <header class="hd">
 <div class="wrap cs rv" style="--i:1"><button id="cbtn" type="button" aria-controls="clist" aria-expanded="false"><span class="cq">Curso:</span><span class="cv" id="cval"></span><i class="chev"></i></button><div id="clist" hidden></div></div>
 </header>
 <section class="hero"><div class="hdeco" aria-hidden="true"><i class="dt" style="width:16px;height:16px;background:#00F03C;top:12%;right:8%;--x:-10px;--y:14px;--t:7s"></i><i class="dt" style="width:11px;height:11px;background:#0A5CFF;top:27%;right:21%;--x:8px;--y:-14px;--t:9s;--d:-3s"></i><i class="sq" style="top:34%;right:6%;width:34px;height:34px;border-width:2px"></i></div><div class="wrap">
 <h1><span class="t1 mr" style="--i:1">Calcula tu ponderado de</span><span class="t2 mr" id="ctitle" style="--i:2"></span></h1>
-<div class="vfb rv" id="vfb" style="--i:3"></div>
 <div class="strip"><i style="background:#0A5CFF"></i><i style="background:#00F03C"></i><i style="background:#F000F0"></i><i style="background:#fff"></i></div>
 <div class="wp"><div class="wb" id="wbar"></div><div class="lg" id="lgd"></div><div class="zm" id="zm"></div></div>
 </div></section>
@@ -1946,7 +1763,6 @@ footer .fl button[data-acc],footer .fl button[data-install],footer .fl button[da
 <p class="tip"><b>TIP:</b> Arrastra la línea o escribe tu nota mínima y la tabla se ajusta.</p>
 <section id="cb"></section>
 <section id="sim" hidden aria-label="Simulador de notas"><button type="button" id="simt" aria-expanded="false" aria-controls="simb"><span><b>¿Y si saco…?</b><small>Prueba notas en lo que falta sin cambiar las tuyas</small></span><i class="smc" aria-hidden="true"></i></button><div id="simb" hidden><p class="simi"><span class="tag m">Simulación</span><span>Mueve los deslizadores. Tus notas reales no cambian hasta que toques “Usar”.</span></p><div id="simr"></div><div class="simo"><div><span class="simk">Promedio simulado</span><div id="simv" aria-live="polite"></div></div><b id="simn"></b></div></div></section>
-<section class="grp rv" id="grp" aria-label="Pásalo a tu grupo"><div class="grpi" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></div><div class="grpt"><b>Pásalo a tu grupo</b><span id="grps">Comparte el enlace directo de este curso con tu salón.</span></div><div class="grpb"><button type="button" class="btn grpwa" id="grpw"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3a.5.5 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>WhatsApp</button><button type="button" class="btn alt" id="grpl">Copiar enlace</button></div></section>
 <section class="mpv" id="mpv" hidden aria-label="Valoración de la calculadora"><p class="mpvq" id="mpvq">¿Te ayudó a planificar tus notas?</p><div class="mpvb" id="mpvb"><button type="button" class="mpvbtn" data-v="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg><span>Sí</span></button><button type="button" class="mpvbtn" data-v="no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg><span>No mucho</span></button></div><p class="mpvt" id="mpvt" role="status" aria-live="polite"><span id="mpvm"></span><button type="button" class="mpvl" id="mpvl" hidden>Escribir un comentario</button></p></section>
 <a class="igc" data-ig="resultado" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span class="igt"><b><span class="igf">¿Te sirvió? Síguenos para estar al tanto de nuevas actualizaciones</span><span class="igk">¿Te sirvió? ¡Síguenos!</span></b><small class="igu">@myponderup</small></span></a>
 </main>
@@ -1955,16 +1771,16 @@ footer .fl button[data-acc],footer .fl button[data-install],footer .fl button[da
 <details class="qa"><summary><span class="no">01</span><span class="q">¿Cómo se calcula la nota de este curso?</span><i class="pm"></i></summary><div class="ans"><div class="stl" id="cinfo"></div></div></details>
 <details class="qa"><summary><span class="no">02</span><span class="q">¿Cómo se redondea?</span><i class="pm"></i></summary><div class="ans"><div id="rules"></div></div></details>
 <details class="qa"><summary><span class="no">03</span><span class="q">¿Qué significa "Por rendir"?</span><i class="pm"></i></summary><div class="ans"><div class="q3g"><div class="q3c b"><span class="q3t">La dejas en blanco</span><span class="q3f e" aria-hidden="true"><i>Por rendir</i><b>/20</b></span><span class="tag m">Pendiente</span><p>Cuenta como 0 en "Mi promedio hasta ahora" y la tabla te dice cuánto necesitas sacar en ella.</p></div><div class="q3c g"><span class="q3t">Escribes un 0</span><span class="q3f" aria-hidden="true"><i>0</i><b>/20</b></span><span class="tag y">Rendida</span><p>Cuenta como una nota ya rendida: el 0 entra al promedio tal cual.</p></div></div></div></details>
-<details class="qa"><summary><span class="no">04</span><span class="q">¿Se guardan mis notas?</span><i class="pm"></i></summary><div class="ans"><div class="q4g"><div class="q4t" style="--c:#0A5CFF;--cc:#fff"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></span><b>Dónde</b><p>En tu navegador. Si inicias sesión, también en tu cuenta: así te siguen en todos tus dispositivos.</p></div><div class="q4t" style="--c:#00F03C;--cc:#061F47"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b>Privacidad</b><p>Sin cuenta, nunca salen de tu dispositivo. Con cuenta, solo tú puedes verlas y puedes borrarlas de la nube cuando quieras.</p></div><div class="q4t" style="--c:#F000F0;--cc:#061F47"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 12a1.5 1.5 0 0 0 1.5 1.4h7A1.5 1.5 0 0 0 17 19l1-12M9 7V4h6v3"/></svg></span><b>Para borrarlas</b><p>Vacía la casilla de cada nota o borra los datos del sitio desde tu navegador.</p></div></div></div></details>
+<details class="qa"><summary><span class="no">04</span><span class="q">¿Se guardan mis notas?</span><i class="pm"></i></summary><div class="ans"><div class="q4g"><div class="q4t" style="--c:#0A5CFF;--cc:#fff"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></span><b>Dónde</b><p>Solo en tu navegador y en tu dispositivo. Al volver, tus notas siguen ahí.</p></div><div class="q4t" style="--c:#00F03C;--cc:#061F47"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b>Privacidad</b><p>No se envían a ningún servidor y nadie más puede verlas.</p></div><div class="q4t" style="--c:#F000F0;--cc:#061F47"><span class="q4i" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 12a1.5 1.5 0 0 0 1.5 1.4h7A1.5 1.5 0 0 0 17 19l1-12M9 7V4h6v3"/></svg></span><b>Para borrarlas</b><p>Vacía la casilla de cada nota o borra los datos del sitio desde tu navegador.</p></div></div></div></details>
 <details class="qa"><summary><span class="no">05</span><span class="q">¿Qué significan los avisos de aprobado?</span><i class="pm"></i></summary><div class="ans"><div class="stl"><div class="sti"><div class="stt"><span class="tag y">Ya aprobaste</span></div><p>Aunque saques 0 en lo que falta, llegas a tu nota mínima.</p></div><div class="sti"><div class="stt"><span class="tag m">Aún puedes aprobar</span></div><p>Todavía se puede. Te decimos qué promedio necesitas en lo que falta.</p></div><div class="sti"><div class="stt"><span class="tag n">No puedes llegar</span></div><p>Ni con 20 en todo lo que falta alcanzas tu nota mínima.</p></div><div class="sti"><div class="stt"><span class="tag y">Aprobado</span><span class="tag n">Desaprobado</span></div><p>Solo aparecen cuando ya no queda ninguna evaluación por rendir.</p></div></div></div></details>
 </div></section>
-<footer><div class="wrap fc fcx"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>My PonderUP te ayuda a calcular tu promedio ponderado en segundos: ingresa tus notas, mira cuánto necesitas sacar en lo que falta y planifica cómo aprobar cada curso.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl fcm"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form><div class="fadd"><b>¿Falta tu curso?</b><button type="button" class="shb adb" data-add="pie"><i>+</i><span>Agrega tu curso</span></button></div><div class="fl fcx2"><b>Tu cuenta</b><button type="button" data-acc>Sincronizar mis notas</button><button type="button" data-install hidden>Instalar la app</button><button type="button" data-priv>Política de privacidad</button></div><div class="igs"><a class="ig" data-ig="pie" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>Síguenos en <b class="igu">@myponderup</b></span></a></div></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Todos los derechos reservados</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
+<footer><div class="wrap fc fcx"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>My PonderUP te ayuda a calcular tu promedio ponderado en segundos: ingresa tus notas, mira cuánto necesitas sacar en lo que falta y planifica cómo aprobar cada curso.</p><button type="button" class="shb shf" data-share><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir página</span></button></div><div class="fl" id="fl"></div><div class="fl fcm"><b>Comentarios o sugerencias</b><form class="sgf" id="sgf" action="/api/sugerencia" method="POST"><div class="sgr"><label class="sgv" for="sgm">Tu comentario o sugerencia</label><textarea id="sgm" name="message" rows="2" maxlength="1000" required placeholder="¿Falta tu curso o tienes una sugerencia?"></textarea><button type="submit" class="btn sgb" id="sgb">Enviar</button></div><input class="sgh" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="sgt" id="sgt"></div><div class="sgs" id="sgs" role="status" aria-live="polite"></div></form><div class="fadd"><b>¿Falta tu curso?</b><button type="button" class="shb adb" data-add="pie"><i>+</i><span>Agrega tu curso</span></button></div><div class="igs"><a class="ig" data-ig="pie" href="https://www.instagram.com/myponderup/" target="_blank" rel="noopener" aria-label="Instagram de @myponderup"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span>Síguenos en <b class="igu">@myponderup</b></span></a></div></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Todos los derechos reservados</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
 </div>
 
 
 <div id="v-fi" hidden>
-<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home2" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb accb" data-acc aria-label="Iniciar sesión para sincronizar" title="Mi cuenta"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Cuenta</span><i class="accd" aria-hidden="true"></i></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div></div>
-<header class="hd"><div class="wrap fbk2"><button type="button" class="fback" data-pick="1"><small>Ir a</small><b>Ponderado de un curso</b></button><button type="button" class="fback" data-ciclo="1"><small>Ir a</small><b>Mi ciclo</b></button></div></header>
+<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home2" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div>
+<header class="hd"><div class="wrap"><button type="button" class="fback" data-pick="1"><small>Ir a</small><b>Ponderado de un curso</b></button></div></header>
 <section class="hero"><div class="hdeco" aria-hidden="true"><i class="dt" style="width:16px;height:16px;background:#00F03C;top:12%;right:8%;--x:-10px;--y:14px;--t:7s"></i><i class="dt" style="width:11px;height:11px;background:#0A5CFF;top:27%;right:21%;--x:8px;--y:-14px;--t:9s;--d:-3s"></i><i class="sq" style="top:34%;right:6%;width:34px;height:34px;border-width:2px"></i></div><div class="wrap">
 <h1><span class="t1 mr" style="--i:1">Calcula tu</span><span class="t2 mr" style="--i:2">Factor de inscripción</span></h1>
 <div class="strip"><i style="background:#0A5CFF"></i><i style="background:#00F03C"></i><i style="background:#F000F0"></i><i style="background:#fff"></i></div>
@@ -2035,100 +1851,16 @@ footer .fl button[data-acc],footer .fl button[data-install],footer .fl button[da
 <footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>My PonderUP te ayuda a calcular tu factor de inscripción paso a paso: ingresa tus cursos, tus notas y tus bonificaciones, y mira cómo queda tu resultado.</p></div><div class="fl" id="ffl"><b>Otras herramientas</b><button type="button" data-pick="1">Ponderado de un curso</button></div><div class="fl"><b>Comentarios o sugerencias</b></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Todos los derechos reservados</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
 </div>
 
-<div id="v-ciclo" hidden>
-<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="home3" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb accb" data-acc aria-label="Iniciar sesión para sincronizar" title="Mi cuenta"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Cuenta</span><i class="accd" aria-hidden="true"></i></button><button type="button" class="shb" data-share aria-label="Compartir esta página"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Compartir</span></button></div></div></div>
-<header class="hd"><div class="wrap fbk2"><button type="button" class="fback" data-pick="1"><small>Ir a</small><b>Elegir curso</b></button><button type="button" class="fback" data-fi="1"><small>Ir a</small><b>Calcular mi FI</b></button></div></header>
-<section class="hero"><div class="hdeco" aria-hidden="true"><i class="dt" style="width:16px;height:16px;background:#00F03C;top:12%;right:8%;--x:-10px;--y:14px;--t:7s"></i><i class="dt" style="width:11px;height:11px;background:#0A5CFF;top:27%;right:21%;--x:8px;--y:-14px;--t:9s;--d:-3s"></i><i class="sq" style="top:34%;right:6%;width:34px;height:34px;border-width:2px"></i></div><div class="wrap">
-<h1><span class="t1 mr" style="--i:1">Así va</span><span class="t2 mr" style="--i:2">Mi ciclo</span></h1>
-<div class="strip"><i style="background:#0A5CFF"></i><i style="background:#00F03C"></i><i style="background:#F000F0"></i><i style="background:#fff"></i></div>
-<div class="wp"><div class="wb" id="cybar"></div><div class="lg" id="cylg"></div></div>
-</div></section>
-<main class="wrap body">
-<h2 class="it">Mis cursos <span class="cyn" id="cyn"></span></h2>
-<p class="nota"><i>i</i><span>Aquí están los cursos donde ya ingresaste notas. Los créditos salen del plan de estudios; si tu plan es distinto, cámbialos.</span></p>
-<div class="cyg" id="cylist"></div>
-<div class="cyadd"><button type="button" class="btn" data-pick="1"><span aria-hidden="true">+</span> Agregar otro curso</button><button type="button" class="lnk" id="cyreset">Restablecer cursos y créditos</button></div>
-<section id="cysum" class="cysum" aria-live="polite"><div class="sm1"><div><b>Promedio ponderado <span class="l2">del ciclo</span></b><div class="mut" id="cysc"></div></div><div class="cybig"><b id="cyavg" class="na">—</b><small id="cyavgh"></small></div></div><p class="cyokt" id="cyok"></p></section>
-<h2 class="it">FI proyectado</h2>
-<p class="nota"><i>i</i><span>Con tus notas de hoy, así quedaría tu factor de inscripción. Se actualiza solo con cada nota que ingreses.</span></p>
-<div class="fch2" role="radiogroup" aria-label="¿Es tu primer ciclo?">
-<button type="button" role="radio" aria-checked="false" data-cyf="1"><b>Sí, es mi primer ciclo</b><span>Se suman los créditos matriculados</span></button>
-<button type="button" role="radio" aria-checked="false" data-cyf="0"><b>No, ya cursé ciclos</b><span>Se suman mis créditos acumulados</span></button>
-</div>
-<div class="fbk fcrd" id="cymat" hidden><label>Créditos matriculados</label><div class="fcv"><b id="cymatv">0</b></div><small>Suma de los créditos de tus cursos de este ciclo.</small></div>
-<div class="fbk fcrd" id="cycaw" hidden><label for="cyca">Créditos académicos acumulados</label><input class="fin" id="cyca" type="number" min="0" max="400" step="1" inputmode="numeric" placeholder="Ej. 32" aria-label="Créditos académicos acumulados"><small>Hasta el último ciclo que terminaste. Solo los que cuentan para el FI.</small></div>
-<h3 class="cyh3">Bonificaciones</h3>
-<div class="fbg" id="cybon"></div>
-<section id="cyfis" class="cyfis"><div class="sm1"><div><b>Mi FI <span class="l2">proyectado</span></b><div class="mut" id="cyfm"></div></div><div class="cybig"><b id="cyfi" class="na">—</b><small id="cyfih"></small></div></div><div class="cyfa"><button type="button" class="btn" id="cyfib" hidden>Ver el cálculo completo del FI</button><button type="button" class="btn alt" data-install hidden>Instalar la app</button></div></section>
-</main>
-<section class="faq" id="cyfaq"><div class="wrap">
-<h2>Cómo funciona</h2>
-<details class="qa"><summary><span class="no">01</span><span class="q">¿Qué cursos aparecen aquí?</span><i class="pm"></i></summary><div class="ans"><p>Todos los cursos donde ingresaste al menos una nota, con el mismo cálculo que ves dentro de cada uno. Si quitas uno, vuelve a aparecer cuando ingreses una nota nueva.</p></div></details>
-<details class="qa"><summary><span class="no">02</span><span class="q">¿Cómo se calcula el promedio del ciclo?</span><i class="pm"></i></summary><div class="ans"><p>Es un promedio ponderado por créditos: la nota de cada curso por sus créditos, sumado y dividido entre la suma de créditos. Las notas pendientes cuentan como 0 (igual que en “Mi promedio hasta ahora”); el “mejor caso” las cuenta como 20.</p></div></details>
-<details class="qa"><summary><span class="no">03</span><span class="q">¿El FI proyectado es el oficial?</span><i class="pm"></i></summary><div class="ans"><p>Es una proyección con tus notas de hoy: promedio del ciclo × 10, más tus créditos, más tus bonificaciones. El valor final depende de tus notas finales.</p></div></details>
-</div></section>
-<footer><div class="wrap fc"><div><img class="lg-f" data-fb="f" src="/img/logo-vertical.webp" alt="My PonderUP" decoding="async" fetchpriority="low"><p>Mi ciclo reúne todos tus cursos en un solo lugar: cómo vas en cada uno, tu promedio ponderado y tu factor de inscripción proyectado.</p></div><div class="fl"><b>Otras herramientas</b><button type="button" data-pick="1">Ponderado de un curso</button><button type="button" data-fi="1">Calcular mi FI</button><button type="button" data-cc="new">Crear mi curso</button></div><div class="fl"><b>Tu cuenta</b><button type="button" data-acc>Sincronizar mis notas</button><button type="button" data-priv>Política de privacidad</button></div></div><div class="wrap"><div class="fbt"><span>© 2026 My PonderUP · Todos los derechos reservados</span><button type="button" class="fup" data-up>Volver arriba<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div></footer>
-</div>
-
-<div id="v-cc" class="wel upv" hidden>
-<div class="updeco" aria-hidden="true"><i class="sq" style="left:4%;top:24%"></i><i class="sq b" style="right:7%;top:38%"></i><i class="sq g" style="left:9%;top:72%"></i><i class="sp" style="left:88%;top:16%;--s:18px;--d:.4s"></i><i class="sp" style="left:93%;top:62%;--s:14px;--d:1.3s"></i><i class="sp" style="left:3%;top:50%;--s:16px;--d:2s"></i></div>
-<div class="bar"><div class="wrap hd1"><button type="button" class="logo lb" id="cchome" aria-label="Volver al inicio"><img class="lg-h" data-fb="h" src="/img/logo-horizontal.webp" alt="My PonderUP" decoding="async" fetchpriority="low"></button><div class="hr"><button type="button" class="shb" id="ccback"><span>← Volver</span></button></div></div></div>
-<div class="wrap wc upw"><div class="upin ccin">
-<div class="gt rv" style="--i:0">Mi curso</div>
-<h1 class="wt"><span class="t1 mr" style="--i:1">Crea tu</span><span class="t2 mr" style="--i:2">curso</span></h1>
-<p class="upi rv" style="--i:3">Escribe las evaluaciones y sus pesos tal como salen en tu sílabo. Puedes agrupar notas (por ejemplo, PC1 a PC4 dentro de “Nota de Trabajo”) y compartir el curso con tu salón con un enlace.</p>
-<form class="upf rv ccf" id="ccf" style="--i:4" novalidate autocomplete="off">
-<div class="upstrip" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-<div class="upfd"><label class="upl" for="ccn">Nombre del curso</label><input type="text" id="ccn" maxlength="70" required placeholder="Ej.: Marketing Estratégico · sección B"></div>
-<div class="upl"><span>Evaluaciones y pesos</span><span class="upc" id="ccsum">0% de 100%</span></div>
-<div class="ccbar" aria-hidden="true"><i id="ccbf"></i></div>
-<div id="ccrows"></div>
-<button type="button" class="ccadd" id="ccaddg"><span aria-hidden="true">+</span> Agregar evaluación</button>
-<label class="ck ccrfl"><input type="checkbox" id="ccrf" checked> Redondear el promedio final al entero (10.5 cuenta como 11)</label>
-<p class="upn"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Tu curso se guarda en este navegador (y en tu cuenta si inicias sesión). Si lo compartes, el enlace lleva los pesos: nunca tus notas.</span></p>
-<div class="ccacts"><button type="submit" class="btn xl upb" id="ccsave">Guardar y abrir</button><button type="button" class="btn xl ccdel" id="ccdel" hidden>Eliminar curso</button></div>
-<div class="ups" id="ccst" role="status" aria-live="polite"></div>
-</form>
-</div></div>
-</div>
-
 <div class="tgw off" id="tgw"><button type="button" class="tg" id="tg" role="switch" aria-checked="false" aria-label="Modo oscuro"><svg class="ti s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><svg class="ti m" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.6 9.6 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z"/></svg><span class="tk"><svg class="s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg><svg class="m" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a.6.6 0 0 0-.8-.7A9.6 9.6 0 1 0 21.2 15a.6.6 0 0 0-.7-.8z"/></svg></span></button></div>
 <div id="fimini" aria-hidden="true"><span class="ml">Mi factor de inscripción</span><b id="fmbig" class="na">—</b></div>
 <div id="rim" hidden role="dialog" aria-modal="true" aria-labelledby="rimt"><div class="rimc"><div class="rimh"><b id="rimt">Compartir mi resultado</b><button type="button" id="rix" aria-label="Cerrar">×</button></div><div class="rimp" id="rimp" aria-busy="true"><img id="rii" alt="Vista previa de la imagen de tu resultado" width="540" height="675"></div><div class="rimf" role="group" aria-label="Formato de la imagen"><button type="button" data-rf="story" aria-pressed="false">Historia 9:16</button><button type="button" data-rf="post" aria-pressed="false">Publicación 4:5</button></div><label class="ck"><input type="checkbox" id="rin"> Mostrar mis notas en la imagen</label><div class="rima"><button type="button" class="btn" id="rig" disabled>Compartir imagen</button><button type="button" class="btn alt" id="rid" disabled>Descargar</button></div><p id="ris">La imagen solo muestra tu resultado. Tus notas no aparecen salvo que lo actives.</p></div></div>
-<div id="rpm" hidden role="dialog" aria-modal="true" aria-labelledby="rpmt"><div class="rimc"><div class="rimh"><b id="rpmt">¿Algo no cuadra?</b><button type="button" id="rpx" aria-label="Cerrar">×</button></div>
-<p class="rpi">Cuéntanos qué no coincide con tu sílabo en <b id="rpc"></b> y lo revisamos.</p>
-<div class="rpk" role="group" aria-label="Tipo de problema"><button type="button" data-rk="peso" aria-pressed="false">Un peso está mal</button><button type="button" data-rk="falta" aria-pressed="false">Falta una evaluación</button><button type="button" data-rk="redondeo" aria-pressed="false">El redondeo no es así</button><button type="button" data-rk="otro" aria-pressed="false">Otra cosa</button></div>
-<textarea id="rpt" rows="4" maxlength="900" placeholder="Ej.: En mi sección el parcial pesa 25% y el final 35%."></textarea>
-<div class="rima"><button type="button" class="btn" id="rps">Enviar</button></div><p class="ups" id="rpst" role="status" aria-live="polite"></p>
-<p class="rpn">También puedes crear tu propia versión del curso con tus pesos desde “Crear mi versión”.</p></div></div>
-<div id="acm" hidden role="dialog" aria-modal="true" aria-labelledby="acmt"><div class="rimc"><div class="rimh"><b id="acmt">Mi cuenta</b><button type="button" id="acx" aria-label="Cerrar">×</button></div>
-<div id="acout">
-<p class="aci">Inicia sesión para que tus notas te sigan en todos tus dispositivos. Sin cuenta, se guardan solo en este navegador.</p>
-<ul class="acl"><li>Sincroniza tus notas, tus cursos y tu ciclo</li><li>Solo tú puedes verlas</li><li>Puedes borrarlas de la nube cuando quieras</li></ul>
-<button type="button" class="btn xl acg" id="acgoogle"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h6.5a5.6 5.6 0 0 1-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3a7.2 7.2 0 0 1-10.8-3.8H1.3v3.1A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.3 14.3a7.2 7.2 0 0 1 0-4.6V6.6H1.3a12 12 0 0 0 0 10.8l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.3 6.6l4 3.1A7.2 7.2 0 0 1 12 4.8z"/></svg>Continuar con Google</button>
-<div class="acor"><span>o con tu correo</span></div>
-<form id="acf" novalidate><input type="email" id="ace" inputmode="email" autocomplete="email" placeholder="tucorreo@up.edu.pe" required aria-label="Tu correo"><button type="submit" class="btn" id="acs">Enviarme un enlace</button></form>
-<p class="ups" id="acst" role="status" aria-live="polite"></p>
-<p class="acp">Al continuar aceptas nuestra <button type="button" class="lnk" data-priv>política de privacidad</button>. Tus notas se sincronizan cifradas en tránsito y solo tú puedes verlas.</p>
-</div>
-<div id="acin" hidden>
-<div class="acu"><i class="acav" id="acav" aria-hidden="true"></i><div><b id="acmail"></b><span class="acs" id="acsync">Conectado</span></div></div>
-<div class="acacts"><button type="button" class="btn" id="acnow">Sincronizar ahora</button><button type="button" class="btn alt" id="acout2">Cerrar sesión</button></div>
-<button type="button" class="lnk dng" id="acwipe">Borrar mis datos de la nube</button>
-</div></div></div>
-<div id="prm" hidden role="dialog" aria-modal="true" aria-labelledby="prmt"><div class="rimc"><div class="rimh"><b id="prmt">Política de privacidad</b><button type="button" id="prx" aria-label="Cerrar">×</button></div>
-<div class="prt"><p><b>Qué guardamos.</b> Sin cuenta, tus notas, tu nota mínima y tus redondeos se guardan solo en tu navegador. Si inicias sesión, se guardan también en tu cuenta (en Supabase, un servicio de base de datos) para sincronizarlas entre tus dispositivos. Solo tú puedes verlas.</p>
-<p><b>Qué no hacemos.</b> No vendemos ni compartimos tus datos. No publicamos tus notas. Los sílabos que nos envías se usan solo para agregar el curso.</p>
-<p><b>Medición.</b> Usamos PostHog y Vercel Analytics para saber qué pantallas y botones se usan (por ejemplo, qué curso se abrió), nunca los valores de tus notas. Respetamos la señal “No rastrear” de tu navegador.</p>
-<p><b>Tus derechos.</b> Puedes borrar tus datos de la nube desde “Mi cuenta” y los de tu navegador desde “¿Se guardan mis notas?”. Para cualquier consulta, escríbenos desde “Comentarios o sugerencias” o por Instagram.</p></div></div></div>
-<div id="pwab" hidden role="region" aria-label="Instalar la app"><span class="pwai" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2.5"/><path d="M12 18h.01"/></svg></span><span class="pwat" id="pwat"><b>Instala My PonderUP</b> en tu pantalla de inicio: abre al toque y funciona sin conexión.</span><button type="button" class="btn sm" id="pwai">Instalar</button><button type="button" id="pwax" aria-label="Cerrar">×</button></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="mini" aria-hidden="true"><span class="ml">Mi promedio<br>hasta ahora</span><i class="mb"><span id="mpf"></span><span id="mmk"></span></i><b id="mbig"></b></div>
 
 <script>
 const $=id=>document.getElementById(id),clone=o=>JSON.parse(JSON.stringify(o));
-/* FACTOR DE INSCRIPCION: false = oculto (el codigo y los datos siguen en este archivo). true = visible. Ronda 12: activado porque "Mi ciclo" proyecta el FI y enlaza con esta calculadora. */
-const FI_ACTIVO=true;
+/* FACTOR DE INSCRIPCION: false = oculto (el codigo y los datos siguen en este archivo). true = visible. */
+const FI_ACTIVO=false;
 /* ===== ANALITICAS (PostHog) =====
    Para activarlas: crea un proyecto en posthog.com, pega abajo tu clave (empieza con phc_) y elige la region ("us" o "eu").
    Mientras PH_KEY este vacia no se envia nada. Solo se envian eventos (que curso, que pantalla, que boton); NUNCA las notas. */
@@ -2379,12 +2111,22 @@ dos:{n:"Diseño Organizacional y Estrategia",pre:"",rf:1,i:"La Nota de Trabajo p
   {id:"pc",n:"Práctica Calificada",s:"Práctica",w:40},
   {id:"ea",n:"Ejercicios Aplicativos",s:"Ejercicios",w:30},
   {id:"ti",n:"Trabajo Integrador",s:"Trabajo Integrador",w:30}]},
- {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
+ {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+ant:{n:"Antropología",pre:"",gp:2,rf:1,i:"El Aprendizaje Continuo pesa 30% (evaluación individual y grupal de las lecturas semanales) y se ingresa como una sola nota. El Examen Parcial (ensayo) pesa 20%, las Actividades de Exploración Etnográfica 30% y el Examen Final (oral) 20%. No se indicó cómo se redondea, por eso se asume que el aprendizaje continuo, el parcial, las actividades etnográficas, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"ac",n:"Aprendizaje Continuo",s:"Aprend. Continuo",w:30,r:1},
+ {id:"pa",n:"Examen Parcial (Ensayo)",s:"Parcial",w:20,r:1},
+ {id:"ee",n:"Actividades de Exploración Etnográfica",s:"Etnografía",w:30,r:1},
+ {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
-const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2],["Mis cursos",3]],gof=x=>C[x].gp??(C[x].pre===""?1:0),inG=g=>KS.filter(x=>gof(x)===g),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
-/* Etiqueta chica sobre el nombre: "Curso", "Nivelación en" o "Mi curso" (cursos personalizados, Ronda 12) */
-const ckind=x=>C[x].cc?"Mi curso":C[x].pre===""?"Curso":"Nivelación en";
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+/* MAS_USADOS: orden de respaldo de "Más usados" (claves de curso, del más elegido al menos). Se reemplaza solo con lo que devuelve /api/populares (PostHog). Vacío = cae a A-Z */
+const MAS_USADOS=[];let POP=MAS_USADOS;
+let ordMode=(()=>{try{const m=localStorage.getItem("mp-ord");return["mis","pop","tema"].includes(m)?m:"az"}catch(_){return"az"}})();
+const GR=[["Nivelación",0],["Cursos",1],["Cursos Sellos UP",2]],gof=x=>C[x].gp??(C[x].pre===""?1:0),azc=(a,b)=>C[a].n.localeCompare(C[b].n,"es",{sensitivity:"base"}),hn=x=>{const t=ST[x];return t&&t.g&&Object.values(t.g).some(v=>v!==undefined&&v!=="")?1:0},pr=x=>{const i=POP.indexOf(x);return i<0?999:i},
+inG=g=>{const l=KS.filter(x=>gof(x)===g);if(ordMode==="tema")return l;if(ordMode==="mis")return l.sort((a,b)=>hn(b)-hn(a)||azc(a,b));if(ordMode==="pop")return l.sort((a,b)=>pr(a)-pr(b)||azc(a,b));return l.sort(azc)},flat=wc=>{const l=KS.slice();if(ordMode==="pop")return l.sort((a,b)=>pr(a)-pr(b)||azc(a,b));if(ordMode==="mis")return l.filter(x=>hn(x)||(wc&&x===cur)).sort(azc);return l.sort(azc)},
+secs=wc=>ordMode==="tema"?GR.map(([t,g])=>[t,inG(g)]):[[ordMode==="mis"?"Mis cursos":"Todos los cursos",flat(wc)]],
+lbl=x=>ordMode!=="tema"&&gof(x)===2?"Curso Sellos UP":(C[x].pre===""?"Curso":"Nivelación en"),
+ORD=()=>ordMode==="tema"?KS:flat(false),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
 const isP=id=>{const g=S.g[id];return g===undefined||g===""||isNaN(+g)};
@@ -2413,31 +2155,57 @@ function paintBars(){
   e.style.setProperty("--f",f+"%");const b=document.querySelector(`.blk[data-b="${i}"]`);if(b){b.style.setProperty("--f",f+"%");const c=b.querySelector(".cnt");if(c){const L=leaves(g),n=L.filter(l=>!isP(l.id)).length;c.textContent=n+" de "+L.length;c.classList.toggle("full",n===L.length)}}});
  document.querySelectorAll("input.g").forEach(i=>{const r=i.closest(".row,.bh");if(r)r.classList.toggle("dn",!isP(i.dataset.id))});
  document.querySelectorAll("#zb .zs").forEach(e=>{const was=e.classList.contains("pd"),now=e.dataset.ids.split(",").some(isP);e.classList.toggle("pd",now);if(was&&!now){e.classList.remove("pop");void e.offsetWidth;e.classList.add("pop");anim("zona_barra_pop")}})}
-let faqNear=false,bodyIn=false,fiBodyIn=false,bodySee=false,fiBodySee=false,miniAn=false,fiMiniAn=false,cyBodySee=false;
+let faqNear=false,bodyIn=false,fiBodyIn=false,bodySee=false,fiBodySee=false,miniAn=false,fiMiniAn=false;
 /* bodyIn / fiBodyIn: el contenido claro/oscuro ya ocupa buena parte de la pantalla (para la barra "Mi promedio hasta ahora"). bodySee / fiBodySee: se ve aunque sea un poco de ese contenido; el interruptor solo se oculta cuando el azul tapa toda la pantalla. */
 const chk=()=>{const mOn=view==="tool"&&bodyIn&&!sumIn&&!faqIn,fm=$("fimini"),
- tOn=view==="tool"?bodySee:view==="fi"?fiBodySee:view==="ciclo"?cyBodySee:false;
+ tOn=view==="tool"?bodySee:view==="fi"?fiBodySee:false;
  if(mOn&&!miniAn&&!$("mini").classList.contains("on")){miniAn=true;anim("mini_resumen_aparece")}$("mini").classList.toggle("on",mOn);
  $("tgw").classList.toggle("off",!tOn);
  $("tgw").classList.toggle("low",!(mOn||(fm&&fm.classList.contains("on"))))};
-const VIEWS=["welcome","pick","tool","fi","up","ciclo","cc"];
-function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";const prev=view;view=v;document.body.classList.toggle("dk",v==="welcome"||v==="pick"||v==="up"||v==="cc");track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir",ciclo:"ciclo",cc:"mi_curso"}[v]||v);VIEWS.forEach(x=>{const e=$("v-"+x);if(e)e.hidden=x!==v});window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo();try{onView(v,prev)}catch(_){}}
+function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;if(v==="pick"&&ordMode==="mis"){renderPick();const qi=$("bqp");if(qi&&qi.value)bqU(qi)}document.body.classList.toggle("dk",v==="welcome"||v==="pick"||v==="up");track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
 /* "Agrega tu curso": recuerda desde donde se abrio para volver al mismo lugar */
 function updUpLabels(){const t=upFrom==="tool"&&cur,s=document.querySelector("#upback span"),g=$("upgo");if(s)s.textContent=t?"← Volver a mi curso":"← Volver a cursos";if(g)g.textContent=t?"Volver a mi curso":"Volver a cursos"}
 function leaveUp(){const t=upFrom==="tool"&&cur;showView(t?"tool":"pick");if(t)window.scrollTo({top:upY,behavior:"instant"})}
 
+/* ===== Orden de los cursos: A-Z (por defecto) o "Por tema" (orden del arreglo KS). Se guarda en mp-ord ===== */
+const ORDS={az:["A–Z","Todos juntos, de la A a la Z"],pop:["Más usados","Todos juntos, los más elegidos primero"],mis:["Mis cursos","Solo los que ya tienen notas"],tema:["Por tema","Separados por grupos"]};
+const ordIco='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16"/><path d="M3.5 16.5L7 20l3.5-3.5"/><path d="M17 20V4"/><path d="M13.5 7.5L17 4l3.5 3.5"/></svg>';
+const ordBtn=()=>`<button type="button" class="ordb ordtop" data-ord="menu" aria-haspopup="true" aria-expanded="false" title="Cambiar el orden de los cursos" aria-label="Orden de los cursos: ${ORDS[ordMode][0]}. Cambiar">${ordIco}<b>${ORDS[ordMode][0]}</b></button><div class="ordmenu" id="ordmenu" hidden role="menu">${Object.keys(ORDS).map(m=>`<button type="button" role="menuitemradio" aria-checked="${m===ordMode}" class="ordo${m===ordMode?" on":""}" data-ordm="${m}"><b>${ORDS[m][0]}</b><small>${ORDS[m][1]}</small></button>`).join("")}</div>`;
+const ordChips=()=>`<span class="ordl">Orden</span><div class="ordch" role="group" aria-label="Orden de los cursos">${Object.keys(ORDS).map(m=>`<button type="button" class="ordc${m===ordMode?" on":""}" data-ordm="${m}" aria-pressed="${m===ordMode}">${ORDS[m][0]}</button>`).join("")}</div>`;
+function renderOrd(){const a=$("ordrow");if(a)a.innerHTML=ordBtn()}
+function ordMenu(open){const m=$("ordmenu"),b=document.querySelector("#ordrow .ordb");if(!m||!b)return;m.hidden=!open;b.setAttribute("aria-expanded",String(!!open))}
+let popTried=false;
+function popLoad(){if(popTried)return;popTried=true;try{fetch("/api/populares",{credentials:"omit"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.cursos)){const l=j.cursos.filter(k=>C[k]);if(l.length){POP=l;if(ordMode==="pop")reOrd()}}}).catch(()=>{})}catch(_){}}
+function reOrd(){renderOrd();renderPick();if(cur){renderClist(cur);renderFl()}const i=$("bqp");if(i&&i.value)bqU(i)}
+function renderClist(k){
+ const L=ORD(),ci=L.indexOf(k);$("cbtn").style.setProperty("--s",SC[(ci<0?0:ci)%4]);
+ $("clist").innerHTML=BQ(0)+`<div class="ordw">${ordChips()}</div>`+secs(true).map(([t,xs])=>`<div class="gh">${t}</div>`+xs.map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${lbl(x)}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
+}
+function renderFl(){
+ $("fl").innerHTML=GR.map(([t,g],j)=>{const xs=inG(g),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`,L=FLIM,open=fexp.has(j);
+  return `<b${j?' class="sp2"':""}>${t}</b>`+(xs.length<=L?xs.map(mk).join(""):xs.slice(0,L).map(mk).join("")+`<div class="fmore" id="fm${j}"${open?"":" hidden"}>${xs.slice(L).map(mk).join("")}</div><button type="button" class="vm" data-vm="${j}" aria-expanded="${open}" aria-controls="fm${j}">${open?"Ver menos":`Ver ${xs.length-L} más`}</button>`)}).join("")+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
+}
+function renderPick(){
+ const L=ORD(),ss=secs(false),vacio=ordMode==="mis"&&!ss[0][1].length;
+ $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+(vacio?`<div class="ordempty"><p>Aún no tienes cursos con notas. Elige un curso e ingresa tus notas, y aparecerá aquí.</p><button type="button" data-ordm="az">Ver todos los cursos</button></div>`:ss.map(([t,xs])=>`<section class="pg"><h2 class="gt">${t}<i>${xs.length}</i></h2><div class="pl">${xs.map(x=>{const i=L.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${lbl(x)}</small>${C[x].n}</button>`}).join("")}</div></section>`).join(""));
+}
+function setOrd(m){
+ if(m===ordMode||!ORDS[m])return;ordMode=m;try{localStorage.setItem("mp-ord",m)}catch(_){}
+ track("orden_cursos_cambiado",{modo:m,vista:view});
+ if(m==="pop")popLoad();
+ reOrd()
+}
+
 function setCourse(k){
  cur=k;S=ST[k]||(ST[k]=mkState(k));
  idx={};walk(S.root,c=>idx[c.id]=c);
  $("cval").textContent=(C[k].pre??"Nivelación en ")+C[k].n;
- $("cbtn").style.setProperty("--s",SC[KS.indexOf(k)%4]);
- $("clist").innerHTML=BQ(0)+GR.filter(([t,g])=>inG(g).length).map(([t,g])=>`<div class="gh">${t}</div>`+inG(g).map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${ckind(x)}</small>${escL(C[x].n)}</button>`).join("")).join("")+`<div class="gh">Herramientas</div><button type="button" data-ciclo="1"><small>Herramienta</small>Mi ciclo</button>`+(FI_ACTIVO?`<button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<button type="button" data-cc="new"><small>Herramienta</small>Crear mi curso</button>`+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
+ renderClist(k);
  closeList();
  setLetters($("ctitle"),(C[k].pre??"Nivelación en ")+C[k].n);
  {const t=$("ctitle");t.classList.remove("mr");void t.offsetWidth;t.classList.add("mr")}
- $("fl").innerHTML=GR.filter(([t,g])=>inG(g).length).map(([t,g],j)=>{const xs=inG(g),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].cc?"":(C[x].pre??"Nivelación en ")}${escL(C[x].n)}</button>`,L=FLIM,open=fexp.has(j);
-  return `<b${j?' class="sp2"':""}>${t}</b>`+(xs.length<=L?xs.map(mk).join(""):xs.slice(0,L).map(mk).join("")+`<div class="fmore" id="fm${j}"${open?"":" hidden"}>${xs.slice(L).map(mk).join("")}</div><button type="button" class="vm" data-vm="${j}" aria-expanded="${open}" aria-controls="fm${j}">${open?"Ver menos":`Ver ${xs.length-L} más`}</button>`)}).join("")+`<b class="sp2">Herramientas</b><button type="button" data-ciclo="1">Mi ciclo</button>`+(FI_ACTIVO?`<button type="button" data-fi="1">Calcular mi FI</button>`:"")+`<button type="button" data-cc="new">Crear mi curso</button>`;
+ renderFl();
  const G=S.root.ch;
  $("wbar").innerHTML=G.map((g,i)=>`<span data-i="${i}" style="flex:${g.w};--wb:${wbc(i)[0]};--wc:${wbc(i)[1]}">${fmt(g.w)}%</span>`).join("");
  $("lgd").innerHTML=G.map((g,i)=>`<span style="--wb:${wbc(i)[0]}">${g.n}</span>`).join("");
@@ -2460,7 +2228,6 @@ function setCourse(k){
  $("pm").value=S.pm;
  prevOk=null;prevA=null;prevK=null;prevNum=null;
  update();
- try{onCourse(k)}catch(_){}
 }
 
 /* Pregunta 1 de "Cómo funciona": una fila por evaluación (con su peso total) y una fila de "Ten en cuenta" con las aclaraciones propias del curso */
@@ -2549,7 +2316,7 @@ const RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").match
 function setNum(el,txt){
  const to=parseFloat(txt),dec=(String(txt).split(".")[1]||"").length;
  if(RM||isNaN(to)||el._to===to){el.textContent=txt;el._to=to;el._v=to;return}
- const from=isFinite(el._v)?el._v:0;el._to=to;cancelAnimationFrame(el._r);const t0=performance.now(),D=500;
+ const from=el._v??0;el._to=to;cancelAnimationFrame(el._r);const t0=performance.now(),D=500;
  const step=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);el._v=from+(to-from)*e;el.textContent=k<1?el._v.toFixed(dec):txt;if(k<1)el._r=requestAnimationFrame(step)};
  el._r=requestAnimationFrame(step)}
 const FLIM=3,fexp=new Set();
@@ -2665,7 +2432,7 @@ const waterTo=(()=>{
 function update(){
  const R=S.root,P=pend(),n=P.length,a=ev(R,full({})),okk=pass(a),num=S.rf?rnd(a):fmt(a),ol=outlook(),vd=vtxt(ol),col=ol.k==="aun"?"wn":(okk?"gn":"rd");
  if(prevOk===false&&okk&&a!==prevA)burst();prevOk=okk;prevA=a;
- walk(R,c=>{if(!c.ch)return;const hp=leaves(c).some(l=>isP(l.id)),e=$("sv-"+c.id);if(!e)return;e.textContent=hp?"Faltan notas":fmt(ev(c,full({})));e.classList.toggle("pn",hp)});
+ walk(R,c=>{if(!c.ch)return;const hp=leaves(c).some(l=>isP(l.id)),e=$("sv-"+c.id);e.textContent=hp?"Faltan notas":fmt(ev(c,full({})));e.classList.toggle("pn",hp)});
  $("sl1").innerHTML=n?'Mi promedio <span class="l2">hasta ahora</span>':'Mi promedio <span class="l2">final</span>';
  $("sl2").innerHTML=`<span class="tag ${vd.c}">${vd.t}</span>${vd.m?`<span class="sst">${vd.m}</span>`:""}`;
  setNum($("big"),num);$("big").className=col+(String(num).length>3?" dec":"");if(prevNum!==null&&prevNum!==num&&!RM){const bg2=$("big");void bg2.offsetWidth;bg2.classList.add("pop")}prevNum=num;
@@ -2713,8 +2480,6 @@ function update(){
 const nd=t=>{let v=t.value.replace(/,/g,".").replace(/[^0-9.]/g,"");const i=v.indexOf(".");if(i>=0)v=v.slice(0,i+1)+v.slice(i+1).replace(/\./g,"");
  if(v!==t.value){const p=t.selectionStart,d=t.value.length-v.length;t.value=v;try{const q=Math.max(0,(p==null?v.length:p)-d);t.setSelectionRange(q,q)}catch(_){}}return v};
 const h=e=>{const t=e.target,id=t.dataset.id;
- /* Ronda 12: si la casilla ya no esta en la pagina (cambio de curso con una casilla enfocada), su "change" tardio se ignora */
- if(!t.isConnected||!t.dataset)return;
  if(t.classList.contains("g")){let nv=nd(t);const mxv=idx[id].mx||20;let over=false;if(nv!==""&&+nv>mxv){over=true;nv=String(S.g[id]??"");t.value=nv}S.g[id]=nv;if(e.type==="input"&&t.value!==""&&!seenTyp.has(cur)){seenTyp.add(cur);track("nota_escribiendo",{curso:cur})}const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);const bd=f&&(+t.value>(idx[id].mx||20)||+t.value<0);gi.classList.toggle("bad",bd);if(bd&&typeof badFx==="function")badFx(gi,t,idx[id].mx||20);if(bd){const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}t.style.width=f?(t.value.length+.6)+"ch":"";if(over){gi.classList.add("bad");if(typeof badFx==="function")badFx(gi,t,mxv);clearTimeout(gi._bd);gi._bd=setTimeout(()=>gi.classList.remove("bad"),1100);const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}}}
  else if(t.dataset.r)idx[t.dataset.r].r=t.checked?1:0;
  else if(t.dataset.px==="mo")S.mo=+t.value;
@@ -2737,9 +2502,12 @@ document.addEventListener("change",e=>{const t=e.target;if(!t||!t.classList)retu
  else if(t.id==="pm"){track("nota_minima_cambiada",{curso:cur,valor:S.pm});trackCalc()}});
 document.addEventListener("click",e=>{
  if(!e.target.closest(".cs"))closeList();
+ if(!e.target.closest("#ordrow"))ordMenu(false);
  if(e.target.closest("a[href='#faq']"))track("como_funciona_click");
  {const ig=e.target.closest("a[data-ig]");if(ig)track("instagram_click",{lugar:ig.dataset.ig})}
  const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.ord){const mn=$("ordmenu");ordMenu(!!mn&&mn.hidden);return}
+ if(b.dataset.ordm){const inL=!!b.closest("#clist");setOrd(b.dataset.ordm);ordMenu(false);const nb=document.querySelector(inL?"#clist .ordc.on":"#ordrow .ordb");if(nb)nb.focus({preventScroll:true});return}
  if(b.hasAttribute("data-share"))doShare(b.classList.contains("shf")?"pie":"barra");
  else if(b.id==="go"){track("empezar_click");showView("pick")}
  else if(b.id==="addc"||b.id==="addc2"||b.dataset.add){upFrom=view==="tool"?"tool":"pick";upY=window.scrollY;track("subir_curso_abierto",{origen:b.dataset.add||(b.id==="addc"?"pick_arriba":"pick_bloque")});closeList();$("upok").hidden=true;$("upf").hidden=false;showView("up");updUpLabels()}
@@ -2749,8 +2517,6 @@ document.addEventListener("click",e=>{
  else if(b.id==="home"){track("volver_inicio");closeList();showView("welcome")}
  else if(b.id==="cbtn"){const o=$("clist").hidden;if(o){anim("menu_cursos_despliegue");track("menu_cursos_abierto",{curso:cur})}$("clist").hidden=!o;b.setAttribute("aria-expanded",String(o))}
  else if(b.dataset.fi){closeList();showView("fi")}
- else if(b.dataset.ciclo){closeList();track("mi_ciclo_abierto",{origen:view});openCiclo()}
- else if(b.dataset.cc){closeList();const v=b.dataset.cc;ccOpen(v==="new"||v==="dup"?null:v,v==="dup"?cur:null)}
  else if(b.dataset.c){track("curso_elegido",{curso:b.dataset.c,nombre:cname(b.dataset.c),grupo:["nivelacion","curso","sello_up"][gof(b.dataset.c)],origen:b.dataset.p?"pantalla_elegir":b.dataset.f?"pie":"menu"});
   /* Desde "Elige tu curso" el trabajo pesado (armar la calculadora) espera un cuadro para que primero se pinte el efecto de tocar y el telefono responda al instante */
   if(b.dataset.p){const k=b.dataset.c;requestAnimationFrame(()=>{setCourse(k);showView("tool")})}
@@ -2761,14 +2527,9 @@ const nCoarse=window.matchMedia?matchMedia("(pointer:coarse)"):{matches:false};
 function nextNota(el,d){const L=[...document.querySelectorAll("#tree input.g")],n=L[L.indexOf(el)+d];
  if(n){n.focus({preventScroll:nCoarse.matches});if(!nCoarse.matches){try{n.select()}catch(_){}}n.scrollIntoView({block:nCoarse.matches?"nearest":"center",behavior:RM?"auto":"smooth"})}
  else if(d>0){el.blur();$("sum").scrollIntoView({block:"center",behavior:RM?"auto":"smooth"})}}
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeList();
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeList();ordMenu(false)}
  const t=e.target;if(e.key==="Enter"&&!e.isComposing&&t&&t.matches){if(t.matches("#tree input.g")){e.preventDefault();nextNota(t,e.shiftKey?-1:1)}else if(t.id==="pm"){e.preventDefault();t.blur()}}});
-/* Pantalla "Elige tu curso". Es una funcion porque los cursos personalizados (Ronda 12) la vuelven a dibujar */
-function renderPick(){const mine=inG(3);
- $("plist").innerHTML=`<section class="pg pgt"><h2 class="gt">Herramientas<i>${FI_ACTIVO?3:2}</i></h2><div class="pl pl3"><button type="button" class="rv tl" style="--i:1;--s:#00F03C" data-ciclo="1"><small>Herramienta</small>Mi ciclo<em>Todos tus cursos y tu FI proyectado</em></button>${FI_ACTIVO?`<button type="button" class="rv tl" style="--i:2;--s:#0A5CFF" data-fi="1"><small>Herramienta</small>Calcular mi FI<em>Factor de inscripción paso a paso</em></button>`:""}<button type="button" class="rv tl" style="--i:3;--s:#F000F0" data-cc="new"><small>Herramienta</small>Crear mi curso<em>Arma uno con tus pesos y compártelo</em></button></div></section>`+
- (mine.length?`<section class="pg"><h2 class="gt">Mis cursos<i>${mine.length}</i></h2><div class="pl">${mine.map((x,j)=>`<button type="button" class="rv" style="--i:${j+3};--s:${SC[j%4]}" data-c="${x}" data-p="1"><small>Mi curso</small>${escL(C[x].n)}</button>`).join("")}</div></section>`:"")+
- GR.slice(0,3).map(([t,g])=>`<section class="pg"><h2 class="gt">${t}<i>${inG(g).length}</i></h2><div class="pl">${inG(g).map(x=>{const i=KS.indexOf(x);return `<button type="button" class="rv" style="--i:${Math.min(i,20)+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${ckind(x)}</small>${escL(C[x].n)}${vfOk(x)?`<i class="vfi" title="Verificado con el sílabo" aria-label="Verificado con el sílabo"></i>`:""}</button>`}).join("")}</div></section>`).join("");
- const bq=$("bqp");if(bq&&bq.value)bqD($("plist"),bq.value,$("bqpn"))}
+renderPick();renderOrd();if(ordMode==="pop")popLoad();
 const pb=document.querySelector("#sum .pbar");let drag=false,raf=0;
 const setPm=v=>{v=Math.max(0,Math.min(20,Math.round(v)));if(v===S.pm)return;S.pm=v;anim("barra_nota_minima");trackCalc();clearTimeout(pmT);pmT=setTimeout(()=>track("meta_cambiada",{curso:cur,valor:S.pm,via:"barra"}),1200);$("pm").value=v;if(!raf)raf=requestAnimationFrame(()=>{raf=0;update()})};
 const fromX=x=>{const r=pb.getBoundingClientRect();return r.width?(x-r.left)/r.width*20:S.pm};
@@ -2841,9 +2602,9 @@ document.querySelectorAll(".qa").forEach(d=>{
  if(mq&&mq.addEventListener)mq.addEventListener("change",()=>{if(!saved)apply()})}
 const fo=new IntersectionObserver(es=>es.forEach(e=>{if(e.target.id==="faq"){faqNear=e.isIntersecting;chk()}}),{rootMargin:"0px 0px 170px 0px"});fo.observe($("faq"));
 /* Zona donde se nota el cambio claro/oscuro: el contenido ya entro en el 60% superior de la pantalla */
-{const mk=mg=>new IntersectionObserver(es=>es.forEach(e=>{const f=!!e.target.closest("#v-fi"),cy=!!e.target.closest("#v-ciclo");if(mg){if(!cy)f?fiBodyIn=e.isIntersecting:bodyIn=e.isIntersecting}else cy?cyBodySee=e.isIntersecting:f?fiBodySee=e.isIntersecting:bodySee=e.isIntersecting;chk()}),{rootMargin:mg?"0px 0px -40% 0px":"0px"}),
+{const mk=mg=>new IntersectionObserver(es=>es.forEach(e=>{const f=!!e.target.closest("#v-fi");if(mg)f?fiBodyIn=e.isIntersecting:bodyIn=e.isIntersecting;else f?fiBodySee=e.isIntersecting:bodySee=e.isIntersecting;chk()}),{rootMargin:mg?"0px 0px -40% 0px":"0px"}),
  bo=mk(true),bs=mk(false);
- document.querySelectorAll("#v-tool main.body,#v-fi main.body,#v-ciclo main.body").forEach(m=>{bo.observe(m);bs.observe(m)})}
+ document.querySelectorAll("#v-tool main.body,#v-fi main.body").forEach(m=>{bo.observe(m);bs.observe(m)})}
 
 /* ===== Guardado automático (localStorage): notas, nota mínima y redondeos de cada curso ===== */
 const LSK="mp-progress";
@@ -2857,20 +2618,16 @@ function save(){try{const o={};
   if(t.mo||t.pr!==1||t.ns)e.px={mo:t.mo,pr:t.pr,ns:t.ns?1:0};
   const d=defR(k),r={};walk(t.root,c=>{if((c.r?1:0)!==d[c.id])r[c.id]=c.r?1:0});
   if(Object.keys(r).length)e.r=r;
-  /* Ronda 12: marca de tiempo por curso (solo cambia cuando cambia algo de ese curso). Sirve para mezclar con la nube sin pisar lo mas nuevo */
-  if(Object.keys(e).length){const ser=JSON.stringify(e);if(t._ser!==ser){t._ser=ser;t._t=Date.now()}e.t=t._t||Date.now();o[k]=e}
-  else if(t._ser){t._ser="";t._t=Date.now();o[k]={t:t._t,x:1}}}
- localStorage.setItem(LSK,JSON.stringify({v:1,cur,c:o}));if(typeof cloudTouch==="function")cloudTouch()}catch(_){}}
+  if(Object.keys(e).length)o[k]=e}
+ localStorage.setItem(LSK,JSON.stringify({v:1,cur,c:o}))}catch(_){}}
 function load(){try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(!j||j.v!==1||!j.c)return null;
  for(const k in j.c){if(!C[k])continue;const e=j.c[k]||{},t=ST[k]=mkState(k),lv={},nd={};
-  if(typeof e.t==="number")t._t=e.t;if(e.x){t._ser="";continue}
   walk(t.root,c=>{nd[c.id]=c;if(!c.ch)lv[c.id]=1});
   if(e.g)for(const id in e.g){const v=String(e.g[id]);if(lv[id]&&v!==""&&isFinite(+v)&&+v>=0)t.g[id]=+v>(nd[id].mx||20)?String(nd[id].mx||20):v}
   if(typeof e.pm==="number"&&e.pm>=0&&e.pm<=20)t.pm=e.pm;
   if(typeof e.rf==="boolean")t.rf=e.rf;
   if(e.px){const m=+e.px.mo,q=+e.px.pr;if(Number.isInteger(m)&&m>=-10&&m<=1)t.mo=m;if([1.05,1,.9,.8].includes(q))t.pr=q;t.ns=e.px.ns?1:0}
-  if(e.r)for(const id in e.r)if(nd[id])nd[id].r=e.r[id]?1:0;
-  {const c2=Object.assign({},e);delete c2.t;t._ser=JSON.stringify(c2)}}
+  if(e.r)for(const id in e.r)if(nd[id])nd[id].r=e.r[id]?1:0}
  const wg=k=>ST[k]&&Object.keys(ST[k].g).length>0;
  return (C[j.cur]&&wg(j.cur))?j.cur:(KS.find(wg)||null)}catch(_){return null}}
 
@@ -3081,7 +2838,7 @@ let bqT=0;const bqSeen=new Set();
 function bqTrack(i,pick){clearTimeout(bqT);bqT=setTimeout(()=>{const q=bqN(i.value);if(q.length<3||q.length>40||/@|\d{5,}/.test(q)||bqSeen.has(q))return;
  const root=pick?$("plist"):i.closest("#clist");if(!root)return;const msg=pick?$("bqpn"):root.querySelector(".sno");
  if(msg&&!msg.hidden){bqSeen.add(q);track("busqueda_sin_resultados",{texto:q,origen:pick?"elegir_curso":"lista_curso",curso_actual:cur||""})}},1500)}
-$("plist").insertAdjacentHTML("beforebegin",BQ(1));
+$("plist").insertAdjacentHTML("beforebegin",`<div class="srow">${BQ(1)}<div class="ordrow" id="ordrow"></div></div>`);renderOrd();
 $("plist").insertAdjacentHTML("afterend",`<p class="sno" id="bqpn" hidden role="status">No se encontraron cursos.</p>`);
 document.addEventListener("input",e=>{const i=e.target.closest&&e.target.closest(".bqi");if(i)bqU(i)});
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("bqi")){e.preventDefault();e.target.blur()}});
@@ -3201,7 +2958,7 @@ function fiUpdate(){
   if(el){el.querySelector('[data-f="n"]').classList.toggle("bad",bn);el.querySelector('[data-f="cr"]').classList.toggle("bad",bc);el.querySelector(".fnc b").textContent=ok?fmt((+r.cr)*(+r.n)):"—"}
  });
  const avg=sc>0?sn/sc:null,avgU=avg===null?null:(FI_REDONDEA_PROMEDIO?Math.round(avg*100)/100:avg),base=avgU===null?null:avgU*10;
- const caBad=FS.ca!==""&&(!isFinite(+FS.ca)||+FS.ca<0||+FS.ca>400),caOk=FS.ca!==""&&!caBad,cred=first?(sc>0?sc:null):(caOk?+FS.ca:null);
+ const caOk=FS.ca!==""&&isFinite(+FS.ca)&&+FS.ca>=0,cred=first?(sc>0?sc:null):(caOk?+FS.ca:null);
  const bon=FI_BON.reduce((a,b)=>a+(FS.bon[b.id]?b.p:0),0);
  const fi=(base!==null&&cred!==null)?base+cred+bon:null,t=fi===null?"—":fmt(fi);
  $("fi-crv").textContent=sc;
@@ -3223,9 +2980,7 @@ function fiUpdate(){
  else if(inv){m="Revisa los campos en rojo: la nota va de 0 a 20 y los créditos deben ser mayores que 0.";bd=true}
  else if(!nok)m="Escribe la nota y los créditos de tus cursos para calcular el promedio.";
  else if(miss)m="Faltan datos en "+miss+(miss===1?" curso":" cursos")+": todavía no entra"+(miss===1?"":"n")+" al cálculo.";
- /* los créditos acumulados faltantes o inválidos se avisan aunque haya otro aviso, para que se sepa por qué el FI sigue en "—" */
- if(!first&&R.length){if(caBad){m+=(m?" ":"")+"Los créditos acumulados deben estar entre 0 y 400.";bd=true}else if(!caOk)m+=(m?" ":"")+"Escribe tus créditos acumulados para ver tu FI."}
- $("fi-ca").classList.toggle("bad",!first&&caBad);
+ else if(!first&&!caOk)m="Escribe tus créditos acumulados para ver tu FI.";
  $("fimsg").hidden=!m;$("fimsg").textContent=m;$("fimsg").classList.toggle("bad",bd);
  fchk()}
 function fiAddRow(r){FS.rows.push(Object.assign({u:++fiUid,name:"",cr:"",n:"",c:false,code:"",t:"",p:""},r));fiRows();fiUpdate();
@@ -3278,7 +3033,11 @@ document.addEventListener("click",e=>{const t=e.target;if(!t||!t.closest)return;
 if("IntersectionObserver" in window){const b=$("mpv");
  if(b)new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting&&!b.hidden&&S&&!seenFbView.has(cur)){seenFbView.add(cur);if(!fbGet()[cur])track("valoracion_vista",{curso:cur})}}),{threshold:.6}).observe(b)}
 
-/* El arranque (cargar cursos personalizados, notas guardadas y leer la URL) esta al final del script "RONDA 12", mas abajo: boot(). */
+/* Si hay notas guardadas, se vuelve directo al curso donde estaba el alumno */
+const back=load();
+if(back)track("progreso_restaurado",{curso:back});
+setCourse(back||"mat");
+showView(back?"tool":"welcome");
 </script>
 <script>/* Nota fuera de rango: mensaje, temblor (se reinicia en cada intento) y vibración corta en celulares que la soportan */
 window.badFx=function(gi,t,mx){anim(gi&&gi.classList&&gi.classList.contains("minl")?"nota_minima_temblor":"nota_temblor");var v=parseFloat(String(t.value).replace(",","."));gi.setAttribute("data-msg",v<0?"Mínimo 0":"Máximo "+mx);gi.classList.remove("sk");void gi.offsetWidth;gi.classList.add("sk");clearTimeout(gi._sk);gi._sk=setTimeout(function(){gi.classList.remove("sk")},460);try{if(navigator.vibrate)navigator.vibrate(22)}catch(_){}};
@@ -3549,407 +3308,5 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
 })();
 </script>
 <script>document.addEventListener("input",function(e){var t=e.target;if(t&&t.matches&&t.matches('#sim input[type=range]')){var mx=parseFloat(t.max)||20;t.style.setProperty("--p",(parseFloat(t.value)/mx*100)+"%")}});</script>
-<script id="r12">
-/* =====================================================================
-   RONDA 12  -  enlaces por curso, cursos personalizados, verificado, "¿Algo no cuadra?", Mi ciclo,
-   cuenta con sincronizacion (Supabase), app instalable, animaciones nuevas y pruebas del motor.
-   Todo lo de esta ronda vive en este bloque (y en el bloque de estilos id="r12" del head). Usa las funciones
-   y constantes del script principal (C, KS, ST, S, cur, setCourse, showView, update, save, load, ev, full, pend, outlook...).
-   ===================================================================== */
-
-/* ---------- Ajustes rapidos ---------- */
-/* URL de cada curso: "query" = /?c=mat2 (funciona siempre). "ruta" = /curso/mat2 (bonita; necesita la regla "rewrites" en vercel.json, ver README-ronda12.md) */
-const URL_MODO="query";
-/* Ciclo del silabo con el que se verificaron los cursos. Vacio = la etiqueta dice solo "Verificado con el silabo" */
-const VER_CICLO="";
-/* Supabase (cuenta opcional para sincronizar entre dispositivos). Vacios = el boton "Cuenta" no aparece y la web funciona igual que antes */
-const SB_URL="";
-const SB_KEY="";
-/* Numero de WhatsApp o texto por defecto no hace falta: el boton "Pasalo a tu grupo" abre el menu de compartir con el enlace del curso */
-
-const RM12=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
-const E12=x=>String(x??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const vib=p=>{try{if(navigator.vibrate&&matchMedia("(hover:none)").matches)navigator.vibrate(p)}catch(_){}};
-/* Ejecuta fn con el estado de otro curso (S) sin tocar la pantalla. Si fresh=true usa un estado nuevo (para pruebas) */
-function withS(k,fn,fresh){const S0=S,i0=idx;try{S=fresh?mkState(k):(ST[k]||(ST[k]=mkState(k)));return fn(S)}finally{S=S0;idx=i0}}
-
-/* ---------- Verificado por curso ---------- */
-/* vf:1 o vf:0 en la entrada del curso manda. Si no esta, se deduce del texto: si dice "se asume" / "no indica", el redondeo fue supuesto. */
-function vfOk(k){const c=C[k];if(!c||c.cc)return false;if(c.vf!==undefined)return !!c.vf;return !/se asum|no indic|no se indic|probable/i.test(c.i||"")}
-function vfBadge(k){const c=C[k];
- if(c.cc)return `<span class="vf mine"><i></i>Mi curso · creado por ti</span>`;
- if(vfOk(k))return `<span class="vf ok"><i></i>Verificado con el sílabo${VER_CICLO?" "+E12(VER_CICLO):""}</span>`;
- return `<span class="vf as"><i></i>Pesos del sílabo · redondeo asumido</span>`}
-
-/* ---------- Rutas y enlaces ---------- */
-const urlBase=()=>location.origin+location.pathname.replace(/\/curso\/[^/]*$/,"/");
-function urlCurso(k,utm){const c=C[k];let u;
- if(c&&c.cc){u=urlBase()+"?cc="+ccEncode(c._e)}
- else u=URL_MODO==="ruta"?urlBase().replace(/\/$/,"")+"/curso/"+k:urlBase()+"?c="+k;
- return utm?u+(u.includes("?")?"&":"?")+"utm_source="+utm:u}
-let routing=false;
-function routeState(){return view==="tool"?{v:"tool",c:cur}:{v:view}}
-function routeUrl(st){if(st.v==="tool"&&st.c&&C[st.c])return C[st.c].cc?urlBase()+"?c="+st.c:(URL_MODO==="ruta"?urlBase().replace(/\/$/,"")+"/curso/"+st.c:urlBase()+"?c="+st.c);
- if(st.v==="ciclo")return urlBase()+"?v=ciclo";if(st.v==="fi")return urlBase()+"?v=fi";if(st.v==="pick")return urlBase()+"?v=cursos";return urlBase()}
-function syncUrl(){if(routing)return;try{const st=routeState(),h=history.state||{};if(h.v===st.v&&h.c===st.c)return;
- const first=!h.v;(first?history.replaceState:history.pushState).call(history,st,"",routeUrl(st))}catch(_){}}
-window.addEventListener("popstate",e=>{const st=e.state;if(!st||!st.v)return;routing=true;try{
- if(st.v==="tool"&&st.c&&C[st.c]){if(cur!==st.c)setCourse(st.c);showView("tool")}
- else if(st.v==="ciclo")openCiclo();else if(st.v==="cc")showView(view==="cc"?"cc":"pick");else if(VIEWS.includes(st.v))showView(st.v)}finally{routing=false}});
-/* Titulo y descripcion de la pestaña segun la pantalla */
-function setMeta(){let t="My PonderUP",d="Calcula tu ponderado y mira qué notas necesitas para aprobar.";
- if(view==="tool"&&cur){t=cname(cur)+" · My PonderUP";d=`Calcula tu ponderado de ${cname(cur)}: ingresa tus notas y mira cuánto necesitas en lo que falta para aprobar.`}
- else if(view==="ciclo"){t="Mi ciclo · My PonderUP"}else if(view==="fi"){t="Factor de inscripción · My PonderUP"}
- document.title=t;const m=document.querySelector('meta[name="description"]');if(m)m.setAttribute("content",d);
- let l=document.querySelector('link[rel="canonical"]');if(!l){l=document.createElement("link");l.rel="canonical";document.head.appendChild(l)}l.href=routeUrl(routeState())}
-
-/* ---------- Hooks que llama el script principal ---------- */
-function onCourse(k){
- const b=$("vfb");if(b){b.innerHTML=vfBadge(k)+`<button type="button" class="vfl" id="rpb"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>¿Algo no cuadra?</button>`+(C[k].cc?`<button type="button" class="vfl" data-cc="${E12(k)}">Editar mi curso</button>`:`<button type="button" class="vfl" data-cc="dup">Crear mi versión</button>`);
-  if(!RM12){const v=b.querySelector(".vf");if(v){v.classList.remove("shine");void v.offsetWidth;v.classList.add("shine")}}}
- const g=$("grps");if(g)g.textContent=C[k].cc?"Tus compañeros recibirán este curso con tus pesos y podrán usarlo al instante.":`Comparte el enlace directo de ${cname(k)} con tu salón.`;
- if(view==="tool"){syncUrl();setMeta()}}
-function onView(v,prev){
- if(v==="tool"||v==="ciclo"||v==="fi"||v==="pick"||v==="welcome")syncUrl();setMeta();
- if(v==="ciclo")cyRender();
- const el=$("v-"+v);if(el&&!RM12&&prev&&prev!==v){el.classList.remove("vin");void el.offsetWidth;el.classList.add("vin");clearTimeout(el._vt);el._vt=setTimeout(()=>el.classList.remove("vin"),520)}
- if(v!=="ciclo")document.body.classList.remove("cyv")}
-
-/* ---------- Cursos personalizados (localStorage mp-custom) ----------
-   Modelo del editor (e): {n, rf, g:[{n,w,r,ch:[{n,w}]}]}. Los pesos de g suman 100 (sobre el curso); los de ch son % dentro de su grupo
-   (si se dejan todos en blanco, valen lo mismo). Cada curso guardado: {id, e, u (ultimo cambio)}. Las notas se guardan en mp-progress como en cualquier curso. */
-const CCK="mp-custom";let CCL={v:1,list:[],del:{}};
-const ccGet=()=>{try{const j=JSON.parse(localStorage.getItem(CCK)||"null");if(j&&j.v===1&&Array.isArray(j.list))return{v:1,list:j.list,del:j.del||{}}}catch(_){}return{v:1,list:[],del:{}}};
-const ccSet=()=>{try{localStorage.setItem(CCK,JSON.stringify(CCL))}catch(_){}if(typeof cloudTouch==="function")cloudTouch()};
-const hash36=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(36)};
-const b64u=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-const unb64u=s=>decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4))));
-function ccEncode(e){return b64u(JSON.stringify({n:e.n,rf:e.rf?1:0,g:e.g.map(x=>{const o={n:x.n,w:+x.w};if(x.r)o.r=1;if(x.ch&&x.ch.length)o.ch=x.ch.map(c=>({n:c.n,w:c.w===""||c.w==null?"":+c.w}));return o})}))}
-function ccDecode(s){try{const e=JSON.parse(unb64u(s));return ccValid(e).ok?e:null}catch(_){return null}}
-/* Valida el modelo del editor. Devuelve {ok, msg} */
-function ccValid(e){
- if(!e||typeof e.n!=="string"||e.n.trim().length<3)return{ok:false,msg:"Escribe el nombre del curso (mínimo 3 letras)."};
- if(e.n.length>70)return{ok:false,msg:"El nombre es muy largo (máximo 70 letras)."};
- if(!Array.isArray(e.g)||!e.g.length)return{ok:false,msg:"Agrega al menos una evaluación."};
- if(e.g.length>12)return{ok:false,msg:"Máximo 12 evaluaciones principales."};
- let sum=0;
- for(const g of e.g){if(typeof g.n!=="string"||!g.n.trim())return{ok:false,msg:"Cada evaluación necesita un nombre."};if(g.n.length>60)return{ok:false,msg:"Un nombre de evaluación es muy largo."};
-  const w=+g.w;if(!(w>0&&w<=100))return{ok:false,msg:`Revisa el peso de "${g.n}": debe estar entre 0 y 100.`};sum+=w;
-  if(g.ch){if(!Array.isArray(g.ch)||g.ch.length>20)return{ok:false,msg:"Demasiadas notas dentro de una evaluación."};
-   const filled=g.ch.filter(c=>c.w!==""&&c.w!=null);
-   for(const c of g.ch){if(typeof c.n!=="string"||!c.n.trim())return{ok:false,msg:`Ponle nombre a cada nota dentro de "${g.n}".`};if(c.n.length>60)return{ok:false,msg:"Un nombre es muy largo."}}
-   if(filled.length&&filled.length!==g.ch.length)return{ok:false,msg:`En "${g.n}": escribe el % de todas las notas o déjalos todos en blanco (valen lo mismo).`};
-   if(filled.length){const s=g.ch.reduce((a,c)=>a+(+c.w||0),0);if(Math.abs(s-100)>.05)return{ok:false,msg:`En "${g.n}" los % de las notas suman ${fmt(s)}%; deben sumar 100%.`}}}}
- if(Math.abs(sum-100)>.05)return{ok:false,msg:`Los pesos suman ${fmt(sum)}%. Deben sumar 100%.`};
- return{ok:true}}
-/* Convierte el modelo del editor al formato de la constante C */
-function ccToC(id,e){const root={ch:e.g.map((g,i)=>{const o={id:"g"+i,n:g.n.trim(),w:+g.w};if(g.r)o.r=1;
-  if(g.ch&&g.ch.length){const eq=g.ch.every(c=>c.w===""||c.w==null);o.ch=g.ch.map((c,j)=>({id:"g"+i+"c"+j,n:c.n.trim(),w:eq?100/g.ch.length:+c.w}))}return o})};
- const txt="Curso creado por ti. "+e.g.map(g=>`${g.n.trim()} pesa ${fmt(+g.w)}%`+(g.ch&&g.ch.length?` (se forma con ${g.ch.map(c=>c.n.trim()).join(", ")})`:"")).join(". ")+". "+(e.rf?"El promedio final se redondea al entero (el .5 sube).":"El promedio final no se redondea.");
- return{n:e.n.trim(),pre:"",gp:3,rf:e.rf?1:0,cc:1,i:txt,root,_e:e}}
-/* Carga los cursos guardados en C y KS (se llama al arrancar y despues de sincronizar) */
-function ccLoad(){CCL=ccGet();
- KS.filter(k=>C[k]&&C[k].cc).forEach(k=>{if(!CCL.list.some(x=>x.id===k)){delete C[k];KS.splice(KS.indexOf(k),1);delete ST[k]}});
- CCL.list.forEach(x=>{try{if(!ccValid(x.e).ok)return;C[x.id]=ccToC(x.id,x.e);if(!KS.includes(x.id))KS.push(x.id)}catch(_){}})}
-function ccSave(id,e){const now=Date.now();if(!id)id="cc_"+hash36(JSON.stringify(e)+now).slice(0,8);
- const i=CCL.list.findIndex(x=>x.id===id);const rec={id,e,u:now};if(i>=0)CCL.list[i]=rec;else CCL.list.push(rec);delete CCL.del[id];ccSet();
- C[id]=ccToC(id,e);if(!KS.includes(id))KS.push(id);
- if(ST[id]){const old=ST[id],n=mkState(id);n.g=old.g;n.pm=old.pm;n._t=old._t;ST[id]=n}
- renderPick();return id}
-function ccRemove(id){CCL.list=CCL.list.filter(x=>x.id!==id);CCL.del[id]=Date.now();ccSet();delete C[id];const i=KS.indexOf(id);if(i>=0)KS.splice(i,1);delete ST[id];save();renderPick()}
-/* Importa un curso que llego por enlace (?cc=...). Si ya existe uno igual, solo lo abre */
-function ccImport(s){const e=ccDecode(s);if(!e)return null;const id="cc_"+hash36(JSON.stringify(e)).slice(0,8);
- if(!C[id]){ccSave(id,e);track("curso_personalizado_importado",{nombre:e.n})}return id}
-/* Prellena el editor desde un curso del catalogo ("Crear mi version"): dos niveles, pesos relativos a cada grupo */
-function ccFromCourse(k){const c=C[k],root=clone(c.root);absW(root,100);
- return{n:c.n+(c.cc?" (copia)":" · mi sección"),rf:!!c.rf,g:root.ch.map(g=>{const o={n:g.n,w:Math.round(g.w*100)/100,r:!!g.r,ch:[]};
-  if(g.ch){const L=[];const rec=(n,sh)=>{if(!n.ch){L.push({n:n.n,w:sh});return}const t=n.ch.reduce((a,x)=>a+(+x.w||0),0)||100;n.ch.forEach(x=>rec(x,sh*(+x.w||0)/t))};
-   g.ch.forEach(x=>rec(x,(+x.w||0)/(g.ch.reduce((a,y)=>a+(+y.w||0),0)||100)*100));o.ch=L.map(x=>({n:x.n,w:Math.round(x.w*100)/100}))}return o})}}
-
-/* ----- Editor (pantalla #v-cc) ----- */
-let CCE=null,ccId=null,ccFrom="pick";
-function ccOpen(id,fromKey){ccId=id||null;ccFrom=view==="tool"?"tool":view==="ciclo"?"ciclo":"pick";
- CCE=id&&CCL.list.find(x=>x.id===id)?clone(CCL.list.find(x=>x.id===id).e):fromKey&&C[fromKey]?ccFromCourse(fromKey):{n:"",rf:true,g:[{n:"",w:"",r:false,ch:[]},{n:"Examen Parcial",w:"",r:true,ch:[]},{n:"Examen Final",w:"",r:true,ch:[]}]};
- $("ccn").value=CCE.n;$("ccrf").checked=!!CCE.rf;$("ccdel").hidden=!ccId;$("ccsave").textContent=ccId?"Guardar cambios":"Guardar y abrir";ccSay("");
- document.querySelector("#v-cc .t1").textContent=ccId?"Edita tu":fromKey?"Tu versión de":"Crea tu";document.querySelector("#v-cc .t2").textContent=fromKey&&!ccId?C[fromKey].n:"curso";
- ccPaint();track("curso_personalizado_abierto",{modo:ccId?"editar":fromKey?"version":"nuevo",base:fromKey||""});showView("cc");setTimeout(()=>{if(!CCE.n)$("ccn").focus()},350)}
-function ccSay(t,k){const s=$("ccst");s.textContent=t;s.className="ups"+(k?" "+k:"")}
-function ccPaint(){const R=$("ccrows");
- R.innerHTML=CCE.g.map((g,i)=>`<div class="ccg rv" data-g="${i}" style="--i:${Math.min(i,6)}"><div class="ccgh"><span class="ccno">${i+1}</span><input class="ccgn" data-f="n" value="${E12(g.n)}" maxlength="60" placeholder="Ej.: Nota de Trabajo, Examen Parcial…" aria-label="Nombre de la evaluación ${i+1}"><label class="ccw"><input data-f="w" inputmode="decimal" maxlength="6" value="${E12(g.w)}" placeholder="%" aria-label="Peso de la evaluación ${i+1}"><span>%</span></label><label class="ccr"><input type="checkbox" data-f="r"${g.r?" checked":""}><span>Redondea</span></label><button type="button" class="ccx" data-rm="${i}" aria-label="Quitar evaluación">×</button></div>`+
-  `<div class="ccsub">${g.ch.length?`<div class="ccsh">Se forma con estas notas <em>(% dentro de ${E12(g.n||"esta evaluación")})</em></div>`+g.ch.map((c,j)=>`<div class="ccc" data-c="${j}"><input data-f="n" value="${E12(c.n)}" maxlength="60" placeholder="Ej.: PC${j+1}" aria-label="Nombre de la nota ${j+1}"><label class="ccw"><input data-f="w" inputmode="decimal" maxlength="6" value="${E12(c.w)}" placeholder="igual" aria-label="Peso dentro del grupo"><span>%</span></label><small class="ccof">${ccOf(g,c)}</small><button type="button" class="ccx" data-rmc="${j}" aria-label="Quitar nota">×</button></div>`).join(""):""}<button type="button" class="ccaddc" data-addc="${i}">${g.ch.length?"+ Otra nota":"+ Se compone de varias notas (PC1, PC2…)"}</button></div></div>`).join("");
- const sum=CCE.g.reduce((a,g)=>a+(+g.w||0),0),ok=Math.abs(sum-100)<.05;
- $("ccsum").textContent=fmt(sum)+"% de 100%";$("ccsum").className="upc"+(ok?" ok":sum>100?" bad":"");$("ccbf").style.width=Math.min(100,sum)+"%";$("ccbf").className=ok?"ok":sum>100?"bad":""}
-const ccOf=(g,c)=>{const w=+g.w||0;if(!w)return"";const eq=g.ch.every(x=>x.w===""||x.w==null);const p=eq?w/g.ch.length:w*(+c.w||0)/100;return p?fmt(Math.round(p*100)/100)+"% del curso":""};
-{const F=$("ccf");
- F.addEventListener("input",e=>{const t=e.target;if(t.id==="ccn"){CCE.n=t.value;return}if(t.id==="ccrf"){CCE.rf=t.checked;return}
-  const gEl=t.closest(".ccg");if(!gEl)return;const g=CCE.g[+gEl.dataset.g];if(!g)return;const cEl=t.closest(".ccc");
-  const v=t.dataset.f==="w"?t.value.replace(",",".").replace(/[^0-9.]/g,""):t.dataset.f==="r"?t.checked:t.value;if(t.dataset.f==="w"&&v!==t.value)t.value=v;
-  if(cEl){g.ch[+cEl.dataset.c][t.dataset.f]=v;gEl.querySelectorAll(".ccc").forEach((el,j)=>{const s=el.querySelector(".ccof");if(s)s.textContent=ccOf(g,g.ch[j])})}
-  else{g[t.dataset.f]=v;if(t.dataset.f==="n"){const sh=gEl.querySelector(".ccsh em");if(sh)sh.textContent=`(% dentro de ${g.n||"esta evaluación"})`}if(t.dataset.f==="w")gEl.querySelectorAll(".ccc").forEach((el,j)=>{const s=el.querySelector(".ccof");if(s)s.textContent=ccOf(g,g.ch[j])})}
-  if(t.dataset.f==="w"&&!cEl){const sum=CCE.g.reduce((a,x)=>a+(+x.w||0),0),ok=Math.abs(sum-100)<.05;$("ccsum").textContent=fmt(sum)+"% de 100%";$("ccsum").className="upc"+(ok?" ok":sum>100?" bad":"");$("ccbf").style.width=Math.min(100,sum)+"%";$("ccbf").className=ok?"ok":sum>100?"bad":""}});
- F.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
-  if(b.id==="ccaddg"){if(CCE.g.length>=12){ccSay("Máximo 12 evaluaciones principales.","bad");return}CCE.g.push({n:"",w:"",r:false,ch:[]});ccPaint();const L=$("ccrows").querySelectorAll(".ccgn");L[L.length-1].focus();track("curso_personalizado_evaluacion",{n:CCE.g.length})}
-  else if(b.dataset.rm!==undefined){CCE.g.splice(+b.dataset.rm,1);ccPaint()}
-  else if(b.dataset.addc!==undefined){const g=CCE.g[+b.dataset.addc];if(g.ch.length>=20)return;g.ch.push({n:"",w:""});ccPaint();const el=$("ccrows").querySelector(`.ccg[data-g="${b.dataset.addc}"] .ccc:last-of-type input`);if(el)el.focus()}
-  else if(b.dataset.rmc!==undefined){const g=CCE.g[+b.closest(".ccg").dataset.g];g.ch.splice(+b.dataset.rmc,1);ccPaint()}
-  else if(b.id==="ccdel"){if(!ccId)return;if(!confirm("¿Eliminar este curso y sus notas de este navegador?"))return;const n=C[ccId]&&C[ccId].n;ccRemove(ccId);track("curso_personalizado_eliminado",{});toast("Curso eliminado");if(cur===ccId){setCourse(KS[0])}ccId=null;showView("pick")}});
- F.addEventListener("submit",e=>{e.preventDefault();const v=ccValid(CCE);if(!v.ok){ccSay(v.msg,"bad");vib(22);return}
-  const nuevo=!ccId;const id=ccSave(ccId,CCE);track(nuevo?"curso_personalizado_creado":"curso_personalizado_editado",{evaluaciones:CCE.g.length,con_grupos:CCE.g.filter(g=>g.ch.length).length,redondeo_final:!!CCE.rf});
-  setCourse(id);showView("tool");toast(nuevo?"¡Listo! Tu curso ya está creado. Compártelo con tu salón desde “Pásalo a tu grupo”.":"Cambios guardados");vib([10,30,10])});
- $("ccback").addEventListener("click",()=>{showView(ccFrom==="tool"&&cur?"tool":ccFrom==="ciclo"?"ciclo":"pick")});
- $("cchome").addEventListener("click",()=>showView("welcome"))}
-
-/* ---------- "Pasalo a tu grupo" (enlace directo del curso) ---------- */
-async function shareCurso(via){const k=cur,u=urlCurso(k,"grupo"),txt=C[k].cc?`Te paso mi curso "${C[k].n}" en My PonderUP para calcular el ponderado. Ábrelo aquí:`:`Calcula tu ponderado de ${cname(k)} y mira cuánto necesitas para aprobar:`;
- track("grupo_compartir_click",{curso:k,via,personalizado:!!C[k].cc});
- if(via==="wa"){window.open("https://wa.me/?text="+encodeURIComponent(txt+" "+u),"_blank","noopener");track("enlace_curso_compartido",{curso:k,metodo:"whatsapp"});return}
- if(navigator.share&&matchMedia("(pointer:coarse)").matches){try{await navigator.share({title:"My PonderUP",text:txt,url:u});track("enlace_curso_compartido",{curso:k,metodo:"nativo"});return}catch(e){if(e&&e.name==="AbortError")return}}
- try{await navigator.clipboard.writeText(u);toast("Enlace del curso copiado");track("enlace_curso_compartido",{curso:k,metodo:"copiar"})}catch(_){toast(u)}}
-$("grpw").addEventListener("click",()=>shareCurso("wa"));$("grpl").addEventListener("click",()=>shareCurso("link"));
-
-/* ---------- "¿Algo no cuadra?" (reporte por curso, va a /api/sugerencia) ---------- */
-{const M=$("rpm"),T=$("rpt"),ST2=$("rpst");let kind="",busy=false,back=null;
- const say=(t,k)=>{ST2.textContent=t;ST2.className="ups"+(k?" "+k:"")};
- const open=()=>{back=document.activeElement;kind="";M.querySelectorAll("[data-rk]").forEach(b=>b.setAttribute("aria-pressed","false"));T.value="";say("");$("rpc").textContent=cname(cur);M.hidden=false;document.documentElement.style.overflow="hidden";track("reporte_abierto",{curso:cur});setTimeout(()=>T.focus(),60)};
- const close=()=>{M.hidden=true;document.documentElement.style.overflow="";if(back&&back.focus)back.focus()};
- document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#rpb"))open()});
- $("rpx").addEventListener("click",close);M.addEventListener("click",e=>{if(e.target===M)close();const b=e.target.closest("[data-rk]");if(b){kind=b.dataset.rk;M.querySelectorAll("[data-rk]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));if(!T.value)T.placeholder={peso:"Ej.: En mi sección el parcial pesa 25% y el final 35%.",falta:"Ej.: Falta la PC5, que vale 5%.",redondeo:"Ej.: Mi profesor no redondea la Nota de Trabajo.",otro:"Cuéntanos qué viste."}[kind]||T.placeholder;T.focus()}});
- document.addEventListener("keydown",e=>{if(!M.hidden&&e.key==="Escape"){e.preventDefault();close()}});
- $("rps").addEventListener("click",async()=>{if(busy)return;const t=T.value.trim();
-  if(t.length<5){say("Cuéntanos un poco más (mínimo 5 letras).","bad");T.focus();return}
-  if(/(https?:\/\/|www\.)/i.test(t)){say("Por seguridad no se permiten enlaces.","bad");return}
-  busy=true;$("rps").disabled=true;$("rps").textContent="Enviando…";
-  try{const r=await fetch("/api/sugerencia",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({message:`[Reporte · ${cname(cur)}${kind?" · "+kind:""}] ${t}`.slice(0,1000),curso:C[cur].n,_gotcha:"",token:"",seg:30}),signal:window.AbortSignal&&AbortSignal.timeout?AbortSignal.timeout(15000):undefined});
-   let j=null;try{j=await r.json()}catch(_){}
-   if(r.ok&&j&&j.ok){say("¡Gracias! Lo revisamos con el sílabo y lo corregimos si hace falta.","ok");track("reporte_enviado",{curso:cur,tipo:kind||"sin_tipo",largo:t.length});vib([10,30,10]);setTimeout(close,1600)}
-   else{say(r.status===429?"Hay muchos envíos ahora mismo. Inténtalo en unos minutos.":"No se pudo enviar. Inténtalo otra vez.","bad");track("reporte_error",{estado:r.status})}}
-  catch(_){say("No se pudo enviar. Revisa tu conexión.","bad")}
-  busy=false;$("rps").disabled=false;$("rps").textContent="Enviar"})}
-
-/* ---------- Mi ciclo: todos los cursos con notas, promedio del ciclo y FI proyectado (localStorage mp-ciclo) ----------
-   CY = {first (true|false|null), ca (creditos acumulados), bon {id:true}, cr {curso:creditos}, hide {curso:1}, t} */
-const CYK="mp-ciclo";let CY={first:null,ca:"",bon:{},cr:{},hide:{},t:0};
-const cyGet=()=>{try{const j=JSON.parse(localStorage.getItem(CYK)||"null");if(j&&typeof j==="object")return Object.assign({first:null,ca:"",bon:{},cr:{},hide:{},t:0},j)}catch(_){}return{first:null,ca:"",bon:{},cr:{},hide:{},t:0}};
-const cySet=()=>{CY.t=Date.now();try{localStorage.setItem(CYK,JSON.stringify(CY))}catch(_){}if(typeof cloudTouch==="function")cloudTouch()};
-/* Creditos de referencia: nombre del curso -> creditos, a partir de los planes de estudio (PLN), nivelaciones y cursos de bloque */
-let CRED=null;function credOf(k){if(!CRED){CRED={};const add=(n,c)=>{const q=bqN(n);if(!CRED[q])CRED[q]=c};
-  FI_NV.forEach(x=>add(x[0],x[1]));FI_BL.forEach(x=>add(x[0],x[1]));
-  Object.values(PLN).forEach(p=>{p.c.forEach(([r,s])=>unp(s).forEach(x=>add(x[0],x[1])));(p.x||[]).forEach(([l,s])=>unp(s).forEach(x=>add(x[0],x[1])))})}
- if(CY.cr[k]!==undefined&&CY.cr[k]!=="")return{c:+CY.cr[k],src:"tu"};
- const q1=bqN(cname(k)),q2=bqN(C[k].n);const c=CRED[q1]||CRED[q2];return c?{c,src:"plan"}:{c:4,src:"?"}}
-/* Cursos del ciclo: los que tienen alguna nota y no fueron quitados */
-const cyKeys=()=>KS.filter(k=>ST[k]&&Object.keys(ST[k].g).some(id=>ST[k].g[id]!==""&&ST[k].g[id]!==undefined)&&!CY.hide[k]);
-/* Datos de un curso para Mi ciclo, sin tocar la pantalla */
-function cyInfo(k){return withS(k,()=>{const o=outlook(),L=leaves(S.root),a=ev(S.root,full({})),v=S.rf?rnd(a):Math.round(a*100)/100,hi=S.rf?rnd(o.hi):Math.round(o.hi*100)/100;
- return{k,n:cname(k),a,v,hi,ok:pass(a),o,vd:vtxt(o),done:L.length-o.n,total:L.length,pm:S.pm,col:o.k==="aun"?"wn":(pass(a)?"gn":"rd")}})}
-function openCiclo(){if(view!=="ciclo")showView("ciclo");else cyRender();window.scrollTo({top:0,behavior:"instant"})}
-function cyRender(){const K=cyKeys(),L=$("cylist"),inf=K.map(cyInfo);document.body.classList.add("cyv");
- $("cyn").textContent=K.length?K.length+(K.length===1?" curso":" cursos"):"";
- if(!K.length){L.innerHTML=`<div class="cyempty rv"><b>Todavía no hay cursos en tu ciclo.</b><p>Entra a un curso e ingresa tu primera nota: aparecerá aquí automáticamente.</p><button type="button" class="btn" data-pick="1">Elegir un curso</button></div>`}
- else L.innerHTML=inf.map((x,i)=>{const cr=credOf(x.k),p=x.total?x.done/x.total*100:0,col=SC[KS.indexOf(x.k)%4]||"#0A5CFF";
-  return `<article class="cyc rv" style="--i:${Math.min(i,8)};--s:${col}" data-k="${x.k}"><div class="cyh"><small>${ckind(x.k)}</small><b>${E12(C[x.k].n)}</b></div>
-<div class="cyn2"><div class="cyring" style="--p:${x.v/20*100}"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="19"/><circle class="f" cx="22" cy="22" r="19"/></svg><b class="${x.col}">${x.v}</b></div><div class="cyt"><span class="tag ${x.vd.c}">${x.vd.t}</span><span class="cys">${x.done===x.total?"Promedio final":"Promedio hasta ahora"}${x.done<x.total?` · mejor caso ${x.hi}`:""}</span></div></div>
-<div class="cyp" aria-hidden="true"><i style="--f:${p}%"></i></div>
-<div class="cym"><span>${x.done} de ${x.total} notas</span><label class="cycr">Créditos <input class="fin" data-cr="${x.k}" type="number" inputmode="numeric" min="1" max="12" step="1" value="${cr.c}" aria-label="Créditos de ${E12(x.n)}">${cr.src==="?"?`<em title="No encontramos este curso en los planes: revisa los créditos">?</em>`:""}</label></div>
-<div class="cya"><button type="button" class="btn sm" data-open="${x.k}">Abrir</button><button type="button" class="lnk" data-hide="${x.k}">Quitar del ciclo</button></div></article>`}).join("");
- /* Resumen del ciclo */
- let sc=0,sn=0,sh=0;inf.forEach(x=>{const c=credOf(x.k).c;sc+=c;sn+=c*x.v;sh+=c*x.hi});
- const avg=sc?sn/sc:null,avgHi=sc?sh/sc:null;
- const B=$("cybar"),G=$("cylg");
- if(inf.length){B.innerHTML=inf.map(x=>{const c=credOf(x.k).c,col=SC[KS.indexOf(x.k)%4];return `<span style="flex:${c};--wb:${col};--wc:${col==="#0A5CFF"?"#fff":"#061F47"}">${c} cr</span>`}).join("");G.innerHTML=inf.map(x=>`<span style="--wb:${SC[KS.indexOf(x.k)%4]}">${E12(C[x.k].n)}</span>`).join("")}
- else{B.innerHTML=`<span style="flex:1;--wb:rgba(255,255,255,.25);--wc:#fff">Sin cursos todavía</span>`;G.innerHTML=""}
- setNum($("cyavg"),avg===null?"—":avg.toFixed(2));$("cyavg").className=avg===null?"na":avg>=11?"gn":"rd";
- $("cyavgh").textContent=avgHi===null?"":`Mejor caso: ${avgHi.toFixed(2)}`;
- $("cysc").textContent=sc?`${sc} créditos en ${inf.length} ${inf.length===1?"curso":"cursos"}`:"";
- $("cyok").textContent=inf.length?`${inf.filter(x=>x.o.k==="ya"||x.o.k==="fa").length} ${inf.filter(x=>x.o.k==="ya"||x.o.k==="fa").length===1?"curso asegurado":"cursos asegurados"} · ${inf.filter(x=>x.o.k==="aun").length} en juego · ${inf.filter(x=>x.o.k==="no"||x.o.k==="fd").length} perdido${inf.filter(x=>x.o.k==="no"||x.o.k==="fd").length===1?"":"s"}`:"";
- /* FI proyectado */
- document.querySelectorAll("#v-ciclo [data-cyf]").forEach(b=>b.setAttribute("aria-checked",String(CY.first!==null&&(b.dataset.cyf==="1")===CY.first)));
- $("cyca").value=CY.ca;$("cycaw").hidden=CY.first!==false;$("cymat").hidden=CY.first!==true;$("cymatv").textContent=sc;
- $("cybon").innerHTML=FI_BON.map(b=>`<label class="fbon${CY.bon[b.id]?" on":""}"><input type="checkbox" data-cyb="${b.id}"${CY.bon[b.id]?" checked":""}><span class="fbt">${b.n}${b.d?`<em>${b.d}</em>`:""}</span><span class="fpt">+${b.p}</span></label>`).join("");
- const bon=FI_BON.reduce((a,b)=>a+(CY.bon[b.id]?b.p:0),0),caBad=CY.ca!==""&&(!isFinite(+CY.ca)||+CY.ca<0||+CY.ca>400),caOk=CY.ca!==""&&!caBad,cred=CY.first===true?(sc||null):CY.first===false&&caOk?+CY.ca:null;
- const fi=avg!==null&&cred!==null?avg*10+cred+bon:null,fih=avgHi!==null&&cred!==null?avgHi*10+cred+bon:null;
- setNum($("cyfi"),fi===null?"—":fmt(fi));$("cyfi").className=fi===null?"na":"";
- $("cyfih").textContent=fih!==null&&fi!==null&&Math.abs(fih-fi)>.005?`Si apruebas todo lo pendiente con 20: hasta ${fmt(fih)}`:"";
- $("cyfm").textContent=!inf.length?"Agrega cursos con notas para proyectar tu FI.":CY.first===null?"Dinos si es tu primer ciclo para proyectar tu FI.":CY.first===false&&caBad?"Los créditos acumulados deben estar entre 0 y 400.":CY.first===false&&!caOk?"Escribe tus créditos acumulados para ver tu FI proyectado.":`Promedio ${avg.toFixed(2)} × 10 + ${cred} créditos + ${bon} de bonificaciones. Es una proyección: cambia con cada nota que ingreses.`;
- $("cyfib").hidden=!FI_ACTIVO||fi===null;$("cyca").classList.toggle("bad",CY.first===false&&caBad);
- if(!cyRender._seen){cyRender._seen=true;track("mi_ciclo_visto",{cursos:inf.length,creditos:sc,con_fi:fi!==null})}}
-/* Lleva los cursos del ciclo a la calculadora completa del FI */
-function cyToFI(){const K=cyKeys();FS.first=CY.first===null?false:CY.first;FS.car="";FS.ca=CY.ca;FS.bon=Object.assign({},CY.bon);
- FS.rows=K.map(k=>{const x=cyInfo(k),cr=credOf(k).c;return{u:++fiUid,name:x.n,cr:String(cr),n:x.done===x.total?String(x.v):"",c:false,code:"",t:"",p:""}});
- $("fi-car").value="";$("fi-ca").value=FS.ca;fiAddOpts();fiRows();fiBonUi();fiMode();track("fi_desde_ciclo",{cursos:K.length});showView("fi");setTimeout(()=>$("fisum").scrollIntoView({behavior:RM12?"auto":"smooth",block:"center"}),400)}
-{const V=$("v-ciclo");
- V.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
-  if(b.dataset.open){track("curso_elegido",{curso:b.dataset.open,nombre:cname(b.dataset.open),grupo:["nivelacion","curso","sello_up","mi_curso"][gof(b.dataset.open)],origen:"mi_ciclo"});setCourse(b.dataset.open);showView("tool")}
-  else if(b.dataset.hide){CY.hide[b.dataset.hide]=1;cySet();track("mi_ciclo_quitar",{curso:b.dataset.hide});cyRender();toast("Quitado de tu ciclo. Vuelve a aparecer si ingresas una nota nueva en ese curso.");}
-  else if(b.dataset.cyf!==undefined){CY.first=b.dataset.cyf==="1";cySet();track("mi_ciclo_primer_ciclo",{primero:CY.first});cyRender()}
-  else if(b.id==="cyfib")cyToFI();
-  else if(b.id==="home3"){closeList();showView("welcome")}
-  else if(b.id==="cyreset"){if(!confirm("¿Volver a mostrar los cursos que quitaste y borrar los créditos que cambiaste?"))return;CY.hide={};CY.cr={};cySet();cyRender()}});
- V.addEventListener("input",e=>{const t=e.target;if(t.dataset.cr){const v=t.value;if(v===""||(+v>0&&+v<=12)){CY.cr[t.dataset.cr]=v;cySet();cyRenderSoft()}}else if(t.id==="cyca"){CY.ca=t.value;cySet();cyRenderSoft()}});
- V.addEventListener("change",e=>{const t=e.target;if(t.dataset.cyb){CY.bon[t.dataset.cyb]=t.checked;t.closest(".fbon").classList.toggle("on",t.checked);cySet();track("mi_ciclo_bonificacion",{id:t.dataset.cyb,activo:t.checked});cyRenderSoft()}})}
-/* Vuelve a calcular sin redibujar las tarjetas (para no perder el foco al escribir) */
-let cySoftT=0;function cyRenderSoft(){clearTimeout(cySoftT);cySoftT=setTimeout(()=>{const a=document.activeElement,id=a&&(a.dataset.cr||a.id);const y=window.scrollY;cyRender();window.scrollTo({top:y,behavior:"instant"});
- if(id){const el=a.dataset&&a.dataset.cr!==undefined?document.querySelector(`[data-cr="${id}"]`):$(id);if(el){el.focus({preventScroll:true});try{el.setSelectionRange&&el.type!=="number"&&el.setSelectionRange(el.value.length,el.value.length)}catch(_){}}}},250)}
-/* Clics "Ir a elegir curso" fuera del FI (el FI ya tiene el suyo) */
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("button[data-pick]");if(b&&!b.closest("#v-fi")){closeList();showView("pick")}});
-
-/* ---------- Cuenta y sincronizacion (Supabase) ----------
-   Sin SB_URL no pasa nada: los botones de cuenta se ocultan. Con cuenta, se guarda UN documento por persona en la tabla mp_datos:
-   {progress (mp-progress), custom (mp-custom), ciclo (mp-ciclo)}. Mezcla por curso con la marca de tiempo mas nueva. Nunca se envian datos sin sesion. */
-const cloud=(()=>{
- const on=!!(SB_URL&&SB_KEY);let sb=null,user=null,loading=null,pushT=0,pulling=false,lastPull=0,status="off",dirty=false;
- const E=document.querySelectorAll("[data-acc]");if(!on){E.forEach(b=>b.hidden=true)}
- const M=$("acm"),say=(t,k)=>{const s=$("acst");s.textContent=t;s.className="ups"+(k?" "+k:"")};
- const paint=()=>{E.forEach(b=>{b.classList.toggle("in",!!user);b.classList.toggle("syncing",status==="sync");b.classList.toggle("err",status==="err");b.setAttribute("aria-label",user?"Mi cuenta (sincronizada)":"Iniciar sesión para sincronizar")});
-  if(M.hidden)return;$("acout").hidden=!!user;$("acin").hidden=!user;
-  if(user){$("acmail").textContent=user.email||"Cuenta conectada";$("acav").textContent=(user.email||"?")[0].toUpperCase();$("acsync").textContent=status==="sync"?"Sincronizando…":status==="err"?"No se pudo sincronizar. Reintenta.":lastPull?"Sincronizado · "+new Date(lastPull).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"}):"Conectado";$("acsync").className="acs "+status}};
- const lib=()=>loading||(loading=new Promise((ok,no)=>{if(window.supabase){ok();return}const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";s.async=true;s.onload=()=>ok();s.onerror=()=>{loading=null;no(new Error("lib"))};document.head.appendChild(s)}));
- const client=async()=>{if(sb)return sb;await lib();sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-  sb.auth.onAuthStateChange((ev,ses)=>{const u=ses&&ses.user||null;const was=!!user;user=u;paint();
-   if(u&&!was){track("sesion_iniciada",{metodo:ev});try{if(phOn){posthog.identify(u.id);posthog.register({cuenta:true})}}catch(_){}
-    try{const url=new URL(location.href);if(url.searchParams.get("v")==="cuenta"||url.hash.includes("access_token")||url.searchParams.get("code")){url.searchParams.delete("v");url.searchParams.delete("code");url.hash="";history.replaceState(history.state,"",url.toString())}}catch(_){}
-    pull().then(()=>{if(M.hidden)toast("Sesión iniciada. Tus notas se sincronizan en todos tus dispositivos.")})}
-   if(!u&&was){try{if(phOn){posthog.reset()}}catch(_){}track("sesion_cerrada",{})}});
-  return sb};
- /* Documento local */
- const localDoc=()=>{let p=null,c=null,y=null;try{p=JSON.parse(localStorage.getItem(LSK)||"null")}catch(_){}try{c=JSON.parse(localStorage.getItem(CCK)||"null")}catch(_){}try{y=JSON.parse(localStorage.getItem(CYK)||"null")}catch(_){}return{v:1,progress:p||{v:1,cur:null,c:{}},custom:c||{v:1,list:[],del:{}},ciclo:y||null}};
- /* Mezcla: por curso gana la marca de tiempo mas nueva; cursos personalizados por id (u mas nuevo; borrados con tombstone); ciclo por t */
- const merge=(L,R)=>{const out={v:1,progress:{v:1,cur:L.progress.cur||R.progress&&R.progress.cur||null,c:{}},custom:{v:1,list:[],del:{}},ciclo:null};
-  const lc=L.progress.c||{},rc=(R.progress&&R.progress.c)||{};new Set([...Object.keys(lc),...Object.keys(rc)]).forEach(k=>{const a=lc[k],b=rc[k];out.progress.c[k]=!a?b:!b?a:((b.t||0)>(a.t||0)?b:a)});
-  const ld=(L.custom&&L.custom.del)||{},rd=(R.custom&&R.custom.del)||{};Object.assign(out.custom.del,ld);for(const k in rd)if(!out.custom.del[k]||rd[k]>out.custom.del[k])out.custom.del[k]=rd[k];
-  const byId={};[...((L.custom&&L.custom.list)||[]),...((R.custom&&R.custom.list)||[])].forEach(x=>{if(!x||!x.id)return;if(!byId[x.id]||(x.u||0)>(byId[x.id].u||0))byId[x.id]=x});
-  Object.values(byId).forEach(x=>{const d=out.custom.del[x.id];if(d&&d>(x.u||0))return;delete out.custom.del[x.id];out.custom.list.push(x)});
-  const ly=L.ciclo,ry=R.ciclo;out.ciclo=!ly?ry:!ry?ly:((ry.t||0)>(ly.t||0)?ry:ly);return out};
- const apply=doc=>{try{localStorage.setItem(LSK,JSON.stringify(doc.progress));localStorage.setItem(CCK,JSON.stringify(doc.custom));if(doc.ciclo)localStorage.setItem(CYK,JSON.stringify(doc.ciclo))}catch(_){}
-  for(const k in ST)delete ST[k];ccLoad();const back=load();CY=cyGet();renderPick();
-  if(cur&&C[cur]){const y=window.scrollY;setCourse(cur);if(view==="tool")window.scrollTo({top:y,behavior:"instant"})}else if(back)setCourse(back);
-  if(view==="ciclo")cyRender()};
- async function pull(){if(!user||pulling)return;pulling=true;status="sync";paint();
-  try{const c=await client();const{data,error}=await c.from("mp_datos").select("datos,actualizado").eq("user_id",user.id).maybeSingle();if(error)throw error;
-   const L=localDoc(),R=data&&data.datos&&typeof data.datos==="object"?data.datos:null;const doc=R?merge(L,R):L;
-   const same=JSON.stringify(doc)===JSON.stringify(L);if(!same)apply(doc);
-   const changed=!R||JSON.stringify(doc)!==JSON.stringify(R);lastPull=Date.now();status="ok";
-   if(changed)await pushNow(doc);track("sincronizado",{direccion:changed?(R?"ambos":"subida"):"bajada",cursos:Object.keys(doc.progress.c||{}).length})}
-  catch(e){status="err";track("sincronizacion_error",{mensaje:String(e&&e.message||e).slice(0,100)})}
-  pulling=false;paint();if(dirty){dirty=false;schedule()}}
- async function pushNow(doc){if(!user)return;status="sync";paint();try{const c=await client();const{error}=await c.from("mp_datos").upsert({user_id:user.id,datos:doc||localDoc(),actualizado:new Date().toISOString()},{onConflict:"user_id"});if(error)throw error;status="ok";lastPull=Date.now()}catch(e){status="err";track("sincronizacion_error",{mensaje:String(e&&e.message||e).slice(0,100)})}paint()}
- const schedule=()=>{if(!user)return;if(pulling){dirty=true;return}clearTimeout(pushT);pushT=setTimeout(()=>pushNow(),1500)};
- /* Si hay una sesion guardada de Supabase, la retoma en segundo plano (sin abrir nada) */
- const hasSes=()=>{try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k))return true}}catch(_){}return false};
- if(on&&(hasSes()||/[?&](code|v=cuenta)=?|access_token=/.test(location.search+location.hash)))idle(()=>client().catch(()=>{}));
- document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&user&&Date.now()-lastPull>30000)pull()});
- window.addEventListener("online",()=>{if(user)pull()});
- window.addEventListener("pagehide",()=>{if(user&&pushT){clearTimeout(pushT);pushT=0;try{const c=sb;if(c)c.from("mp_datos").upsert({user_id:user.id,datos:localDoc(),actualizado:new Date().toISOString()},{onConflict:"user_id"}).then(()=>{})}catch(_){}}});
- /* Modal */
- let back=null;const open=()=>{if(!on)return;back=document.activeElement;M.hidden=false;document.documentElement.style.overflow="hidden";say("");paint();track("cuenta_abierta",{sesion:!!user,vista:view});client().catch(()=>say("No se pudo cargar el inicio de sesión. Revisa tu conexión.","bad"));setTimeout(()=>$("acx").focus(),60)};
- const close=()=>{M.hidden=true;document.documentElement.style.overflow="";if(back&&back.focus)back.focus()};
- document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("[data-acc]"))open()});
- $("acx").addEventListener("click",close);M.addEventListener("click",e=>{if(e.target===M)close()});
- document.addEventListener("keydown",e=>{if(!M.hidden&&e.key==="Escape"){e.preventDefault();close()}});
- const redirect=()=>urlBase()+"?v=cuenta";
- $("acgoogle").addEventListener("click",async()=>{try{say("Abriendo Google…");const c=await client();track("sesion_intento",{metodo:"google"});const{error}=await c.auth.signInWithOAuth({provider:"google",options:{redirectTo:redirect()}});if(error)throw error}catch(e){say("No se pudo iniciar con Google. Inténtalo otra vez.","bad")}});
- $("acf").addEventListener("submit",async e=>{e.preventDefault();const em=$("ace").value.trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){say("Revisa tu correo.","bad");return}
-  const b=$("acs");b.disabled=true;b.textContent="Enviando…";try{const c=await client();track("sesion_intento",{metodo:"correo"});const{error}=await c.auth.signInWithOtp({email:em,options:{emailRedirectTo:redirect()}});if(error)throw error;say("Te enviamos un enlace a "+em+". Ábrelo desde este dispositivo para entrar.","ok");$("acf").hidden=true}
-  catch(e){say(/rate|limit/i.test(String(e&&e.message))?"Ya te enviamos un enlace hace poco. Revisa tu correo (y spam).":"No se pudo enviar el enlace. Inténtalo otra vez.","bad")}b.disabled=false;b.textContent="Enviarme un enlace"});
- $("acnow").addEventListener("click",()=>{lastPull=0;pull();track("sincronizar_ahora",{})});
- $("acout2").addEventListener("click",async()=>{try{const c=await client();await c.auth.signOut()}catch(_){}user=null;paint();toast("Sesión cerrada. Tus notas siguen guardadas en este navegador.")});
- $("acwipe").addEventListener("click",async()=>{if(!user)return;if(!confirm("¿Borrar tus datos de la nube? Las notas de este navegador se mantienen; los otros dispositivos dejarán de recibirlas."))return;
-  try{const c=await client();const{error}=await c.from("mp_datos").delete().eq("user_id",user.id);if(error)throw error;toast("Datos de la nube borrados");track("nube_borrada",{});lastPull=Date.now();paint()}catch(_){say("No se pudo borrar. Inténtalo otra vez.","bad")}});
- document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("[data-priv]")){e.preventDefault();$("prm").hidden=false;document.documentElement.style.overflow="hidden";track("privacidad_abierta",{})}if(e.target.closest&&(e.target.closest("#prx")||e.target===$("prm"))){$("prm").hidden=true;document.documentElement.style.overflow=M.hidden?"":"hidden"}});
- return{on,touch:()=>{if(user)schedule()},open,get user(){return user}}})();
-function cloudTouch(){cloud.touch()}
-
-/* ---------- App instalable (PWA) ---------- */
-{let deferred=null;const B=$("pwab"),ios=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream,standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
- const seen=()=>{try{return localStorage.getItem("mp-pwa")}catch(_){return "1"}},mark=v=>{try{localStorage.setItem("mp-pwa",v)}catch(_){}};
- if("serviceWorker" in navigator&&location.protocol==="https:"){window.addEventListener("load",()=>idle(()=>navigator.serviceWorker.register("/sw.js").then(r=>{
-   r.addEventListener("updatefound",()=>{const w=r.installing;if(!w)return;w.addEventListener("statechange",()=>{if(w.state==="installed"&&navigator.serviceWorker.controller){const t=$("toast");t.innerHTML=`Hay una versión nueva. <button type="button" id="swup">Actualizar</button>`;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),12000);$("swup").addEventListener("click",()=>{w.postMessage({type:"SKIP_WAITING"})})}})});
-  }).catch(()=>{})));let rl=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(rl)return;rl=true;location.reload()})}
- if(standalone){try{if(phOn)posthog.register({instalada:true})}catch(_){}track("pwa_abierta_instalada",{})}
- window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;document.querySelectorAll("[data-install]").forEach(b=>b.hidden=false);maybeBanner()});
- window.addEventListener("appinstalled",()=>{deferred=null;B.hidden=true;mark("ok");track("pwa_instalada",{});toast("¡Listo! My PonderUP ya está en tu pantalla de inicio.");document.querySelectorAll("[data-install]").forEach(b=>b.hidden=true)});
- function maybeBanner(){if(standalone||seen()||!(deferred||ios))return;if(!(VIS.visitas>=2||(S&&leaves(S.root).length>pend().length)))return;setTimeout(()=>{if(view!=="tool"&&view!=="ciclo")return;B.hidden=false;requestAnimationFrame(()=>B.classList.add("on"));track("pwa_banner_visto",{ios})},1800)}
- async function install(){track("pwa_instalar_click",{ios,desde:B.hidden?"boton":"banner"});if(deferred){const p=deferred;deferred=null;p.prompt();const r=await p.userChoice.catch(()=>null);track("pwa_instalar_respuesta",{aceptado:!!(r&&r.outcome==="accepted")});if(!(r&&r.outcome==="accepted"))mark("no");hide();return}
-  if(ios){$("pwai").hidden=true;$("pwat").innerHTML=`<b>En iPhone:</b> toca <i class="iosh" aria-hidden="true"></i> <b>Compartir</b> y luego <b>“Agregar a inicio”</b>.`;B.hidden=false;requestAnimationFrame(()=>B.classList.add("on"));return}
-  toast("Tu navegador no permite instalar desde aquí. Prueba con Chrome o Safari.")}
- const hide=()=>{B.classList.remove("on");setTimeout(()=>B.hidden=true,400)};
- $("pwai").addEventListener("click",install);$("pwax").addEventListener("click",()=>{mark("no");hide();track("pwa_banner_cerrado",{})});
- document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("[data-install]"))install()});
- if(ios&&!standalone)document.querySelectorAll("[data-install]").forEach(b=>b.hidden=false);
- document.addEventListener("change",e=>{if(e.target.classList&&e.target.classList.contains("g")&&e.target.value!=="")maybeBanner()});
- window.addEventListener("load",()=>setTimeout(maybeBanner,2500))}
-
-/* ---------- Animaciones nuevas (todas respetan "reducir movimiento") ---------- */
-{if(!RM12){
- /* 1) El aviso de aprobado gira cuando cambia de estado; vibracion suave la primera vez que un curso queda asegurado */
- const seenYa=new Set();let lastTag="";new MutationObserver(()=>{const t=document.querySelector("#sl2 .tag");if(!t)return;const k=t.textContent;if(k===lastTag)return;const had=!!lastTag;lastTag=k;if(!had)return;
-  t.classList.add("flip");anim("aviso_gira");t.addEventListener("animationend",()=>t.classList.remove("flip"),{once:true});
-  if(S&&cur&&(/Ya aprob|^Aprobado/.test(k))&&!seenYa.has(cur)){seenYa.add(cur);vib([12,40,18])}}).observe($("sl2"),{childList:true,subtree:true});
- /* 2) Anillo al confirmar una nota (al salir de la casilla con un valor) */
- document.addEventListener("change",e=>{const t=e.target;if(!t.classList||!t.classList.contains("g")||t.value==="")return;const gi=t.closest(".gi");if(!gi||gi.classList.contains("bad"))return;gi.classList.remove("okp");void gi.offsetWidth;gi.classList.add("okp");anim("nota_confirmada");gi.addEventListener("animationend",()=>gi.classList.remove("okp"),{once:true})});
- /* 3) Numero grande: pequeño brillo cuando sube */
- let lastBig=null;new MutationObserver(()=>{const v=parseFloat($("big").textContent);if(isNaN(v))return;if(lastBig!==null&&v>lastBig+.049){$("big").classList.remove("upg");void $("big").offsetWidth;$("big").classList.add("upg");anim("promedio_sube")}lastBig=v}).observe($("big"),{childList:true,characterData:true,subtree:true});
- /* 4) Tabla de combinaciones: las filas entran en cascada solo cuando cambia la cantidad de filas (no en cada tecla) */
- let rows=-1;new MutationObserver(()=>{const tb=$("cb").querySelector("tbody");const n=tb?tb.rows.length:0;if(n!==rows){rows=n;if(tb)[...tb.rows].forEach((r,i)=>{r.style.setProperty("--i",i);r.classList.add("cas")})}}).observe($("cb"),{childList:true});
- /* 5) Tarjetas de "Elige tu curso": inclinacion 3D sutil con el mouse */
- if(matchMedia("(hover:hover) and (pointer:fine)").matches){const pl=$("plist");pl.addEventListener("pointermove",e=>{const b=e.target.closest&&e.target.closest(".pl button");if(!b)return;const r=b.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;b.style.setProperty("--rx",(-y*5).toFixed(2)+"deg");b.style.setProperty("--ry",(x*6).toFixed(2)+"deg")},{passive:true});pl.addEventListener("pointerout",e=>{const b=e.target.closest&&e.target.closest(".pl button");if(b&&!b.contains(e.relatedTarget)){b.style.removeProperty("--rx");b.style.removeProperty("--ry")}})}
-}}
-
-/* ---------- Pruebas del motor de calculo ----------
-   Se corren con ?test=1 en la URL o escribiendo mpTest() en la consola. Cada caso trae su resultado esperado calculado a mano desde el silabo.
-   Ademas, para TODOS los cursos: los pesos del primer nivel suman 100, con todo en 20 sale 20 (o mas en el curso con factor), con todo en 0 sale 0,
-   y subir cualquier nota nunca baja el promedio. Si agregas un curso y algo se rompe, aqui se ve. */
-function mpTest(){const out=[],ok=(name,got,exp,tol)=>{const p=Math.abs(got-exp)<=(tol??1e-9);out.push({name,got,exp,ok:p});return p};
- const calc=(k,g,ex)=>withS(k,s=>{for(const id in g)s.g[id]=String(g[id]);if(ex)Object.assign(s,ex);return ev(s.root,full({}))},true);
- const fin=(k,g,ex)=>{const v=calc(k,g,ex);return C[k].rf?rnd(v):v};
- /* Casos con resultado esperado a mano */
- ok("mat: NT=rnd(14.5)=15, final=rnd(13.4)=13",fin("mat",{pc1:14,pc2:12,pc3:15,pc4:16,pa:13,fi:11}),13);
- ok("len: practicas sin redondeo (14), final=rnd(13.7)=14",fin("len",{pc1:13,pc2:14,pc3:15,pa:15,fi:12}),14);
- ok("inf: NT=rnd(12.9)=13, final=rnd(12.4)=12",fin("inf",{pc1:12,pc2:14,c1:10,c2:12,c3:14,pa:11,fi:13}),12);
- ok("mat1: controles sobre 10 (8,7 -> 16,14), final=13",fin("mat1",{c1:8,c2:7,pc1:12,pc2:13,pc3:14,pc4:15,pa:12,fi:14}),13);
- ok("gdp: NT=rnd(14.95)=15, EF=rnd(13.4)=13, final=rnd(13.7)=14",fin("gdp",{pp:15,ca:14,ex:16,ti:13,tg:17,pa:12,tw:14,ef:16,eo:12}),14);
- ok("sf: solo los 6 mejores de 8 (12..17 -> 14.5 -> 15), final=rnd(14.05)=14",fin("sf",{c1:10,c2:11,c3:12,c4:13,c5:14,c6:15,c7:16,c8:17,pa:12,fi:14}),14);
- ok("hdp: proyecto 15.2 -> factor 1.00, NT=rnd(14.1)=14, final=rnd(14.1)=14",fin("hdp",{p1:14,p2:12,lb:16,oa:18,e1:14,e2:16,pa:13,fi:15}),14);
- ok("hdp: modificador -3 y pares 0.9 -> proyecto 10.98 -> factor 0.80, NT=rnd(11.28)=11, final=rnd(12.9)=13",fin("hdp",{p1:14,p2:12,lb:16,oa:18,e1:14,e2:16,pa:13,fi:15},{mo:-3,pr:.9}),13);
- ok("hdp: falto a la exposicion -> proyecto 0 -> factor 0.30, NT=rnd(4.23)=4, final=rnd(10.1)=10",fin("hdp",{p1:14,p2:12,lb:16,oa:18,e1:14,e2:16,pa:13,fi:15},{ns:1}),10);
- ok("int: laboratorios en puntos (16 c/u), NT=14.6 sin redondeo, final=rnd(13.47)=13",fin("int",{pe:14,pc1:12,pc2:14,pz:2,ga:3,tz:3,fm:8,gu:4,ei:4,fd:8,rb:5,hg:3,fid:8,di:8,fp:8,pf:16,pa:12,fi:13}),13);
- ok("der1: sin examenes, 10 notas de 10% -> promedio simple 13.2 -> 13",fin("der1",{c1:12,c2:13,c3:14,pc1:12,pc2:13,pc3:14,pc4:15,a1:12,a2:13,a3:14}),13);
- /* Estado de aprobacion: en mat con todo en 10 y el final pendiente hace falta 11.7 */
- withS("mat",s=>{["pc1","pc2","pc3","pc4","pa"].forEach(id=>s.g[id]="10");const o=outlook();ok("outlook mat: falta 11.5 en el final (11.5 se redondea a 12: 7+3.6=10.6 -> 11)",o.nec,11.5,1e-9);ok("outlook mat: estado 'aun'",o.k==="aun"?1:0,1)},true);
- withS("mat",s=>{["pc1","pc2","pc3","pc4"].forEach(id=>s.g[id]="20");s.g.pa="20";const o=outlook();ok("outlook mat: con 20 en todo lo rendido ya aprobaste",o.k==="ya"?1:0,1)},true);
- withS("mat",s=>{["pc1","pc2","pc3","pc4","pa"].forEach(id=>s.g[id]="0");const o=outlook();ok("outlook mat: con 0 en todo lo rendido no se llega",o.k==="no"?1:0,1)},true);
- /* Invariantes para todos los cursos */
- KS.forEach(k=>{const c=C[k];if(!c)return;const sum=c.root.ch.reduce((a,x)=>a+(+x.w||0),0);ok(`${k}: los pesos principales suman 100`,sum,100,.02);
-  const L=leaves(c.root),all=v=>{const g={};L.forEach(l=>g[l.id]=String(v*(l.mx||20)/20));return g};
-  const top=calc(k,all(20)),fp=c.root.ch.some(x=>x.fp);ok(`${k}: con todo en 20 sale ${fp?"20 o 21 (factor 1.05)":"20"}`,fp?(top>=20-1e-6&&top<=21+1e-6?1:0):top,fp?1:20,fp?0:.02);
-  ok(`${k}: con todo en 0 sale 0`,calc(k,all(0)),0,1e-6);
-  const base={};L.forEach((l,i)=>base[l.id]=String(Math.round((8+(i*7)%10)*(l.mx||20)/20*100)/100));const b0=calc(k,base);let mono=true;
-  L.forEach(l=>{const g=Object.assign({},base);g[l.id]=String(Math.min(l.mx||20,+g[l.id]+1));if(calc(k,g)<b0-1e-9)mono=false});ok(`${k}: subir una nota nunca baja el promedio`,mono?1:0,1)});
- const bad=out.filter(x=>!x.ok);console.groupCollapsed(`My PonderUP · pruebas del motor: ${out.length-bad.length}/${out.length} ok`);out.forEach(x=>console[x.ok?"log":"error"]((x.ok?"✓ ":"✗ ")+x.name+(x.ok?"":`  (salió ${x.got}, se esperaba ${x.exp})`)));console.groupEnd();
- return{total:out.length,fallas:bad.length,detalle:out}}
-window.mpTest=mpTest;
-
-/* ---------- Arranque ---------- */
-function boot(back){
- CY=cyGet();
- document.querySelectorAll("#v-ciclo .hero h1 .t2").forEach(el=>setLetters(el,el.textContent.trim()));
- let q=null;try{q=new URLSearchParams(location.search)}catch(_){}
- const path=location.pathname.match(/\/curso\/([a-z0-9_]+)\/?$/i),c=(q&&q.get("c"))||(path&&path[1]),cc=q&&q.get("cc"),v=q&&q.get("v");
- let shown=false;
- if(cc){const id=ccImport(cc);if(id){setCourse(id);showView("tool");shown=true;toast(`Curso "${C[id].n}" añadido a “Mis cursos”.`)}}
- if(!shown&&c&&C[c]){track("curso_por_enlace",{curso:c,utm:(q&&q.get("utm_source"))||""});setCourse(c);showView("tool");shown=true}
- if(!shown){setCourse(back||KS[0]);
-  if(v==="ciclo"){openCiclo();shown=true}else if(v==="fi"&&FI_ACTIVO){showView("fi");shown=true}else if(v==="cursos"){showView("pick");shown=true}
-  else if(v==="cuenta"){showView(back?"tool":"pick");shown=true;setTimeout(()=>cloud.open(),400)}}
- if(!shown)showView(back?"tool":"welcome");
- try{history.replaceState(routeState(),"",routeUrl(routeState()))}catch(_){}
- setMeta();
- if(q&&q.get("test")==="1")setTimeout(()=>{const r=mpTest();toast(`Pruebas del motor: ${r.total-r.fallas}/${r.total} correctas${r.fallas?" · revisa la consola":""}`)},300)}
-ccLoad();
-const back0=load();
-if(back0)track("progreso_restaurado",{curso:back0});
-renderPick();
-boot(back0);
-</script>
 </body>
 </html>
