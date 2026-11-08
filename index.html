@@ -85,7 +85,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
   - Los % que se ven en cada evaluacion son sobre el TOTAL del curso (modelo A) y se calculan solos a partir de w (c.a).
     d:"" en un nodo oculta su % (partes medidas en puntos, como los laboratorios de Introduccion a la Ingenieria).
   - Todos los cursos redondean parcial, final y promedio final al entero (el .5 sube).
-  - (Desde la Ronda 13 ya no hay grupos visibles ni constante GR; solo queda la etiqueta de cada tarjeta.) Tipo de curso: Nivelacion (pre distinto de ""), Cursos y "Cursos Sellos UP". Un curso va a Sellos UP con gp:2 en su
+  - Grupos del menu de cursos (constante GR; Nivelacion va sin titulo, ver Ronda 13). Tipo de curso: Nivelacion (pre distinto de ""), Cursos y "Cursos Sellos UP". Un curso va a Sellos UP con gp:2 en su
     entrada de C (Liderazgo y Filosofia). Sin gp, el grupo sale de pre (pre:"" = Cursos).
   - nz:1 en un curso apaga la barra de zoom de la primera seccion (se usa en Filosofia, donde las unidades no son "trabajos").
   - La barra de pesos (WB) tiene 5 colores: un curso admite hasta 5 evaluaciones principales (Derecho Constitucional General e Historia Economica y Empresarial usan 5). Si un curso trae mas, wbc() repite colores en vez de romper la pagina. IMPORTANTE: si setCourse() lanza un error, el titulo cambia pero el resto de la pagina se queda con el curso anterior.
@@ -222,7 +222,7 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     se ingresa como UNA sola nota), Examen Parcial (ensayo) 20%, Actividades de Exploracion Etnografica 30%, Examen Final (oral) 20%. Redondeo asumido igual que en los demas
     cursos Sellos UP: cada parte y el promedio final al entero (el .5 sube).
   - ORDEN DE LOS CURSOS: 3 modos (el modo "tema" se ELIMINO en la Ronda 13), guardados en localStorage mp-ord ("az" | "mis" | "pop"); por defecto "az".
-      La lista es SIEMPRE una sola, sin titulos de grupo (funcion flat()); cada tarjeta indica su tipo en la etiqueta pequena: "Nivelación en", "Curso" o "Curso Sellos UP" (lbl(), gp, gof).
+      El orden (funcion flat()) se aplica dentro de cada grupo: Nivelacion sin titulo, Cursos y Cursos Sellos UP (ver Ronda 13); cada tarjeta indica su tipo en la etiqueta pequena: "Nivelación en", "Curso" o "Curso Sellos UP" (lbl(), gp, gof).
       az   = todos los cursos juntos, de la A a la Z (ignora tildes, localeCompare "es").
       pop  = todos juntos por POP (claves de curso, del mas elegido al menos); lo que no esta en POP va al final en A-Z. POP sale de /api/populares (api/populares.js,
              consulta a PostHog el evento curso_elegido de los ultimos 90 dias; variables POSTHOG_PERSONAL_API_KEY, POSTHOG_PROJECT_ID y opcional POSTHOG_HOST). Se pide solo la primera vez
@@ -234,8 +234,9 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     Funciones: ordMode, ORDS, flat(), ORD(), hn(), pr(), ordBtn(), ordChips(), renderOrd(), ordMenu(), popLoad(), reOrd(), renderPick(), renderClist(), renderFl(), setOrd().
     Evento PostHog orden_cursos_cambiado (modo). El color de cada tarjeta ahora sale de su posicion en el orden mostrado (ORD()), no de KS. Para agregar un curso nuevo sigue siendo: ponerlo en C y en KS (el alfabetico se arma solo).
 18) RONDA 13
-  - Se ELIMINO el orden "Por tema" y con el los titulos de grupo (Nivelacion, Cursos, Cursos Sellos UP): ahora Elige tu curso, el desplegable y el pie muestran los cursos de frente, en una sola lista.
-    Si mp-ord guardaba "tema", se usa "az". El pie tiene un unico titulo "Cursos" con "Ver mas" (siempre A-Z, o por popularidad si el modo es pop).
+  - Se ELIMINO el orden "Por tema". Los grupos se mantienen SOLO como separacion fija (constante GR, funciones inG() y secs()): los cursos de Nivelacion van de frente SIN titulo (primer
+    elemento de GR con titulo ""), luego "Cursos" y "Cursos Sellos UP" con su titulo. Dentro de cada grupo se aplica el orden elegido (az, pop o mis). Aplica a Elige tu curso, al desplegable y al pie (con "Ver mas" por grupo).
+    Si mp-ord guardaba "tema", se usa "az". Un grupo sin cursos no se muestra (en "mis" solo salen los grupos que tienen cursos con notas).
   - "Mis cursos": muestra SOLO los cursos con notas guardadas, tambien dentro del desplegable (ya no aparece el curso actual si no tiene notas). Si no hay ninguno, el desplegable dice "Aun no tienes cursos con notas" y Elige tu curso muestra el aviso con "Ver todos los cursos".
   - En el desplegable queda un encabezado .gh.gh0 invisible: el buscador (bqD) agrupa los botones usando los .gh, asi que no se debe quitar.
 =====================================================================
@@ -2131,7 +2132,8 @@ let ordMode=(()=>{try{const m=localStorage.getItem("mp-ord");return["mis","pop"]
 const gof=x=>C[x].gp??(C[x].pre===""?1:0),azc=(a,b)=>C[a].n.localeCompare(C[b].n,"es",{sensitivity:"base"}),hn=x=>{const t=ST[x];return t&&t.g&&Object.values(t.g).some(v=>v!==undefined&&v!=="")?1:0},pr=x=>{const i=POP.indexOf(x);return i<0?999:i},
 flat=()=>{const l=KS.slice();if(ordMode==="pop")return l.sort((a,b)=>pr(a)-pr(b)||azc(a,b));if(ordMode==="mis")return l.filter(hn).sort(azc);return l.sort(azc)},
 lbl=x=>gof(x)===2?"Curso Sellos UP":(C[x].pre===""?"Curso":"Nivelación en"),
-ORD=()=>flat(),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
+inG=g=>flat().filter(x=>gof(x)===g),GR=[["",0],["Cursos",1],["Cursos Sellos UP",2]],secs=()=>GR.map(([t,g])=>[t,inG(g)]).filter(s=>s[1].length),
+ORD=()=>secs().flatMap(s=>s[1]),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
 const isP=id=>{const g=S.g[id];return g===undefined||g===""||isNaN(+g)};
@@ -2185,15 +2187,16 @@ function popLoad(){if(popTried)return;popTried=true;try{fetch("/api/populares",{
 function reOrd(){renderOrd();renderPick();if(cur){renderClist(cur);renderFl()}const i=$("bqp");if(i&&i.value)bqU(i)}
 function renderClist(k){
  const L=ORD(),ci=L.indexOf(k);$("cbtn").style.setProperty("--s",SC[(ci<0?0:ci)%4]);
- $("clist").innerHTML=BQ(0)+`<div class="ordw">${ordChips()}</div>`+(L.length?"":`<div class="sno">Aún no tienes cursos con notas.</div>`)+`<div class="gh gh0" aria-hidden="true"></div>`+L.map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${lbl(x)}</small>${C[x].n}</button>`).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
+ $("clist").innerHTML=BQ(0)+`<div class="ordw">${ordChips()}</div>`+(L.length?"":`<div class="sno">Aún no tienes cursos con notas.</div>`)+secs().map(([t,xs])=>`<div class="gh${t?"":" gh0"}"${t?"":' aria-hidden="true"'}>${t}</div>`+xs.map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${lbl(x)}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
 }
 function renderFl(){
- const xs=ordMode==="pop"?flat():KS.slice().sort(azc),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`,L=FLIM,open=fexp.has(0);
- $("fl").innerHTML=`<b>Cursos</b>`+(xs.length<=L?xs.map(mk).join(""):xs.slice(0,L).map(mk).join("")+`<div class="fmore" id="fm0"${open?"":" hidden"}>${xs.slice(L).map(mk).join("")}</div><button type="button" class="vm" data-vm="0" aria-expanded="${open}" aria-controls="fm0">${open?"Ver menos":`Ver ${xs.length-L} más`}</button>`)+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
+ const base=ordMode==="pop"?flat():KS.slice().sort(azc),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`,L=FLIM;
+ $("fl").innerHTML=GR.map(([t,g],j)=>{const xs=base.filter(x=>gof(x)===g),open=fexp.has(j);if(!xs.length)return"";
+  return (t?`<b${j?' class="sp2"':""}>${t}</b>`:"")+(xs.length<=L?xs.map(mk).join(""):xs.slice(0,L).map(mk).join("")+`<div class="fmore" id="fm${j}"${open?"":" hidden"}>${xs.slice(L).map(mk).join("")}</div><button type="button" class="vm" data-vm="${j}" aria-expanded="${open}" aria-controls="fm${j}">${open?"Ver menos":`Ver ${xs.length-L} más`}</button>`)}).join("")+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
 }
 function renderPick(){
  const L=ORD(),vacio=ordMode==="mis"&&!L.length;
- $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+(vacio?`<div class="ordempty"><p>Aún no tienes cursos con notas. Elige un curso e ingresa tus notas, y aparecerá aquí.</p><button type="button" data-ordm="az">Ver todos los cursos</button></div>`:`<section class="pg"><div class="pl">${L.map((x,i)=>`<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${lbl(x)}</small>${C[x].n}</button>`).join("")}</div></section>`);
+ $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+(vacio?`<div class="ordempty"><p>Aún no tienes cursos con notas. Elige un curso e ingresa tus notas, y aparecerá aquí.</p><button type="button" data-ordm="az">Ver todos los cursos</button></div>`:secs().map(([t,xs])=>`<section class="pg">${t?`<h2 class="gt">${t}<i>${xs.length}</i></h2>`:""}<div class="pl">${xs.map(x=>{const i=L.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${lbl(x)}</small>${C[x].n}</button>`}).join("")}</div></section>`).join(""));
 }
 function setOrd(m){
  if(m===ordMode||!ORDS[m])return;ordMode=m;try{localStorage.setItem("mp-ord",m)}catch(_){}
@@ -2315,7 +2318,7 @@ $("sim").addEventListener("click",e=>{const b=e.target.closest("button[data-use]
 /* Pie: "Ver más / Ver menos" en cada seccion de cursos */
 $("fl").addEventListener("click",e=>{const b=e.target.closest("button[data-vm]");if(!b)return;
  const j=+b.dataset.vm,m=$("fm"+j),open=m.hidden;m.hidden=!open;open?fexp.add(j):fexp.delete(j);
- b.setAttribute("aria-expanded",String(open));b.textContent=open?"Ver menos":`Ver ${m.children.length} más`;track("pie_ver_mas",{seccion:"Cursos",abierto:open})});
+ b.setAttribute("aria-expanded",String(open));b.textContent=open?"Ver menos":`Ver ${m.children.length} más`;track("pie_ver_mas",{seccion:GR[j][0]||"Nivelación",abierto:open})});
 
 const RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 function setNum(el,txt){
