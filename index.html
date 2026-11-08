@@ -237,6 +237,9 @@ el script de Vercel Insights, PostHog y la API propia /api/sugerencia (carpeta a
     Si mp-ord guardaba "tema" o "mis", se usa "az". Un grupo sin cursos no se muestra.
   - "Mis cursos" es una SECCION FIJA arriba (primer elemento de secs()): aparece solo si hay cursos con notas guardadas (hn()), en A-Z, y esos cursos NO se repiten en los grupos de abajo.
     Esta en Elige tu curso (se vuelve a armar cada vez que se entra, en showView) y en el desplegable de dentro del curso (se vuelve a armar al abrirlo). El pie no la lleva.
+  - Ronda 14: en Elige tu curso y en el desplegable los cursos Sellos UP van MEZCLADOS con los Cursos en un solo grupo "Cursos" (secs() ya no separa; mantienen su etiqueta pequena "Curso Sellos UP").
+    Las nivelaciones se muestran como "Niv. Informatica", "Niv. Lenguaje", "Niv. Matematicas" (funcion dn(), tambien usada para el orden A-Z) con etiqueta pequena "Curso Nivelacion". El titulo del curso ya elegido y los nombres para tracking NO cambian.
+    El PIE conserva sus grupos con FGR/fg(): "Cursos", "Cursos Sellos UP" y el nuevo "Cursos de nivelación" (las 3 nivelaciones salen de "Cursos" para no repetirse). Sus botones siguen diciendo "Nivelación en ...".
   - En el desplegable queda un encabezado .gh.gh0 invisible: el buscador (bqD) agrupa los botones usando los .gh, asi que no se debe quitar.
 =====================================================================
 -->
@@ -2129,10 +2132,10 @@ const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1
 /* MAS_USADOS: orden de respaldo de "Más usados" (claves de curso, del más elegido al menos). Se reemplaza solo con lo que devuelve /api/populares (PostHog). Vacío = cae a A-Z */
 const MAS_USADOS=[];let POP=MAS_USADOS;
 let ordMode=(()=>{try{const m=localStorage.getItem("mp-ord");return m==="pop"?m:"az"}catch(_){return"az"}})();
-const gof=x=>C[x].gp??(C[x].pre===""?1:0),azc=(a,b)=>C[a].n.localeCompare(C[b].n,"es",{sensitivity:"base"}),hn=x=>{const t=ST[x];return t&&t.g&&Object.values(t.g).some(v=>v!==undefined&&v!=="")?1:0},pr=x=>{const i=POP.indexOf(x);return i<0?999:i},
+const gof=x=>C[x].gp??(C[x].pre===""?1:0),dn=x=>C[x].pre==null?"Niv. "+C[x].n:C[x].n,azc=(a,b)=>dn(a).localeCompare(dn(b),"es",{sensitivity:"base"}),hn=x=>{const t=ST[x];return t&&t.g&&Object.values(t.g).some(v=>v!==undefined&&v!=="")?1:0},pr=x=>{const i=POP.indexOf(x);return i<0?999:i},
 flat=()=>{const l=KS.slice();if(ordMode==="pop")return l.sort((a,b)=>pr(a)-pr(b)||azc(a,b));return l.sort(azc)},
-lbl=x=>gof(x)===2?"Curso Sellos UP":(C[x].pre===""?"Curso":"Nivelación en"),
-gg=x=>gof(x)===2?2:1,inG=g=>flat().filter(x=>gg(x)===g),GR=[["Cursos",1],["Cursos Sellos UP",2]],secs=()=>{const m=KS.filter(hn).sort(azc),mm=new Set(m),o=GR.map(([t,g])=>[t,inG(g).filter(x=>!mm.has(x))]);return(m.length?[["Mis cursos",m]]:[]).concat(o).filter(s=>s[1].length)},
+lbl=x=>gof(x)===2?"Curso Sellos UP":(C[x].pre===""?"Curso":"Curso Nivelación"),
+FGR=[["Cursos",1],["Cursos Sellos UP",2],["Cursos de nivelación",3]],fg=x=>{const g=gof(x);return g===0?3:g},secs=()=>{const m=KS.filter(hn).sort(azc),mm=new Set(m),o=flat().filter(x=>!mm.has(x));return(m.length?[["Mis cursos",m]]:[]).concat(o.length?[["Cursos",o]]:[])},
 ORD=()=>secs().flatMap(s=>s[1]),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
@@ -2187,16 +2190,16 @@ function popLoad(){if(popTried)return;popTried=true;try{fetch("/api/populares",{
 function reOrd(){renderOrd();renderPick();if(cur){renderClist(cur);renderFl()}const i=$("bqp");if(i&&i.value)bqU(i)}
 function renderClist(k){
  const L=ORD(),ci=L.indexOf(k);$("cbtn").style.setProperty("--s",SC[(ci<0?0:ci)%4]);
- $("clist").innerHTML=BQ(0)+`<div class="ordw">${ordChips()}</div>`+secs().map(([t,xs])=>`<div class="gh${t?"":" gh0"}"${t?"":' aria-hidden="true"'}>${t}</div>`+xs.map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${lbl(x)}</small>${C[x].n}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
+ $("clist").innerHTML=BQ(0)+`<div class="ordw">${ordChips()}</div>`+secs().map(([t,xs])=>`<div class="gh${t?"":" gh0"}"${t?"":' aria-hidden="true"'}>${t}</div>`+xs.map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${lbl(x)}</small>${dn(x)}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
 }
 function renderFl(){
  const base=ordMode==="pop"?flat():KS.slice().sort(azc),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`,L=FLIM;
- $("fl").innerHTML=GR.map(([t,g],j)=>{const xs=base.filter(x=>gg(x)===g),open=fexp.has(j);if(!xs.length)return"";
+ $("fl").innerHTML=FGR.map(([t,g],j)=>{const xs=base.filter(x=>fg(x)===g),open=fexp.has(j);if(!xs.length)return"";
   return (t?`<b${j?' class="sp2"':""}>${t}</b>`:"")+(xs.length<=L?xs.map(mk).join(""):xs.slice(0,L).map(mk).join("")+`<div class="fmore" id="fm${j}"${open?"":" hidden"}>${xs.slice(L).map(mk).join("")}</div><button type="button" class="vm" data-vm="${j}" aria-expanded="${open}" aria-controls="fm${j}">${open?"Ver menos":`Ver ${xs.length-L} más`}</button>`)}).join("")+(FI_ACTIVO?`<b class="sp2">Factor de inscripción</b><button type="button" data-fi="1">Calcular mi FI</button>`:"");
 }
 function renderPick(){
  const L=ORD();
- $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+(secs().map(([t,xs])=>`<section class="pg">${t?`<h2 class="gt">${t}<i>${xs.length}</i></h2>`:""}<div class="pl">${xs.map(x=>{const i=L.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${lbl(x)}</small>${C[x].n}</button>`}).join("")}</div></section>`).join(""));
+ $("plist").innerHTML=(FI_ACTIVO?`<section class="pg"><h2 class="gt">Factor de inscripción<i>1</i></h2><div class="pl"><button type="button" class="rv" style="--i:2;--s:#00F03C" data-fi="1"><small>Herramienta</small>Calcular mi FI</button></div></section>`:"")+(secs().map(([t,xs])=>`<section class="pg">${t?`<h2 class="gt">${t}<i>${xs.length}</i></h2>`:""}<div class="pl">${xs.map(x=>{const i=L.indexOf(x);return `<button type="button" class="rv" style="--i:${i+3};--s:${SC[i%4]}" data-c="${x}" data-p="1"><small>${lbl(x)}</small>${dn(x)}</button>`}).join("")}</div></section>`).join(""));
 }
 function setOrd(m){
  if(m===ordMode||!ORDS[m])return;ordMode=m;try{localStorage.setItem("mp-ord",m)}catch(_){}
@@ -2318,7 +2321,7 @@ $("sim").addEventListener("click",e=>{const b=e.target.closest("button[data-use]
 /* Pie: "Ver más / Ver menos" en cada seccion de cursos */
 $("fl").addEventListener("click",e=>{const b=e.target.closest("button[data-vm]");if(!b)return;
  const j=+b.dataset.vm,m=$("fm"+j),open=m.hidden;m.hidden=!open;open?fexp.add(j):fexp.delete(j);
- b.setAttribute("aria-expanded",String(open));b.textContent=open?"Ver menos":`Ver ${m.children.length} más`;track("pie_ver_mas",{seccion:GR[j][0]||"Nivelación",abierto:open})});
+ b.setAttribute("aria-expanded",String(open));b.textContent=open?"Ver menos":`Ver ${m.children.length} más`;track("pie_ver_mas",{seccion:FGR[j][0],abierto:open})});
 
 const RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 function setNum(el,txt){
@@ -3318,4 +3321,3 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
 <script>document.addEventListener("input",function(e){var t=e.target;if(t&&t.matches&&t.matches('#sim input[type=range]')){var mx=parseFloat(t.max)||20;t.style.setProperty("--p",(parseFloat(t.value)/mx*100)+"%")}});</script>
 </body>
 </html>
-
