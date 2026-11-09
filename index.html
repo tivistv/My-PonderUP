@@ -501,6 +501,7 @@ input.g:placeholder-shown+.sf{display:none}
 .pgs .pl{margin-top:14px}
 .gh{padding:12px 14px 6px;font:800 .62rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--green);border-top:1px solid rgba(255,255,255,.12)}
 .gh:first-child{border-top:0}
+#clist .ordw+.gh{border-top:0}
 .gh.gh0{padding:0;height:0;font-size:0;line-height:0;overflow:hidden}
 .pg .pl:first-child{margin-top:0}
 #clist{max-height:min(64vh,520px);overflow-y:auto;overscroll-behavior:contain}
@@ -1896,7 +1897,7 @@ flat=()=>ordA(KS.slice()),
 lbl=x=>gof(x)===2?"Curso Sellos UP":(C[x].pre===""?"Curso":"Curso Nivelación"),
 FGR=[["Cursos",1],["Cursos Sellos UP",2],["Cursos de nivelación",3]],fg=x=>{const g=gof(x);return g===0?3:g},secs=()=>{const o=flat(),n=o.filter(x=>fg(x)===3),r=o.filter(x=>fg(x)!==3);return o.length?[["Cursos",n.concat(r)]]:[]},
 gsecs=()=>[FGR[2],FGR[0],FGR[1]].map(([t,g])=>[t,flat().filter(x=>fg(x)===g)]).filter(([t,xs])=>xs.length),
-ORD=()=>secs().flatMap(s=>s[1]),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
+ORD=()=>gsecs().flatMap(s=>s[1]),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
 const isP=id=>{const g=S.g[id];return g===undefined||g===""||isNaN(+g)};
@@ -1947,7 +1948,7 @@ function renderOrd(){const a=$("ordrow");if(a)a.innerHTML=ordBtn()}
 function reOrd(){renderOrd();renderPick();if(cur){renderClist(cur);renderFl()}const i=$("bqp");if(i&&i.value)bqU(i)}
 function renderClist(k){
  const L=ORD(),ci=L.indexOf(k);$("cbtn").style.setProperty("--s",SC[(ci<0?0:ci)%4]);
- $("clist").innerHTML=BQ(0)+`<div class="ordw">${ordChips()}</div>`+secs().map(([t,xs])=>`<div class="gh${t?"":" gh0"}"${t?"":' aria-hidden="true"'}>${t}</div>`+xs.map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${lbl(x)}</small>${dn(x)}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
+ $("clist").innerHTML=BQ(0)+`<div class="ordw">${ordChips()}</div>`+gsecs().map(([t,xs])=>`<div class="gh${t?"":" gh0"}"${t?"":' aria-hidden="true"'}>${t}</div>`+xs.map(x=>`<button type="button" data-c="${x}" class="${x===k?"on":""}"><small>${lbl(x)}</small>${dn(x)}</button>`).join("")).join("")+(FI_ACTIVO?`<div class="gh">Factor de inscripción</div><button type="button" data-fi="1"><small>Herramienta</small>Calcular mi FI</button>`:"")+`<div class="caddw"><button type="button" data-add="lista"><span aria-hidden="true">+</span> Agrega tu curso</button></div>`;
 }
 function renderFl(){
  const base=flat(),mk=x=>`<button type="button" data-c="${x}" data-f="1">${C[x].pre??"Nivelación en "}${C[x].n}</button>`,L=FLIM;
