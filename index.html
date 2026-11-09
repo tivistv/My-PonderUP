@@ -1894,8 +1894,8 @@ let ordMode=(()=>{try{const m=localStorage.getItem("mp-ord");return m==="za"?m:"
 const gof=x=>C[x].gp??(C[x].pre===""?1:0),dn=x=>C[x].pre==null?"Niv. "+C[x].n:C[x].n,azc=(a,b)=>dn(a).localeCompare(dn(b),"es",{sensitivity:"base"}),hn=x=>{const t=ST[x];return t&&t.g&&Object.values(t.g).some(v=>v!==undefined&&v!=="")?1:0},ordA=l=>{l.sort(azc);if(ordMode==="za")l.reverse();return l},
 flat=()=>ordA(KS.slice()),
 lbl=x=>gof(x)===2?"Curso Sellos UP":(C[x].pre===""?"Curso":"Curso Nivelación"),
-FGR=[["Cursos",1],["Cursos Sellos UP",2],["Cursos de nivelación",3]],fg=x=>{const g=gof(x);return g===0?3:g},secs=()=>{const m=ordA(KS.filter(hn)),mm=new Set(m),o=flat().filter(x=>!mm.has(x));return(m.length?[["Mis cursos",m]]:[]).concat(o.length?[["Cursos",o]]:[])},
-gsecs=()=>FGR.map(([t,g])=>[t,flat().filter(x=>fg(x)===g)]).filter(([t,xs])=>xs.length),
+FGR=[["Cursos",1],["Cursos Sellos UP",2],["Cursos de nivelación",3]],fg=x=>{const g=gof(x);return g===0?3:g},secs=()=>{const o=flat(),n=o.filter(x=>fg(x)===3),r=o.filter(x=>fg(x)!==3);return o.length?[["Cursos",n.concat(r)]]:[]},
+gsecs=()=>[FGR[2],FGR[0],FGR[1]].map(([t,g])=>[t,flat().filter(x=>fg(x)===g)]).filter(([t,xs])=>xs.length),
 ORD=()=>secs().flatMap(s=>s[1]),cname=k=>(C[k].pre??"Nivelación en ")+C[k].n;
 const walk=(n,f,d=0)=>(n.ch||[]).forEach(c=>{f(c,d);walk(c,f,d+1)});
 const leaves=(n,a=[])=>((n.ch||[]).forEach(c=>c.ch?leaves(c,a):a.push(c)),a);
