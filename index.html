@@ -2255,7 +2255,7 @@ function update(){
    for(let x=-D/2;x<=20+D/2+1e-9;x+=.5){
     const o={};P.forEach((l,i)=>o[l.id]=sn(Math.max(0,Math.min(20,x+D*(.5-i/(n-1)))),l));
     if(okc(o)){const k=P.map(l=>o[l.id]).join(",");if(!seen.has(k)){seen.add(k);rows.push(mk(o))}break}}}
-  cb=okk?"":(ol.k==="no"||!rows.length)?`<p class="msg bad">Ya no se llega a ${S.pm}, ni sacando la nota máxima en lo que falta.</p>`:`<h2>Combinaciones posibles para aprobar con ${S.pm}</h2><div class="sc"><table>${hdr}${rows.join("")}</table></div>`;
+  cb=okk?"":(ol.k==="no"||!rows.length)?"":`<h2>Combinaciones posibles para aprobar con ${S.pm}</h2><div class="sc"><table>${hdr}${rows.join("")}</table></div>`;
  }
  $("cb").innerHTML=cb;
  simR();
