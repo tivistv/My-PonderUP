@@ -104,6 +104,13 @@ h2{font:800 1.2rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-tr
 .bn{display:flex;align-items:center;gap:14px;min-width:0}
 .pct{font:900 2rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;color:var(--ink)}
 .bn b{font-weight:800;text-transform:uppercase;font-size:.88rem;letter-spacing:.02em;color:var(--ink)}
+/* Arreglo: el título de la evaluación ya no se sobrepone al campo "Por rendir" (el título se parte en líneas y el campo conserva su ancho) */
+.bh .bn{flex:1 1 0;min-width:0}
+.bh .bn .pct{flex:none}
+.bn b{min-width:0;overflow-wrap:anywhere;hyphens:auto}
+.bh>.gi,.bh>.sv{flex:none}
+.row .nm{min-width:0;overflow-wrap:anywhere}
+@media (max-width:420px){.bh{gap:8px;padding:12px}.bn{gap:8px}.pct{font-size:1.5rem}.bn b{font-size:.8rem}.bh>.gi{width:104px}.bh>.sv{max-width:90px}}
 .bb{padding:0 16px 8px}
 .row{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
 .row.grp,.row.bd{font-weight:700}
@@ -1888,9 +1895,26 @@ ant:{n:"Antropología",pre:"",gp:2,rf:1,i:"El Aprendizaje Continuo pesa 30% (eva
  {id:"ac",n:"Aprendizaje Continuo",s:"Aprend. Continuo",w:30,r:1},
  {id:"pa",n:"Examen Parcial (Ensayo)",s:"Parcial",w:20,r:1},
  {id:"ee",n:"Actividades de Exploración Etnográfica",s:"Etnografía",w:30,r:1},
- {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}}
+ {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}},
+psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"La Nota de Trabajos (40%) se forma con la Nota de Prácticas (60% de esa nota) y la Nota del Trabajo Grupal (40%). El Examen Parcial pesa 25% y el Examen Final 35%. La Nota de Prácticas suma PC1 y PC2 (se califican sobre 8 puntos y valen 8 puntos cada una), las Prácticas Grupales (PG = PD1 + A1 + A2 + PD2 + A3 + A4, sobre 20 y con peso de 10%) y los Controles de Lectura (se suman y se cortan en 20, con peso de 10%). Las PD se califican sobre 4 y los avances (A1 a A4) sobre 3. La Nota del Trabajo Grupal es (TG1 + ME1 + TG2 + ME2) x factor de pares: TG1 se califica sobre 8 y TG2 sobre 12. Debajo de las notas de trabajos elige la suma de tus modificadores de exposición (ME1 + ME2) y tu evaluación de pares; si faltas sin justificar a una exposición, la nota grupal es 0. Al inicio el modificador está en Suficiente (0) y la evaluación de pares en 1.00. Se asume que la nota de trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube). El sílabo no indica un descuento fijo por ortografía y redacción (hasta 10%): ingresa tus notas ya con ese descuento.",root:{ch:[
+ {id:"nt",n:"Nota de Trabajos",s:"Trabajos",w:40,r:1,pj:1,ch:[
+  {id:"np",n:"Nota de Prácticas",s:"Prácticas",w:60,ch:[
+   {id:"pc1",n:"PC1",mx:8,w:40},
+   {id:"pc2",n:"PC2",mx:8,w:40},
+   {id:"pg",n:"Prácticas Grupales (PG)",s:"PG",w:10,ch:[
+    {id:"pd1",n:"PD1",mx:4,w:20,d:""},
+    {id:"a1",n:"Avance 1",s:"A1",mx:3,w:15,d:""},
+    {id:"a2",n:"Avance 2",s:"A2",mx:3,w:15,d:""},
+    {id:"pd2",n:"PD2",mx:4,w:20,d:""},
+    {id:"a3",n:"Avance 3",s:"A3",mx:3,w:15,d:""},
+    {id:"a4",n:"Avance 4",s:"A4",mx:3,w:15,d:""}]},
+   {id:"cl",n:"Controles de Lectura",s:"CL",w:10,b:1}]},
+  {id:"ntg",n:"Nota del Trabajo Grupal",s:"Trabajo Grupal",w:40,np:1,ch:[
+   {id:"tg1",n:"TG1",mx:8,w:40},
+   {id:"tg2",n:"TG2",mx:12,w:60}]}]},
+ {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
 let rtLock=false,rtBoot=false;
 const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
@@ -1920,9 +1944,9 @@ const inp=c=>{const v=S.g[c.id],f=v!==undefined&&v!=="",bd=f&&(+v>(c.mx||20)||+v
 const dv=c=>c.d===""?"":fmt(c.a)+"%";
 const absW=(n,p)=>(n.ch||[]).forEach(c=>{c.a=p*(+c.w||0)/100;absW(c,c.a)});
 /* Controles del Proyecto Integrador (solo cursos con fp): modificador de exposicion, evaluacion de pares y falta a la exposicion. Se guardan en S.mo, S.pr y S.ns. */
-const pjCtl=()=>{const mo=[[1,"Sobresaliente (+1)"],[0,"Suficiente (0)"]].concat([1,2,3,4,5,6,7,8,9,10].map(i=>[-i,"Insuficiente (-"+i+")"])),
- pr=[[1.05,"Sobresaliente sobre el promedio (1.05)"],[1,"En el promedio (1.00)"],[.9,"Por debajo del promedio (0.90)"],[.8,"Muy por debajo del promedio (0.80)"]];
- return `<div class="pjx"><div class="pjt">Ajustes del proyecto</div><label class="pjs"><span>Modificador de exposición</span><select data-px="mo" aria-label="Modificador de exposición">${mo.map(([v,t])=>`<option value="${v}"${S.mo===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="pjs"><span>Evaluación de pares</span><select data-px="pr" aria-label="Evaluación de pares">${pr.map(([v,t])=>`<option value="${v}"${S.pr===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="ck"><input type="checkbox" data-px="ns"${S.ns?" checked":""}> No fui a la exposición (sin justificar): el proyecto cuenta 0</label></div>`};
+const pjCtl=(tg)=>{const mo=(tg?[[2,"Sobresaliente en ambas (+2)"],[1,"Una sobresaliente (+1)"]]:[[1,"Sobresaliente (+1)"]]).concat([[0,"Suficiente (0)"]],(tg?[1,2,3,4,5,6,7,8,9,10,11,12]:[1,2,3,4,5,6,7,8,9,10]).map(i=>[-i,"Insuficiente (-"+i+")"])),
+ pr=tg?[[1.05,"Sobresaliente (1.05)"],[1,"Suficiente (1.00)"],[.9,"Regular (0.90)"],[.8,"Insuficiente (0.80)"]]:[[1.05,"Sobresaliente sobre el promedio (1.05)"],[1,"En el promedio (1.00)"],[.9,"Por debajo del promedio (0.90)"],[.8,"Muy por debajo del promedio (0.80)"]];
+ return `<div class="pjx"><div class="pjt">${tg?"Ajustes del trabajo grupal":"Ajustes del proyecto"}</div><label class="pjs"><span>${tg?"Modificadores de exposición (ME1 + ME2)":"Modificador de exposición"}</span><select data-px="mo" aria-label="Modificador de exposición">${mo.map(([v,t])=>`<option value="${v}"${S.mo===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="pjs"><span>Evaluación de pares</span><select data-px="pr" aria-label="Evaluación de pares">${pr.map(([v,t])=>`<option value="${v}"${S.pr===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="ck"><input type="checkbox" data-px="ns"${S.ns?" checked":""}> No fui a una exposición (sin justificar): ${tg?"el trabajo grupal":"el proyecto"} cuenta 0</label></div>`};
 const mkState=k=>{const root=clone(C[k].root);absW(root,100);return{root,g:{},rf:!!C[k].rf,pm:11,mo:0,pr:1,ns:0}};
 const row=(c,d)=>`<div class="row${c.ch?" grp":""}${c.b?" bd":""}" style="--d:${d}"><span class="nm">${c.n}${dv(c)?`<em>${dv(c)}</em>`:""}</span>${c.ch?`<span class="sv" id="sv-${c.id}">—</span>`:inp(c)}</div>`;
 
@@ -2005,7 +2029,7 @@ function setCourse(k){
  else $("zm").innerHTML="";
  let h="";
  G.forEach((g,i)=>{h+=`<div class="blk rv" data-b="${i}" style="--i:${i+4}"><div class="bh${g.ch?"":" lf"}"><div class="bn"><span class="pct">${fmt(g.w)}%</span><b>${g.n}${g.best?`<span class="bst">Cuentan los ${g.best} mejores de ${g.ch.length}</span>`:""}</b></div>${g.ch?`<span class="sv" id="sv-${g.id}">—</span>`:inp(g)}</div>`;
-  if(g.ch){h+=`<div class="bb">`;walk(g,(c,d)=>{h+=row(c,d)});if(g.fp)h+=pjCtl();h+=`</div>`}
+  if(g.ch){h+=`<div class="bb">`;walk(g,(c,d)=>{h+=row(c,d)});if(g.fp||g.pj)h+=pjCtl(!!g.pj);h+=`</div>`}
   h+=`</div>`});
  $("tree").innerHTML=h;
  {const L=document.querySelectorAll("#tree input.g");if(L.length)L[L.length-1].setAttribute("enterkeyhint","done")}
