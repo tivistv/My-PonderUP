@@ -922,12 +922,14 @@ p.sno{max-width:760px;margin:16px 0 0;padding:16px 0}
 #simt[aria-expanded="true"] .smc{transform:rotate(-135deg);margin-top:4px}
 #simb{padding:0 16px 16px}
 .simi{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;font-size:.85rem;color:var(--mut)}
-.srow{padding:10px 0;border-top:1px solid var(--line)}
-.srow>span{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;font-weight:700;color:var(--ink)}
-.srow em{font-style:normal;font-size:.75rem;font-weight:600;color:var(--mut)}
-.sc2{display:flex;align-items:center;gap:12px}
-.sc2 input[type=range]{flex:1;min-width:0;height:36px;margin:0;accent-color:var(--green)}
-.sc2 output{min-width:3.6ch;text-align:right;font-weight:900;font-size:1.25rem;font-variant-numeric:tabular-nums;color:var(--ink)}
+.simrow{display:block;padding:12px 0 10px;border-top:1px solid var(--line);min-width:0}
+.simrow .sh{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;min-height:30px}
+.simrow .sn{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0;font-weight:700;line-height:1.25;color:var(--ink);overflow-wrap:anywhere}
+.simrow em{font-style:normal;font-size:.75rem;font-weight:600;color:var(--mut)}
+.simrow output{min-width:3.6ch;text-align:right;font-weight:900;font-size:1.25rem;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.sc2{display:grid;grid-template-columns:minmax(0,1fr) 64px;align-items:center;column-gap:14px;width:100%;margin-top:2px}
+.sc2 input[type=range]{width:100%;min-width:0;height:36px;margin:0;accent-color:var(--green)}
+.sc2 .btn.sm{width:64px;padding:11px 0;text-align:center}
 .simo{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;padding-top:14px;border-top:2px solid var(--ink)}
 .simk{display:block;margin-bottom:6px;font-weight:800;font-size:.78rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
 #simn{font:900 2.6rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;font-variant-numeric:tabular-nums}
@@ -1395,6 +1397,11 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 .sc2 input[type=range]::-moz-range-track{height:6px;border:0;border-radius:99px;background:var(--line)}
 .sc2 input[type=range]::-moz-range-progress{height:6px;border-radius:99px;background:var(--green)}
 .sc2 input[type=range]::-moz-range-thumb{width:21px;height:21px;border:0;border-radius:50%;background:var(--green);box-shadow:none}
+#sim{overflow:hidden;max-width:100%}
+#simb,#simr{min-width:0}
+.sc2 input[type=range]{max-width:100%}
+.simo{gap:12px}
+@media (max-width:380px){.sc2{grid-template-columns:minmax(0,1fr) 58px;column-gap:10px}.sc2 .btn.sm{width:58px}#simn{font-size:2.8rem}}
 /* Preguntas 03 y 04 más compactas en celular */
 @media (max-width:700px){
 .q3g,.q4g{gap:8px}
@@ -2065,7 +2072,7 @@ function simR(){
  $("simt").setAttribute("aria-expanded",String(simOpen));if(!simOpen){simShow(false);return}
  const ol=outlook(),sv=S.sim||(S.sim={}),def=ol.nec!==null?ol.nec:(ol.k==="no"?20:S.pm);
  $("simr").innerHTML=P.map(l=>{const mx=l.mx||20,v=sv[l.id]!==undefined?Math.min(mx,sv[l.id]):Math.min(mx,Math.ceil(def*mx/20*2-1e-6)/2);sv[l.id]=v;
-  return `<div class="srow"><span>${l.n}${dv(l)?`<em>${dv(l)}</em>`:""}</span><div class="sc2"><input type="range" min="0" max="${mx}" step="0.5" value="${v}" style="--p:${v/mx*100}%" data-sid="${l.id}" aria-label="Nota simulada de ${l.n}"><output>${fmt(v)}</output><button type="button" class="btn sm" data-use="${l.id}" title="Usar como nota real">Usar</button></div></div>`}).join("");
+  return `<div class="simrow"><div class="sh"><span class="sn">${l.n}${dv(l)?`<em>${dv(l)}</em>`:""}</span><output>${fmt(v)}</output></div><div class="sc2"><input type="range" min="0" max="${mx}" step="0.5" value="${v}" style="--p:${v/mx*100}%" data-sid="${l.id}" aria-label="Nota simulada de ${l.n}"><button type="button" class="btn sm" data-use="${l.id}" title="Usar como nota real">Usar</button></div></div>`}).join("");
  simU();simShow(true)}
 /* Abrir y cerrar "¿Y si saco...?" con una animacion suave de altura y opacidad */
 let simT=0;
@@ -2083,7 +2090,7 @@ function simU(){
  $("simn").textContent=S.rf?rnd(v):fmt(v);$("simn").className=ok?"gn":"rd";
   $("simv").innerHTML=`<span class="tag ${ok?"y":"n"}">${ok?"Aprobarías":"Desaprobarías"}</span>`}
 $("simt").addEventListener("click",()=>{simOpen=!simOpen;if(simOpen)anim("simulador_despliegue");if(simOpen&&!seenSim.has(cur)){seenSim.add(cur);track("simulador_abierto",{curso:cur,pendientes:pend().length})}simR()});
-$("sim").addEventListener("input",e=>{const t=e.target;if(!t.dataset||!t.dataset.sid)return;(S.sim||(S.sim={}))[t.dataset.sid]=+t.value;const o=t.parentNode.querySelector("output");if(o)o.textContent=fmt(+t.value);simU()});
+$("sim").addEventListener("input",e=>{const t=e.target;if(!t.dataset||!t.dataset.sid)return;(S.sim||(S.sim={}))[t.dataset.sid]=+t.value;const o=t.closest(".simrow").querySelector("output");if(o)o.textContent=fmt(+t.value);simU()});
 $("sim").addEventListener("click",e=>{const b=e.target.closest("button[data-use]");if(!b)return;
  const id=b.dataset.use,v=(S.sim||{})[id],inpt=[...document.querySelectorAll("#tree input.g")].find(x=>x.dataset.id===id);if(!inpt||v===undefined)return;
  inpt.value=String(v);inpt.dispatchEvent(new Event("input",{bubbles:true}));inpt.dispatchEvent(new Event("change",{bubbles:true}));
