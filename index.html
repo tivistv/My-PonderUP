@@ -1966,6 +1966,12 @@ cpol:{n:"Ciencia Política",pre:"",gp:2,rf:1,i:"El Examen Parcial (ensayo argume
  {id:"pr",n:"Proceso de Aprendizaje en el Aula",s:"Proceso en el Aula",w:30,r:1},
  {id:"ti",n:"Trabajo de Investigación",s:"Investigación",w:20,r:1},
  {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}},
+mcg:{n:"Métodos Cuantitativos para la Gestión en las Organizaciones",pre:"",rf:1,i:"Los Trabajos Prácticos pesan 35% y se forman con las Aplicaciones Individuales (10%, 3 aplicaciones que valen lo mismo), las Aplicaciones Grupales (15%, 3 aplicaciones que valen lo mismo) y la Participación en Clase (10%). El Examen Parcial pesa 30% y el Examen Final 35%. Según el reglamento, las notas de participación y las de cada aplicación (individual y grupal) no se redondean; el redondeo al entero (el .5 sube) se aplica solo a la nota final de Trabajos Prácticos y a la nota final del curso. El parcial y el final tampoco se redondean. No se indicó el peso de cada aplicación, por eso se asume que las 3 de cada grupo valen lo mismo.",root:{ch:[
+ {id:"tp",n:"Trabajos Prácticos",w:35,r:1,ch:[
+  {id:"ai",n:"Aplicaciones (Individual)",s:"Aplic. Individual",w:1000/35,ch:[{id:"ai1",n:"Aplicación 1",s:"Ind. 1",w:T},{id:"ai2",n:"Aplicación 2",s:"Ind. 2",w:T},{id:"ai3",n:"Aplicación 3",s:"Ind. 3",w:T}]},
+  {id:"ag",n:"Aplicaciones (Grupal)",s:"Aplic. Grupal",w:1500/35,ch:[{id:"ag1",n:"Aplicación 1",s:"Grup. 1",w:T},{id:"ag2",n:"Aplicación 2",s:"Grup. 2",w:T},{id:"ag3",n:"Aplicación 3",s:"Grup. 3",w:T}]},
+  {id:"pcl",n:"Participación en Clase",s:"Participación",w:1000/35}]},
+ {id:"pa",n:"Examen Parcial",w:30},{id:"fi",n:"Examen Final",w:35}]}},
 psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las notas se ingresan como enteros (máx. 20). La Nota de Trabajos (40%) = 60% Nota de Prácticas + 40% Nota del Trabajo Grupal. El Examen Parcial pesa 25% y el Examen Final 35%. Nota de Prácticas = PC1 + PC2 + 0.1 x PG + 0.1 x CL. Las PC se califican sobre 8; PG = PD1 + A1 + A2 + PD2 + A3 + A4 (PD sobre 4 y avances sobre 3, total 20); los Controles de Lectura se suman y se cortan en 20. Nota del Trabajo Grupal = (TG1 + ME1 + TG2 + ME2) x factor de pares, con máximo 20: TG1 sobre 8 y TG2 sobre 12. Debajo de las notas de trabajos elige la suma de tus modificadores de exposición (ME1 + ME2) y tu evaluación de pares; si faltas sin justificar a una exposición, la nota grupal es 0. Al inicio el modificador está en Suficiente (0) y la evaluación de pares en 1.00. Se redondean al entero (el .5 sube) la nota de trabajos, el parcial, el final y el promedio final. El descuento por ortografía y redacción (hasta 10%) no se calcula aquí: ingresa tus notas ya con ese descuento. La Evaluación de Rezagados (ER) no está incluida.",root:{ch:[
  {id:"nt",n:"Nota de Trabajos (NT)",s:"Trabajos",w:40,r:1,pj:1,ch:[
   {id:"np",n:"Nota de Prácticas (NP)",s:"Prácticas",w:60,ch:[
@@ -1984,7 +1990,7 @@ psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las nota
    {id:"tg2",n:"Trabajo Grupal 2 (TG2)",s:"TG2",mx:12,w:60}]}]},
  {id:"pa",n:"Examen Parcial (EP)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (EF)",s:"Final",w:35,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","mne","hdp","asi","mke","emi","cos","hcp","efo","mic1","mic2","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","cpol","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","mne","hdp","asi","mke","emi","cos","hcp","efo","mic1","mic2","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","cpol","mcg","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
 let rtLock=false,rtBoot=false;
 const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
