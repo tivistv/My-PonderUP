@@ -1961,6 +1961,11 @@ ant:{n:"Antropología",pre:"",gp:2,rf:1,i:"El Aprendizaje Continuo pesa 30% (eva
  {id:"pa",n:"Examen Parcial (Ensayo)",s:"Parcial",w:20,r:1},
  {id:"ee",n:"Actividades de Exploración Etnográfica",s:"Etnografía",w:30,r:1},
  {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}},
+cpol:{n:"Ciencia Política",pre:"",gp:2,rf:1,i:"El Examen Parcial (ensayo argumentativo) pesa 30%, el Proceso de Aprendizaje en el Aula 30%, el Trabajo de Investigación 20% y el Examen Final (oral) 20%. El Proceso de Aprendizaje en el Aula se ingresa como una sola nota. No se indicó cómo se redondea, por eso se asume que cada una de las evaluaciones y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"pa",n:"Examen Parcial (Ensayo Argumentativo)",s:"Parcial",w:30,r:1},
+ {id:"pr",n:"Proceso de Aprendizaje en el Aula",s:"Proceso en el Aula",w:30,r:1},
+ {id:"ti",n:"Trabajo de Investigación",s:"Investigación",w:20,r:1},
+ {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}},
 psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las notas se ingresan como enteros (máx. 20). La Nota de Trabajos (40%) = 60% Nota de Prácticas + 40% Nota del Trabajo Grupal. El Examen Parcial pesa 25% y el Examen Final 35%. Nota de Prácticas = PC1 + PC2 + 0.1 x PG + 0.1 x CL. Las PC se califican sobre 8; PG = PD1 + A1 + A2 + PD2 + A3 + A4 (PD sobre 4 y avances sobre 3, total 20); los Controles de Lectura se suman y se cortan en 20. Nota del Trabajo Grupal = (TG1 + ME1 + TG2 + ME2) x factor de pares, con máximo 20: TG1 sobre 8 y TG2 sobre 12. Debajo de las notas de trabajos elige la suma de tus modificadores de exposición (ME1 + ME2) y tu evaluación de pares; si faltas sin justificar a una exposición, la nota grupal es 0. Al inicio el modificador está en Suficiente (0) y la evaluación de pares en 1.00. Se redondean al entero (el .5 sube) la nota de trabajos, el parcial, el final y el promedio final. El descuento por ortografía y redacción (hasta 10%) no se calcula aquí: ingresa tus notas ya con ese descuento. La Evaluación de Rezagados (ER) no está incluida.",root:{ch:[
  {id:"nt",n:"Nota de Trabajos (NT)",s:"Trabajos",w:40,r:1,pj:1,ch:[
   {id:"np",n:"Nota de Prácticas (NP)",s:"Prácticas",w:60,ch:[
@@ -1979,7 +1984,7 @@ psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las nota
    {id:"tg2",n:"Trabajo Grupal 2 (TG2)",s:"TG2",mx:12,w:60}]}]},
  {id:"pa",n:"Examen Parcial (EP)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (EF)",s:"Final",w:35,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","mne","hdp","asi","mke","emi","cos","hcp","efo","mic1","mic2","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","mne","hdp","asi","mke","emi","cos","hcp","efo","mic1","mic2","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","cpol","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
 let rtLock=false,rtBoot=false;
 const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
