@@ -1930,6 +1930,11 @@ efo:{n:"Evaluación Financiera de las Organizaciones",pre:"",rf:1,i:"Los porcent
   {id:"ap",n:"Participación",s:"P",w:5,b:1}]},
  {id:"pa",n:"Examen Parcial",w:20,r:1},
  {id:"if",n:"Informe Final",w:40,r:1}]}},
+mic2:{n:"Microeconomía II",pre:"",rf:1,i:"Trabajos Calificados pesa 40% y se forma con 4 prácticas calificadas y 1 caso de estudio. No se indicó el peso de cada uno, por eso se asume que los 5 valen lo mismo (8% del curso cada uno). El Examen Parcial y el Examen Final pesan 30% cada uno. No se indicó cómo se redondea, por eso se asume que Trabajos Calificados, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Trabajos Calificados",w:40,r:1,ch:[
+  {id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:20},{id:"pc4",n:"PC4",w:20},
+  {id:"ce",n:"Caso de Estudio",s:"Caso",w:20}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
 eti:{n:"Ética",pre:"",gp:2,rf:1,i:"La Nota de Trabajo pesa 35% y se forma con los Trabajos de análisis grupal de casos (20% del curso) y la Asistencia y Participación (15% del curso). El Examen Parcial pesa 30% y el Examen Final 35%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:35,r:1,ch:[
   {id:"ac",n:"Trabajos de Análisis Grupal de Casos",s:"Casos",w:2000/35},
@@ -1968,7 +1973,7 @@ psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las nota
    {id:"tg2",n:"Trabajo Grupal 2 (TG2)",s:"TG2",mx:12,w:60}]}]},
  {id:"pa",n:"Examen Parcial (EP)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (EF)",s:"Final",w:35,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","asi","mke","emi","cos","hcp","efo","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","asi","mke","emi","cos","hcp","efo","mic2","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
 let rtLock=false,rtBoot=false;
 const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
