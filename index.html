@@ -1923,6 +1923,13 @@ hcp:{n:"Historia Crítica del Perú",pre:"",gp:2,rf:1,i:"Los porcentajes que ves
   {id:"ej",n:"Ejercicios Calificados",s:"Ejercicios",w:20},
   {id:"di",n:"Diálogos Interregionales",s:"Diálogos",w:40}]},
  {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:20,r:1}]}},
+efo:{n:"Evaluación Financiera de las Organizaciones",pre:"",rf:1,i:"Los porcentajes que ves en cada evaluación son sobre el total del curso. Prácticas Calificadas y Controles de Lectura pesa 40% y se forma con 5 prácticas calificadas (30%, 6% cada una), 4 controles de lectura (8%, 2% cada uno) y Participación (2%). El Examen Parcial pesa 20% y el Informe Final 40%. No se indicó cómo se redondea, por eso se asume que el bloque de prácticas y controles, el parcial, el informe final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Prácticas Calificadas y Controles de Lectura",s:"Prácticas y Controles",w:40,r:1,ch:[
+  {id:"pc",n:"Prácticas Calificadas",w:75,ch:[{id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:20},{id:"pc4",n:"PC4",w:20},{id:"pc5",n:"PC5",w:20}]},
+  {id:"cl",n:"Controles de Lectura",w:20,ch:[{id:"c1",n:"CL1",w:25},{id:"c2",n:"CL2",w:25},{id:"c3",n:"CL3",w:25},{id:"c4",n:"CL4",w:25}]},
+  {id:"ap",n:"Participación",s:"P",w:5,b:1}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},
+ {id:"if",n:"Informe Final",w:40,r:1}]}},
 eti:{n:"Ética",pre:"",gp:2,rf:1,i:"La Nota de Trabajo pesa 35% y se forma con los Trabajos de análisis grupal de casos (20% del curso) y la Asistencia y Participación (15% del curso). El Examen Parcial pesa 30% y el Examen Final 35%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:35,r:1,ch:[
   {id:"ac",n:"Trabajos de Análisis Grupal de Casos",s:"Casos",w:2000/35},
@@ -1961,7 +1968,7 @@ psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las nota
    {id:"tg2",n:"Trabajo Grupal 2 (TG2)",s:"TG2",mx:12,w:60}]}]},
  {id:"pa",n:"Examen Parcial (EP)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (EF)",s:"Final",w:35,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","asi","mke","emi","cos","hcp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","asi","mke","emi","cos","hcp","efo","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
 let rtLock=false,rtBoot=false;
 const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
@@ -3181,5 +3188,4 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
 <script>document.addEventListener("input",function(e){var t=e.target;if(t&&t.matches&&t.matches('#sim input[type=range]')){var mx=parseFloat(t.max)||20;t.style.setProperty("--p",(parseFloat(t.value)/mx*100)+"%")}});</script>
 </body>
 </html>
-
 
