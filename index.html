@@ -2006,9 +2006,17 @@ psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las nota
   {id:"ntg",n:"Nota del Trabajo Grupal (NTG)",s:"Trabajo Grupal",w:40,np:1,ch:[
    {id:"tg1",n:"Trabajo Grupal 1 (TG1)",s:"TG1",mx:8,w:40},
    {id:"tg2",n:"Trabajo Grupal 2 (TG2)",s:"TG2",mx:12,w:60}]}]},
- {id:"pa",n:"Examen Parcial (EP)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (EF)",s:"Final",w:35,r:1}]}}
+ {id:"pa",n:"Examen Parcial (EP)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (EF)",s:"Final",w:35,r:1}]}},
+epp:{n:"Evaluación Privada de Proyectos",pre:"",rf:1,i:"Prácticas y Trabajo Práctico pesa 44% y se forma con 4 prácticas calificadas (70% de ese bloque, que valen lo mismo) y el Trabajo Práctico. El Examen Parcial y el Examen Final pesan 28% cada uno. Los pesos indicados dentro del bloque suman 90% (70% + 20%), por eso se asume que el Trabajo Práctico vale 30% del bloque para completar el 100%. No se indicó cómo se redondea, por eso se asume que Prácticas y Trabajo Práctico, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Prácticas y Trabajo Práctico",s:"Prácticas y TP",w:44,r:1,ch:[
+  {id:"pc",n:"Prácticas Calificadas",s:"Prácticas",w:70,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+  {id:"tp",n:"Trabajo Práctico",s:"Trabajo Práctico",w:30}]},
+ {id:"pa",n:"Examen Parcial",w:28,r:1},{id:"fi",n:"Examen Final",w:28,r:1}]}},
+fc1:{n:"Finanzas Corporativas I",pre:"",rf:1,i:"Prácticas Calificadas y Participación en Clase pesa 40% y se forma con 3 prácticas calificadas y la Participación en Clase. El Examen Parcial y el Examen Final pesan 30% cada uno. No se indicó el peso de cada parte del bloque, por eso se asume que las 3 prácticas y la participación valen lo mismo (25% del bloque, 10% del curso cada una). Se asume que el bloque, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Prácticas Calificadas y Participación en Clase",s:"Prácticas y Participación",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pcl",n:"Participación en Clase",s:"Participación",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","mne","hdp","asi","mke","emi","cos","hcp","efo","mic1","mic2","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","cpol","mcg","tnd","siad","ffin","mat4","esap","len2","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","mne","hdp","asi","mke","emi","cos","hcp","efo","mic1","mic2","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","cpol","mcg","tnd","siad","ffin","epp","fc1","mat4","esap","len2","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
 let rtLock=false,rtBoot=false;
 const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
