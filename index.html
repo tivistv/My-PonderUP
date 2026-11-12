@@ -1915,6 +1915,14 @@ cos:{n:"Cosmología",pre:"",rf:1,i:"La nota final es 0.25 x EP + 0.35 x EF + 0.4
   {id:"paa",n:"Promedio de Actividades de Aula (PAA)",s:"PAA",mx:2,w:10},
   {id:"po",n:"Participación Oral (PO)",s:"PO",mx:2,w:10}]},
  {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
+hcp:{n:"Historia Crítica del Perú",pre:"",gp:2,rf:1,i:"Los porcentajes que ves en cada evaluación son sobre el total del curso. Asistencia y Participación pesa 10%. Actividades Calificadas pesa 50% y se forma con Control de Lecturas 1 (10%), Control de Lecturas 2 (10%), Ejercicios Calificados (10%) y Diálogos Interregionales (20%). El Examen Parcial y el Examen Final pesan 20% cada uno. No se indicó cómo se redondea, por eso se asume que el parcial, el final y el promedio final se redondean al entero (el .5 sube); lo demás no se redondea.",root:{ch:[
+ {id:"ap",n:"Asistencia y Participación",w:10},
+ {id:"ac",n:"Actividades Calificadas",w:50,ch:[
+  {id:"c1",n:"Control de Lecturas 1",s:"CL1",w:20},
+  {id:"c2",n:"Control de Lecturas 2",s:"CL2",w:20},
+  {id:"ej",n:"Ejercicios Calificados",s:"Ejercicios",w:20},
+  {id:"di",n:"Diálogos Interregionales",s:"Diálogos",w:40}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:20,r:1}]}},
 eti:{n:"Ética",pre:"",gp:2,rf:1,i:"La Nota de Trabajo pesa 35% y se forma con los Trabajos de análisis grupal de casos (20% del curso) y la Asistencia y Participación (15% del curso). El Examen Parcial pesa 30% y el Examen Final 35%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:35,r:1,ch:[
   {id:"ac",n:"Trabajos de Análisis Grupal de Casos",s:"Casos",w:2000/35},
@@ -1953,7 +1961,7 @@ psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las nota
    {id:"tg2",n:"Trabajo Grupal 2 (TG2)",s:"TG2",mx:12,w:60}]}]},
  {id:"pa",n:"Examen Parcial (EP)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (EF)",s:"Final",w:35,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","asi","mke","emi","cos","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","asi","mke","emi","cos","hcp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
 let rtLock=false,rtBoot=false;
 const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
@@ -3173,4 +3181,5 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
 <script>document.addEventListener("input",function(e){var t=e.target;if(t&&t.matches&&t.matches('#sim input[type=range]')){var mx=parseFloat(t.max)||20;t.style.setProperty("--p",(parseFloat(t.value)/mx*100)+"%")}});</script>
 </body>
 </html>
+
 
