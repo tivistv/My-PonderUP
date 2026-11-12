@@ -1907,6 +1907,14 @@ emi:{n:"Emprendimiento e Innovación",pre:"",rf:1,i:"Asistencia y Participación
   {id:"av",n:"Avances",s:"Avances",w:50},
   {id:"df",n:"Documento Final",s:"Documento",w:100/6},
   {id:"sf",n:"Sustentación Final",s:"Sustentación",w:100/3}]}]}},
+cos:{n:"Cosmología",pre:"",rf:1,i:"La nota final es 0.25 x EP + 0.35 x EF + 0.40 x NT. La Nota de Trabajos (40%) = 0.35 x PC1 + 0.35 x PC2 + PCS + PAA + PO, es decir: PC1 y PC2 pesan 35% cada una y el Promedio de Controles Semanales (PCS), el Promedio de Actividades de Aula (PAA) y la Participación Oral (PO) pesan 10% cada uno. Las PC se califican sobre 20; PCS, PAA y PO sobre 2 puntos. Para PCS y PAA ingresa el promedio ya calculado, es decir, el de tus controles o actividades sin contar la nota más baja (el sílabo la elimina). El Examen Parcial pesa 25% y el Examen Final 35%. Se asume que la Nota de Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube). El descuento por ortografía y redacción (hasta 10%) no se calcula aquí: ingresa tus notas ya con ese descuento. La Evaluación de Rezagados no está incluida: si la rendiste, ingresa la nota que reemplaza a la práctica o al parcial.",root:{ch:[
+ {id:"nt",n:"Nota de Trabajos",w:40,r:1,ch:[
+  {id:"pc1",n:"Práctica Calificada 1",s:"PC1",w:35},
+  {id:"pc2",n:"Práctica Calificada 2",s:"PC2",w:35},
+  {id:"pcs",n:"Promedio de Controles Semanales (PCS)",s:"PCS",mx:2,w:10},
+  {id:"paa",n:"Promedio de Actividades de Aula (PAA)",s:"PAA",mx:2,w:10},
+  {id:"po",n:"Participación Oral (PO)",s:"PO",mx:2,w:10}]},
+ {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
 eti:{n:"Ética",pre:"",gp:2,rf:1,i:"La Nota de Trabajo pesa 35% y se forma con los Trabajos de análisis grupal de casos (20% del curso) y la Asistencia y Participación (15% del curso). El Examen Parcial pesa 30% y el Examen Final 35%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:35,r:1,ch:[
   {id:"ac",n:"Trabajos de Análisis Grupal de Casos",s:"Casos",w:2000/35},
@@ -1945,7 +1953,7 @@ psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las nota
    {id:"tg2",n:"Trabajo Grupal 2 (TG2)",s:"TG2",mx:12,w:60}]}]},
  {id:"pa",n:"Examen Parcial (EP)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (EF)",s:"Final",w:35,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","asi","mke","emi","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","asi","mke","emi","cos","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
 let rtLock=false,rtBoot=false;
 const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
