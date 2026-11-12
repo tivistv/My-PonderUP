@@ -1885,6 +1885,14 @@ asi:{n:"Arquitectura del Sistema de Información",pre:"",rf:1,i:"La Nota de Trab
    {id:"e1",n:"Entrega 1",s:"E1",w:40,d:""},
    {id:"e2",n:"Entrega 2",s:"E2",w:60,d:""}]}]},
  {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
+mke:{n:"Marketing Estratégico",pre:"",rf:1,i:"Trabajos y Aportes pesa 50% y se arma con 5 notas que valen lo mismo (20% del bloque, 10% del curso cada una): Participación en clase (individual), Casos (grupal), Artículos, Avance del trabajo final (grupal) y Trabajo final (grupal). El Examen Parcial y el Examen Final (ambos individuales) pesan 25% cada uno. No se indicó cómo se redondea, por eso se asume que Trabajos y Aportes, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"ta",n:"Trabajos y Aportes",w:50,r:1,ch:[
+  {id:"pp",n:"Participación en Clase (individual)",s:"Participación",w:20},
+  {id:"ca",n:"Casos (grupal)",s:"Casos",w:20},
+  {id:"ar",n:"Artículos",s:"Artículos",w:20},
+  {id:"av",n:"Avance del Trabajo Final (grupal)",s:"Avance",w:20},
+  {id:"tf",n:"Trabajo Final (grupal)",s:"Trabajo Final",w:20}]},
+ {id:"pa",n:"Examen Parcial (individual)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (individual)",s:"Final",w:25,r:1}]}},
 eti:{n:"Ética",pre:"",gp:2,rf:1,i:"La Nota de Trabajo pesa 35% y se forma con los Trabajos de análisis grupal de casos (20% del curso) y la Asistencia y Participación (15% del curso). El Examen Parcial pesa 30% y el Examen Final 35%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:35,r:1,ch:[
   {id:"ac",n:"Trabajos de Análisis Grupal de Casos",s:"Casos",w:2000/35},
@@ -1923,7 +1931,7 @@ psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las nota
    {id:"tg2",n:"Trabajo Grupal 2 (TG2)",s:"TG2",mx:12,w:60}]}]},
  {id:"pa",n:"Examen Parcial (EP)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (EF)",s:"Final",w:35,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","asi","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","asi","mke","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
 let rtLock=false,rtBoot=false;
 const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
