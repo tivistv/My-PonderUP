@@ -1766,8 +1766,8 @@ cfi:{n:"Contabilidad Financiera Intermedia",pre:"",rf:1,i:"Trabajos pesa 40% y s
   {id:"cl",n:"Controles de Lectura",s:"CL",w:22.5,b:1},
   {id:"ap",n:"Participación en Clase",s:"P",w:7.5,b:1}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
-mat3:{n:"Matemáticas III",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio de 4 prácticas calificadas que valen lo mismo (10% del curso cada una). El examen parcial y el final pesan 30% cada uno. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
- {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+mat3:{n:"Matemáticas III",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio de 4 prácticas calificadas que valen lo mismo (10% del curso cada una). El examen parcial y el final pesan 30% cada uno. Si te corresponde el punto extra, marca la casilla: se suma 1 punto al promedio de prácticas (con tope de 20) antes de redondear. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:40,r:1,ax:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
 mac1:{n:"Macroeconomía I",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio de 4 prácticas calificadas que valen lo mismo (10% del curso cada una). El examen parcial y el final pesan 30% cada uno. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
@@ -1935,8 +1935,8 @@ mic2:{n:"Microeconomía II",pre:"",rf:1,i:"Trabajos Calificados pesa 40% y se fo
   {id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:20},{id:"pc4",n:"PC4",w:20},
   {id:"ce",n:"Caso de Estudio",s:"Caso",w:20}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
-mic1:{n:"Microeconomía I",pre:"",rf:1,i:"La Nota de Prácticas pesa 30% y es el promedio de 4 prácticas calificadas. No se indicó el peso de cada una, por eso se asume que valen lo mismo (7.5% del curso cada una). El Examen Parcial y el Examen Final pesan 35% cada uno. Según el reglamento, el redondeo se hace solamente en el promedio final del curso; las prácticas, el parcial y el final no se redondean. Debes rendir las 4 PCs: no hay práctica sustitutoria.",root:{ch:[
- {id:"pc",n:"Nota de Prácticas",s:"Prácticas",w:30,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+mic1:{n:"Microeconomía I",pre:"",rf:1,i:"La Nota de Prácticas pesa 30% y es el promedio de 4 prácticas calificadas. No se indicó el peso de cada una, por eso se asume que valen lo mismo (7.5% del curso cada una). El Examen Parcial y el Examen Final pesan 35% cada uno. El promedio de las prácticas y el promedio final del curso se redondean al entero (el .5 sube); el parcial y el final no se redondean. Debes rendir las 4 PCs: no hay práctica sustitutoria.",root:{ch:[
+ {id:"pc",n:"Nota de Prácticas",s:"Prácticas",w:30,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
  {id:"pa",n:"Examen Parcial",w:35},{id:"fi",n:"Examen Final",w:35}]}},
 eti:{n:"Ética",pre:"",gp:2,rf:1,i:"La Nota de Trabajo pesa 35% y se forma con los Trabajos de análisis grupal de casos (20% del curso) y la Asistencia y Participación (15% del curso). El Examen Parcial pesa 30% y el Examen Final 35%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:35,r:1,ch:[
@@ -2039,7 +2039,7 @@ const pend=()=>leaves(S.root).filter(l=>isP(l.id));
 const full=o=>{const v={};leaves(S.root).forEach(l=>{const m=l.mx||20;v[l.id]=isP(l.id)?(o[l.id]??0):Math.min(m,Math.max(0,+S.g[l.id]))*20/m});return v};
 /* Tabla de equivalencias del Factor Proyecto (nota vigesimal entera -> factor). Se usa con la propiedad fp de un grupo (ver Ronda 10). */
 const fpj=x=>{x=rnd(x);return x<1?.3:x<3?.5:x<6?.6:x<9?.7:x<12?.8:x<15?.9:x<18?1:1.05};
-const ev=(n,v)=>{let x;if(n.ch&&n.best){const a=n.ch.map(c=>ev(c,v)).sort((p,q)=>q-p).slice(0,n.best);x=a.reduce((s,y)=>s+y,0)/n.best}else x=n.ch?n.ch.reduce((s,c)=>s+ev(c,v)*(+c.w||0)/100,0):v[n.id];if(n.np)x=S.ns?0:Math.min(20,Math.max(0,(x+S.mo)*S.pr));if(n.fp)x*=fpj(ev(n.ch.find(c=>c.id===n.fp),v));return n.r?rnd(x):x};
+const ev=(n,v)=>{let x;if(n.ch&&n.best){const a=n.ch.map(c=>ev(c,v)).sort((p,q)=>q-p).slice(0,n.best);x=a.reduce((s,y)=>s+y,0)/n.best}else x=n.ch?n.ch.reduce((s,c)=>s+ev(c,v)*(+c.w||0)/100,0):v[n.id];if(n.np)x=S.ns?0:Math.min(20,Math.max(0,(x+S.mo)*S.pr));if(n.ax&&S.ax)x=Math.min(20,x+1);if(n.fp)x*=fpj(ev(n.ch.find(c=>c.id===n.fp),v));return n.r?rnd(x):x};
 const pass=a=>(S.rf?rnd(a):a)>=S.pm-1e-9;
 const inp=c=>{const v=S.g[c.id],f=v!==undefined&&v!=="",bd=f&&(+v>(c.mx||20)||+v<0);return `<label class="gi${f?" fl":""}${bd?" bad":""}"><input class="g" data-id="${c.id}" type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="6" placeholder="Por rendir" aria-label="Nota de ${c.n}" value="${v??""}"${f?` style="width:${String(v).length+.6}ch"`:""}><span class="sf">/${c.mx||20}</span></label>`};
 /* Modelo A: cada evaluación muestra su % sobre el total del curso (c.a se calcula en mkState). d:"" oculta el % (partes medidas en puntos). */
@@ -2049,7 +2049,9 @@ const absW=(n,p)=>(n.ch||[]).forEach(c=>{c.a=p*(+c.w||0)/100;absW(c,c.a)});
 const pjCtl=(tg)=>{const mo=(tg?[[2,"Sobresaliente en ambas (+2)"],[1,"Una sobresaliente (+1)"]]:[[1,"Sobresaliente (+1)"]]).concat([[0,"Suficiente (0)"]],(tg?[1,2,3,4,5,6,7,8,9,10,11,12]:[1,2,3,4,5,6,7,8,9,10]).map(i=>[-i,"Insuficiente (-"+i+")"])),
  pr=tg?[[1.05,"Sobresaliente (1.05)"],[1,"Suficiente (1.00)"],[.9,"Regular (0.90)"],[.8,"Insuficiente (0.80)"]]:[[1.05,"Sobresaliente sobre el promedio (1.05)"],[1,"En el promedio (1.00)"],[.9,"Por debajo del promedio (0.90)"],[.8,"Muy por debajo del promedio (0.80)"]];
  return `<div class="pjx"><div class="pjt">${tg?"Ajustes del trabajo grupal":"Ajustes del proyecto"}</div><label class="pjs"><span>${tg?"Modificadores de exposición (ME1 + ME2)":"Modificador de exposición"}</span><select data-px="mo" aria-label="Modificador de exposición">${mo.map(([v,t])=>`<option value="${v}"${S.mo===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="pjs"><span>Evaluación de pares</span><select data-px="pr" aria-label="Evaluación de pares">${pr.map(([v,t])=>`<option value="${v}"${S.pr===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="ck"><input type="checkbox" data-px="ns"${S.ns?" checked":""}> No fui a una exposición (sin justificar): ${tg?"el trabajo grupal":"el proyecto"} cuenta 0</label></div>`};
-const mkState=k=>{const root=clone(C[k].root);absW(root,100);return{root,g:{},rf:!!C[k].rf,pm:11,mo:0,pr:1,ns:0}};
+/* Punto extra (grupos con ax): +1 punto al promedio del grupo. Se guarda en S.ax. */
+const axCtl=()=>`<div class="pjx"><div class="pjt">Punto extra</div><label class="ck"><input type="checkbox" data-px="ax"${S.ax?" checked":""}> Me corresponde el punto extra en el promedio de prácticas (+1)</label></div>`;
+const mkState=k=>{const root=clone(C[k].root);absW(root,100);return{root,g:{},rf:!!C[k].rf,pm:11,mo:0,pr:1,ns:0,ax:0}};
 const row=(c,d)=>`<div class="row${c.ch?" grp":""}${c.b?" bd":""}" style="--d:${d}"><span class="nm">${c.n}${dv(c)?`<em>${dv(c)}</em>`:""}</span>${c.ch?`<span class="sv" id="sv-${c.id}">—</span>`:inp(c)}</div>`;
 
 const sl=(g,flat)=>{const o=[];const rec=(n,sh,k)=>{if(!n.ch||(n.z&&!flat)){o.push({id:n.id,n:n.n,s:n.s||n.n,w:sh,k,L:n.ch?leaves(n):null});return}const t=n.ch.reduce((a,x)=>a+(+x.w||0),0)||100;n.ch.forEach(x=>rec(x,sh*(+x.w||0)/t,k))};
@@ -2131,7 +2133,7 @@ function setCourse(k){
  else $("zm").innerHTML="";
  let h="";
  G.forEach((g,i)=>{h+=`<div class="blk rv" data-b="${i}" style="--i:${i+4}"><div class="bh${g.ch?"":" lf"}"><div class="bn"><span class="pct">${fmt(g.w)}%</span><b>${g.n}${g.best?`<span class="bst">Cuentan los ${g.best} mejores de ${g.ch.length}</span>`:""}</b></div>${g.ch?`<span class="sv" id="sv-${g.id}">—</span>`:inp(g)}</div>`;
-  if(g.ch){h+=`<div class="bb">`;walk(g,(c,d)=>{h+=row(c,d)});if(g.fp||g.pj)h+=pjCtl(!!g.pj);h+=`</div>`}
+  if(g.ch){h+=`<div class="bb">`;walk(g,(c,d)=>{h+=row(c,d)});if(g.fp||g.pj)h+=pjCtl(!!g.pj);if(g.ax)h+=axCtl();h+=`</div>`}
   h+=`</div>`});
  $("tree").innerHTML=h;
  {const L=document.querySelectorAll("#tree input.g");if(L.length)L[L.length-1].setAttribute("enterkeyhint","done")}
@@ -2408,6 +2410,7 @@ const h=e=>{const t=e.target,id=t.dataset.id;
  else if(t.dataset.px==="mo")S.mo=+t.value;
  else if(t.dataset.px==="pr")S.pr=+t.value;
  else if(t.dataset.px==="ns")S.ns=t.checked?1:0;
+ else if(t.dataset.px==="ax")S.ax=t.checked?1:0;
  else if(t.id==="rf")S.rf=t.checked;
  else if(t.id==="pm"){let v=nd(t),over=false;if(v!==""&&+v>20){over=true;v=String(S.pm);t.value=v}S.pm=Math.max(0,Math.min(20,+v||0));if(over){const ml=t.closest(".minl");if(ml){ml.classList.add("bad");if(typeof badFx==="function")badFx(ml,t,20);clearTimeout(ml._bd);ml._bd=setTimeout(()=>ml.classList.remove("bad"),1100)}}}
  else return;
@@ -2537,6 +2540,7 @@ function save(){try{const o={};
   if(t.pm!==11)e.pm=t.pm;
   if(t.rf!==!!C[k].rf)e.rf=t.rf;
   if(t.mo||t.pr!==1||t.ns)e.px={mo:t.mo,pr:t.pr,ns:t.ns?1:0};
+   if(t.ax)e.ax=1;
   const d=defR(k),r={};walk(t.root,c=>{if((c.r?1:0)!==d[c.id])r[c.id]=c.r?1:0});
   if(Object.keys(r).length)e.r=r;
   if(Object.keys(e).length)o[k]=e}
@@ -2548,6 +2552,7 @@ function load(){try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(!j|
   if(typeof e.pm==="number"&&e.pm>=0&&e.pm<=20)t.pm=e.pm;
   if(typeof e.rf==="boolean")t.rf=e.rf;
   if(e.px){const m=+e.px.mo,q=+e.px.pr;if(Number.isInteger(m)&&m>=-10&&m<=1)t.mo=m;if([1.05,1,.9,.8].includes(q))t.pr=q;t.ns=e.px.ns?1:0}
+   if(e.ax)t.ax=1;
   if(e.r)for(const id in e.r)if(nd[id])nd[id].r=e.r[id]?1:0}
  const wg=k=>ST[k]&&Object.keys(ST[k].g).length>0;
  return (C[j.cur]&&wg(j.cur))?j.cur:(KS.find(wg)||null)}catch(_){return null}}
