@@ -104,6 +104,13 @@ h2{font:800 1.2rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;text-tr
 .bn{display:flex;align-items:center;gap:14px;min-width:0}
 .pct{font:900 2rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;color:var(--ink)}
 .bn b{font-weight:800;text-transform:uppercase;font-size:.88rem;letter-spacing:.02em;color:var(--ink)}
+/* Arreglo: el título de la evaluación ya no se sobrepone al campo "Por rendir" (el título se parte en líneas y el campo conserva su ancho) */
+.bh .bn{flex:1 1 0;min-width:0}
+.bh .bn .pct{flex:none}
+.bn b{min-width:0;overflow-wrap:anywhere;hyphens:auto}
+.bh>.gi,.bh>.sv{flex:none}
+.row .nm{min-width:0;overflow-wrap:anywhere}
+@media (max-width:420px){.bh{gap:8px;padding:12px}.bn{gap:8px}.pct{font-size:1.5rem}.bn b{font-size:.8rem}.bh>.gi{width:104px}.bh>.sv{max-width:90px}}
 .bb{padding:0 16px 8px}
 .row{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
 .row.grp,.row.bd{font-weight:700}
@@ -1458,6 +1465,28 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 .pjs select{width:100%;min-height:44px;font:600 .92rem Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:8px 10px;border:1px solid var(--lines);border-radius:2px;background:var(--fld);color:var(--ink);cursor:pointer}
 .pjs select:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(0,240,60,.45)}
 @media(max-width:560px){.pjs{grid-template-columns:1fr;gap:4px}}
+
+/* Ayuda "¿Varias notas?" */
+.mvbs{display:inline-flex;flex-wrap:wrap;gap:6px;margin-left:8px;vertical-align:middle}
+.bh .bn b .mvbs{display:flex;margin:6px 0 0}
+.mvb{display:inline-block;padding:3px 10px;font:700 .68rem/1.3 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:0;text-transform:none;color:var(--ink);background:transparent;border:1px solid var(--lines);border-radius:999px;cursor:pointer;white-space:nowrap}
+.mvb[data-act=open][aria-expanded=true]{background:var(--ink);color:var(--card)}
+.mvb[data-act=tog]::after{content:" ▾"}
+.mvb[data-act=tog][aria-expanded=true]::after{content:" ▴"}
+@media(hover:hover){.mvb:hover{border-color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent)}.mvb[data-act=open][aria-expanded=true]:hover{background:var(--ink)}}
+.mvp{margin:8px 0 12px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--blue);color:var(--ink);animation:drop .2s both}
+.blk>.mvp{margin:0 16px 12px}
+.mvt{font:800 .72rem/1.2 Montserrat,"Montserrat Fallback",Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase}
+.mvh{margin:6px 0 0;font-size:.82rem;font-weight:500;color:var(--mut)}
+.mvc{display:flex;align-items:center;gap:10px;margin:10px 0 0;font-weight:700;font-size:.85rem}
+.mvq{font:700 .95rem Montserrat,"Montserrat Fallback",Arial,sans-serif;padding:6px 8px;border:1px solid var(--lines);border-radius:2px;background:var(--fld);color:var(--ink)}
+.mvl{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 8px}
+.mvl .mvn{width:78px;padding:8px 6px;text-align:center;font:600 1rem Montserrat,"Montserrat Fallback",Arial,sans-serif;border:1px solid var(--lines);border-radius:2px;background:var(--fld);color:var(--ink)}
+.mvr{font-weight:800;font-size:.9rem;min-height:1.3em}
+.mva{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mva button{min-height:38px;padding:6px 12px;font:800 .75rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;border-radius:2px;cursor:pointer;background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.mva .mvgo{background:var(--green);border-color:var(--green);color:var(--navy)}
+.mva .mvgo:disabled{opacity:.45;cursor:default}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -1759,8 +1788,8 @@ cfi:{n:"Contabilidad Financiera Intermedia",pre:"",rf:1,i:"Trabajos pesa 40% y s
   {id:"cl",n:"Controles de Lectura",s:"CL",w:22.5,b:1},
   {id:"ap",n:"Participación en Clase",s:"P",w:7.5,b:1}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
-mat3:{n:"Matemáticas III",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio de 4 prácticas calificadas que valen lo mismo (10% del curso cada una). El examen parcial y el final pesan 30% cada uno. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
- {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+mat3:{n:"Matemáticas III",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio de 4 prácticas calificadas que valen lo mismo (10% del curso cada una). El examen parcial y el final pesan 30% cada uno. Si te corresponde el punto extra, marca la casilla: se suma 1 punto al promedio de prácticas (con tope de 20) antes de redondear. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:40,r:1,ax:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
 mac1:{n:"Macroeconomía I",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio de 4 prácticas calificadas que valen lo mismo (10% del curso cada una). El examen parcial y el final pesan 30% cada uno. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
@@ -1869,6 +1898,68 @@ hdp:{n:"Herramientas de Programación",pre:"",rf:1,i:"La Nota por Trabajos pesa 
    {id:"e2",n:"Entrega 2",s:"E2",w:60,d:""}]}]},
  {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}}
 ,
+asi:{n:"Arquitectura del Sistema de Información",pre:"",rf:1,i:"La Nota de Trabajo pesa 40%, el Examen Parcial 25% y el Examen Final 35%. La Nota de Trabajo reúne la PC1 (40%), la PC2 (40%) y Otras Actividades (20%: tareas, controles de lectura, participación, laboratorios y similares), y ese resultado se multiplica por el Factor Proyecto. El factor sale de la nota del Proyecto Integrador, que es (0.4 x Entrega 1 + 0.6 x Entrega 2 + Modificador de exposición) x Evaluación de pares, según la tabla: 0 = 0.30, 1-2 = 0.50, 3-5 = 0.60, 6-8 = 0.70, 9-11 = 0.80, 12-14 = 0.90, 15-17 = 1.00 y 18-20 = 1.05. Si faltas a la exposición sin justificar, la nota del proyecto es 0. Se asume que la nota del proyecto no pasa de 20 y que, para buscar el factor, se redondea al entero más cercano (el .5 sube), porque la tabla usa enteros. Al inicio el modificador está en Suficiente (0) y la evaluación de pares en 1.00: cámbialos debajo de las entregas. No hay puntos extras en prácticas ni exámenes; cualquier punto extra va en Otras Actividades. La Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube). La Evaluación de Rezagados no está incluida: si la rendiste, ingresa la nota que reemplaza a la práctica o al parcial.",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:40,r:1,fp:"pj",ch:[
+  {id:"p1",n:"Práctica Calificada 1",s:"PC1",w:40},
+  {id:"p2",n:"Práctica Calificada 2",s:"PC2",w:40},
+  {id:"oa",n:"Otras Actividades",s:"Otras",w:20},
+  {id:"pj",n:"Proyecto Integrador (factor)",s:"Proyecto",w:0,d:"",np:1,ch:[
+   {id:"e1",n:"Entrega 1",s:"E1",w:40,d:""},
+   {id:"e2",n:"Entrega 2",s:"E2",w:60,d:""}]}]},
+ {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
+mke:{n:"Marketing Estratégico",pre:"",rf:1,i:"Trabajos y Aportes pesa 50% y se arma con 5 notas que valen lo mismo (20% del bloque, 10% del curso cada una): Participación en clase (individual), Casos (grupal), Artículos, Avance del trabajo final (grupal) y Trabajo final (grupal). El Examen Parcial y el Examen Final (ambos individuales) pesan 25% cada uno. No se indicó cómo se redondea, por eso se asume que Trabajos y Aportes, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"ta",n:"Trabajos y Aportes",w:50,r:1,ch:[
+  {id:"pp",n:"Participación en Clase (individual)",s:"Participación",w:20},
+  {id:"ca",n:"Casos (grupal)",s:"Casos",w:20},
+  {id:"ar",n:"Artículos",s:"Artículos",w:20},
+  {id:"av",n:"Avance del Trabajo Final (grupal)",s:"Avance",w:20},
+  {id:"tf",n:"Trabajo Final (grupal)",s:"Trabajo Final",w:20}]},
+ {id:"pa",n:"Examen Parcial (individual)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (individual)",s:"Final",w:25,r:1}]}},
+emi:{n:"Emprendimiento e Innovación",pre:"",rf:1,i:"Asistencia y Participación pesa 20% (Trabajos en clase 50% y Asistencia 50% de ese bloque). Control de Lecturas pesa 30% y se forma con 4 controles que valen lo mismo (7.5% del curso cada uno). El Examen Parcial pesa 20%. El Trabajo Final pesa 30% y se forma con Avances (50%), Documento Final (16.67%) y Sustentación Final (33.33%). No se indicó cómo se redondea, por eso se asume que el parcial y el promedio final se redondean al entero (el .5 sube); lo demás no se redondea.",root:{ch:[
+ {id:"ap",n:"Asistencia y Participación",w:20,ch:[
+  {id:"tc",n:"Trabajos en Clase",s:"Trabajos",w:50},
+  {id:"as",n:"Asistencia",s:"Asistencia",w:50}]},
+ {id:"cl",n:"Control de Lecturas",w:30,ch:[
+  {id:"c1",n:"Control de Lectura N°1",s:"C1",w:25},
+  {id:"c2",n:"Control de Lectura N°2",s:"C2",w:25},
+  {id:"c3",n:"Control de Lectura N°3",s:"C3",w:25},
+  {id:"c4",n:"Control de Lectura N°4",s:"C4",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},
+ {id:"tf",n:"Trabajo Final",w:30,ch:[
+  {id:"av",n:"Avances",s:"Avances",w:50},
+  {id:"df",n:"Documento Final",s:"Documento",w:100/6},
+  {id:"sf",n:"Sustentación Final",s:"Sustentación",w:100/3}]}]}},
+cos:{n:"Cosmología",pre:"",rf:1,i:"La nota final es 0.25 x EP + 0.35 x EF + 0.40 x NT. La Nota de Trabajos (40%) = 0.35 x PC1 + 0.35 x PC2 + PCS + PAA + PO, es decir: PC1 y PC2 pesan 35% cada una y el Promedio de Controles Semanales (PCS), el Promedio de Actividades de Aula (PAA) y la Participación Oral (PO) pesan 10% cada uno. Las PC se califican sobre 20; PCS, PAA y PO sobre 2 puntos. Para PCS y PAA ingresa el promedio ya calculado, es decir, el de tus controles o actividades sin contar la nota más baja (el sílabo la elimina). El Examen Parcial pesa 25% y el Examen Final 35%. Se asume que la Nota de Trabajos, el parcial, el final y el promedio final se redondean al entero (el .5 sube). El descuento por ortografía y redacción (hasta 10%) no se calcula aquí: ingresa tus notas ya con ese descuento. La Evaluación de Rezagados no está incluida: si la rendiste, ingresa la nota que reemplaza a la práctica o al parcial.",root:{ch:[
+ {id:"nt",n:"Nota de Trabajos",w:40,r:1,ch:[
+  {id:"pc1",n:"Práctica Calificada 1",s:"PC1",w:35},
+  {id:"pc2",n:"Práctica Calificada 2",s:"PC2",w:35},
+  {id:"pcs",n:"Promedio de Controles Semanales (PCS)",s:"PCS",mx:2,w:10},
+  {id:"paa",n:"Promedio de Actividades de Aula (PAA)",s:"PAA",mx:2,w:10},
+  {id:"po",n:"Participación Oral (PO)",s:"PO",mx:2,w:10}]},
+ {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
+hcp:{n:"Historia Crítica del Perú",pre:"",gp:2,rf:1,i:"Los porcentajes que ves en cada evaluación son sobre el total del curso. Asistencia y Participación pesa 10%. Actividades Calificadas pesa 50% y se forma con Control de Lecturas 1 (10%), Control de Lecturas 2 (10%), Ejercicios Calificados (10%) y Diálogos Interregionales (20%). El Examen Parcial y el Examen Final pesan 20% cada uno. No se indicó cómo se redondea, por eso se asume que el parcial, el final y el promedio final se redondean al entero (el .5 sube); lo demás no se redondea.",root:{ch:[
+ {id:"ap",n:"Asistencia y Participación",w:10},
+ {id:"ac",n:"Actividades Calificadas",w:50,ch:[
+  {id:"c1",n:"Control de Lecturas 1",s:"CL1",w:20},
+  {id:"c2",n:"Control de Lecturas 2",s:"CL2",w:20},
+  {id:"ej",n:"Ejercicios Calificados",s:"Ejercicios",w:20},
+  {id:"di",n:"Diálogos Interregionales",s:"Diálogos",w:40}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:20,r:1}]}},
+efo:{n:"Evaluación Financiera de las Organizaciones",pre:"",rf:1,i:"Los porcentajes que ves en cada evaluación son sobre el total del curso. Prácticas Calificadas y Controles de Lectura pesa 40% y se forma con 5 prácticas calificadas (30%, 6% cada una), 4 controles de lectura (8%, 2% cada uno) y Participación (2%). El Examen Parcial pesa 20% y el Informe Final 40%. No se indicó cómo se redondea, por eso se asume que el bloque de prácticas y controles, el parcial, el informe final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Prácticas Calificadas y Controles de Lectura",s:"Prácticas y Controles",w:40,r:1,ch:[
+  {id:"pc",n:"Prácticas Calificadas",w:75,ch:[{id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:20},{id:"pc4",n:"PC4",w:20},{id:"pc5",n:"PC5",w:20}]},
+  {id:"cl",n:"Controles de Lectura",w:20,ch:[{id:"c1",n:"CL1",w:25},{id:"c2",n:"CL2",w:25},{id:"c3",n:"CL3",w:25},{id:"c4",n:"CL4",w:25}]},
+  {id:"ap",n:"Participación",s:"P",w:5,b:1}]},
+ {id:"pa",n:"Examen Parcial",w:20,r:1},
+ {id:"if",n:"Informe Final",w:40,r:1}]}},
+mic2:{n:"Microeconomía II",pre:"",rf:1,i:"Trabajos Calificados pesa 40% y se forma con 4 prácticas calificadas y 1 caso de estudio. No se indicó el peso de cada uno, por eso se asume que los 5 valen lo mismo (8% del curso cada uno). El Examen Parcial y el Examen Final pesan 30% cada uno. No se indicó cómo se redondea, por eso se asume que Trabajos Calificados, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tr",n:"Trabajos Calificados",w:40,r:1,ch:[
+  {id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:20},{id:"pc4",n:"PC4",w:20},
+  {id:"ce",n:"Caso de Estudio",s:"Caso",w:20}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+mic1:{n:"Microeconomía I",pre:"",rf:1,i:"La Nota de Prácticas pesa 30% y es el promedio de 4 prácticas calificadas. No se indicó el peso de cada una, por eso se asume que valen lo mismo (7.5% del curso cada una). El Examen Parcial y el Examen Final pesan 35% cada uno. El promedio de las prácticas y el promedio final del curso se redondean al entero (el .5 sube); el parcial y el final no se redondean. Debes rendir las 4 PCs: no hay práctica sustitutoria.",root:{ch:[
+ {id:"pc",n:"Nota de Prácticas",s:"Prácticas",w:30,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:35},{id:"fi",n:"Examen Final",w:35}]}},
 eti:{n:"Ética",pre:"",gp:2,rf:1,i:"La Nota de Trabajo pesa 35% y se forma con los Trabajos de análisis grupal de casos (20% del curso) y la Asistencia y Participación (15% del curso). El Examen Parcial pesa 30% y el Examen Final 35%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:35,r:1,ch:[
   {id:"ac",n:"Trabajos de Análisis Grupal de Casos",s:"Casos",w:2000/35},
@@ -1878,6 +1969,9 @@ adn:{n:"Analítica de Datos para los Negocios",pre:"",rf:1,i:"Las Prácticas Cal
  {id:"pc",n:"Prácticas Calificadas",s:"Prácticas",w:30,r:1,ch:[
   {id:"pc1",n:"PC1",w:50},{id:"pc2",n:"PC2",w:50}]},
  {id:"pa",n:"Examen Parcial",w:35,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
+mne:{n:"Matemáticas para los Negocios",pre:"",rf:1,i:"La Nota de Trabajo pesa 40% y es el promedio ponderado de 4 prácticas calificadas. No se indicó el peso de cada práctica, por eso se asume que valen lo mismo (10% del curso cada una). El Examen Parcial y el Examen Final pesan 30% cada uno. No se indicó cómo se redondea, por eso se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
 dos:{n:"Diseño Organizacional y Estrategia",pre:"",rf:1,i:"La Nota de Trabajo pesa 50% y se forma con la Práctica Calificada (40%, o sea 20% del curso), los Ejercicios Aplicativos (30%, 15% del curso) y el Trabajo Integrador (30%, 15% del curso). El Examen Parcial pesa 20% y el Examen Final 30%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:50,r:1,ch:[
   {id:"pc",n:"Práctica Calificada",s:"Práctica",w:40},
@@ -1888,9 +1982,63 @@ ant:{n:"Antropología",pre:"",gp:2,rf:1,i:"El Aprendizaje Continuo pesa 30% (eva
  {id:"ac",n:"Aprendizaje Continuo",s:"Aprend. Continuo",w:30,r:1},
  {id:"pa",n:"Examen Parcial (Ensayo)",s:"Parcial",w:20,r:1},
  {id:"ee",n:"Actividades de Exploración Etnográfica",s:"Etnografía",w:30,r:1},
- {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}}
+ {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}},
+cpol:{n:"Ciencia Política",pre:"",gp:2,rf:1,i:"El Examen Parcial (ensayo argumentativo) pesa 30%, el Proceso de Aprendizaje en el Aula 30%, el Trabajo de Investigación 20% y el Examen Final (oral) 20%. El Proceso de Aprendizaje en el Aula se ingresa como una sola nota. No se indicó cómo se redondea, por eso se asume que cada una de las evaluaciones y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"pa",n:"Examen Parcial (Ensayo Argumentativo)",s:"Parcial",w:30,r:1},
+ {id:"pr",n:"Proceso de Aprendizaje en el Aula",s:"Proceso en el Aula",w:30,r:1},
+ {id:"ti",n:"Trabajo de Investigación",s:"Investigación",w:20,r:1},
+ {id:"fi",n:"Examen Final (Oral)",s:"Final Oral",w:20,r:1}]}},
+mcg:{n:"Métodos Cuantitativos para la Gestión en las Organizaciones",pre:"",rf:1,i:"Los Trabajos Prácticos pesan 35% y se forman con las Aplicaciones Individuales (10%, 3 aplicaciones que valen lo mismo), las Aplicaciones Grupales (15%, 3 aplicaciones que valen lo mismo) y la Participación en Clase (10%). El Examen Parcial pesa 30% y el Examen Final 35%. Según el reglamento, las notas de participación y las de cada aplicación (individual y grupal) no se redondean; el redondeo al entero (el .5 sube) se aplica solo a la nota final de Trabajos Prácticos y a la nota final del curso. El parcial y el final tampoco se redondean. No se indicó el peso de cada aplicación, por eso se asume que las 3 de cada grupo valen lo mismo.",root:{ch:[
+ {id:"tp",n:"Trabajos Prácticos",w:35,r:1,ch:[
+  {id:"ai",n:"Aplicaciones (Individual)",s:"Aplic. Individual",w:1000/35,ch:[{id:"ai1",n:"Aplicación 1",s:"Ind. 1",w:T},{id:"ai2",n:"Aplicación 2",s:"Ind. 2",w:T},{id:"ai3",n:"Aplicación 3",s:"Ind. 3",w:T}]},
+  {id:"ag",n:"Aplicaciones (Grupal)",s:"Aplic. Grupal",w:1500/35,ch:[{id:"ag1",n:"Aplicación 1",s:"Grup. 1",w:T},{id:"ag2",n:"Aplicación 2",s:"Grup. 2",w:T},{id:"ag3",n:"Aplicación 3",s:"Grup. 3",w:T}]},
+  {id:"pcl",n:"Participación en Clase",s:"Participación",w:1000/35}]},
+ {id:"pa",n:"Examen Parcial",w:30},{id:"fi",n:"Examen Final",w:35}]}},
+tnd:{n:"Tecnología y Negocios Digitales",pre:"",rf:1,i:"Las Notas de Trabajo pesan 40% y se forman con PC1 (15% de ese bloque, 6% del curso), PC2 (15%, 6% del curso), el Trabajo Final (20%, 8% del curso), los Casos (30%, 12% del curso) y las Presentaciones Grupales (20%, 8% del curso). El Examen Parcial pesa 25% y el Examen Final 35%. Los Casos y las Presentaciones Grupales se ingresan como una sola nota cada uno. No se indicó cómo se redondea, por eso se asume que las Notas de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Notas de Trabajo",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:15},{id:"pc2",n:"PC2",w:15},{id:"tf",n:"Trabajo Final",w:20},{id:"ca",n:"Casos",w:30},{id:"pg",n:"Presentaciones Grupales",s:"Presentaciones",w:20}]},
+ {id:"pa",n:"Examen Parcial",w:25,r:1},{id:"fi",n:"Examen Final",w:35,r:1}]}},
+siad:{n:"Sistemas de Información y Análisis de Datos",pre:"",rf:1,i:"La Nota de Trabajo pesa 65% y se forma con Prácticas Calificadas (20% del curso), Controles de Lectura (20%), Proyecto Final (20%) y Participación (5%). El Examen Parcial pesa 15% y el Examen Final 20%. Se asume que la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube). Prácticas, Controles y Proyecto se ingresan como una sola nota cada uno.",root:{ch:[
+ {id:"nt",n:"Nota de Trabajo",w:65,r:1,ch:[{id:"pc",n:"Prácticas Calificadas",w:2000/65},{id:"cl",n:"Controles de Lectura",w:2000/65},{id:"pf",n:"Proyecto Final",w:2000/65},{id:"ap",n:"Participación",w:500/65}]},
+ {id:"pa",n:"Examen Parcial",w:15,r:1},{id:"fi",n:"Examen Final",w:20,r:1}]}},
+ffin:{n:"Fundamentos de Finanzas",pre:"",rf:1,i:"Prácticas y Quizzes pesa 40% y se forma con 8 quizzes (25% de ese bloque, 10% del curso) y 3 prácticas calificadas que valen lo mismo (75% de ese bloque, 10% del curso cada una). El Examen Parcial y el Examen Final pesan 30% cada uno. Se asume que Prácticas y Quizzes, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Prácticas y Quizzes",w:40,r:1,ch:[{id:"qz",n:"Quizzes",w:25,ch:[{id:"quiz1",n:"Quiz 1",w:12.5},{id:"quiz2",n:"Quiz 2",w:12.5},{id:"quiz3",n:"Quiz 3",w:12.5},{id:"quiz4",n:"Quiz 4",w:12.5},{id:"quiz5",n:"Quiz 5",w:12.5},{id:"quiz6",n:"Quiz 6",w:12.5},{id:"quiz7",n:"Quiz 7",w:12.5},{id:"quiz8",n:"Quiz 8",w:12.5}]},{id:"pc",n:"Prácticas Calificadas",s:"Prácticas",w:75,ch:[{id:"pc1",n:"PC1",w:T},{id:"pc2",n:"PC2",w:T},{id:"pc3",n:"PC3",w:T}]}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+mat4:{n:"Matemáticas IV",pre:"",rf:1,i:"La Evaluación Continua pesa 40% y es el promedio de 4 prácticas calificadas que valen lo mismo (10% del curso cada una). El Examen Parcial y el Examen Final pesan 30% cada uno. Se asume que la Evaluación Continua, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Evaluación Continua",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+esap:{n:"Estadística Aplicada",pre:"",rf:1,i:"Las Prácticas Calificadas pesan 40% (PC1 y PC2, que valen lo mismo: 20% del curso cada una). El Examen Parcial y el Examen Final pesan 30% cada uno. Se asume que las Prácticas Calificadas, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Prácticas Calificadas",s:"Prácticas",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:50},{id:"pc2",n:"PC2",w:50}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+len2:{n:"Lenguaje II",pre:"",rf:1,i:"Los Trabajos Prácticos pesan 40% y se forman con 3 trabajos que valen lo mismo (TP Descriptivo, TP Comparativo y TP Narrativo: 13.33% del curso cada uno). El Examen Parcial y el Examen Final pesan 30% cada uno. Se asume que los Trabajos Prácticos, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"tp",n:"Trabajos Prácticos",w:40,r:1,ch:[{id:"tp1",n:"TP Descriptivo",w:T},{id:"tp2",n:"TP Comparativo",w:T},{id:"tp3",n:"TP Narrativo",w:T}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
+psis:{n:"Pensamiento Sistémico",pre:"",gp:2,rf:1,i:"Según el sílabo, las notas se ingresan como enteros (máx. 20). La Nota de Trabajos (40%) = 60% Nota de Prácticas + 40% Nota del Trabajo Grupal. El Examen Parcial pesa 25% y el Examen Final 35%. Nota de Prácticas = PC1 + PC2 + 0.1 x PG + 0.1 x CL. Las PC se califican sobre 8; PG = PD1 + A1 + A2 + PD2 + A3 + A4 (PD sobre 4 y avances sobre 3, total 20); los Controles de Lectura se suman y se cortan en 20. Nota del Trabajo Grupal = (TG1 + ME1 + TG2 + ME2) x factor de pares, con máximo 20: TG1 sobre 8 y TG2 sobre 12. Debajo de las notas de trabajos elige la suma de tus modificadores de exposición (ME1 + ME2) y tu evaluación de pares; si faltas sin justificar a una exposición, la nota grupal es 0. Al inicio el modificador está en Suficiente (0) y la evaluación de pares en 1.00. Se redondean al entero (el .5 sube) la nota de trabajos, el parcial, el final y el promedio final. El descuento por ortografía y redacción (hasta 10%) no se calcula aquí: ingresa tus notas ya con ese descuento. La Evaluación de Rezagados (ER) no está incluida.",root:{ch:[
+ {id:"nt",n:"Nota de Trabajos (NT)",s:"Trabajos",w:40,r:1,pj:1,ch:[
+  {id:"np",n:"Nota de Prácticas (NP)",s:"Prácticas",w:60,ch:[
+   {id:"pc1",n:"Práctica Calificada 1 (PC1)",s:"PC1",mx:8,w:40},
+   {id:"pc2",n:"Práctica Calificada 2 (PC2)",s:"PC2",mx:8,w:40},
+   {id:"pg",n:"Prácticas Grupales (PG): PD y avances",s:"PG",w:10,ch:[
+    {id:"pd1",n:"Práctica Dirigida 1 (PD1)",s:"PD1",mx:4,w:20,d:""},
+    {id:"a1",n:"Avance de trabajo 1 (A1)",s:"A1",mx:3,w:15,d:""},
+    {id:"a2",n:"Avance de trabajo 2 (A2)",s:"A2",mx:3,w:15,d:""},
+    {id:"pd2",n:"Práctica Dirigida 2 (PD2)",s:"PD2",mx:4,w:20,d:""},
+    {id:"a3",n:"Avance de trabajo 3 (A3)",s:"A3",mx:3,w:15,d:""},
+    {id:"a4",n:"Avance de trabajo 4 (A4)",s:"A4",mx:3,w:15,d:""}]},
+   {id:"cl",n:"Controles de Lectura (CL): suma, máx. 20",s:"CL",w:10,b:1}]},
+  {id:"ntg",n:"Nota del Trabajo Grupal (NTG)",s:"Trabajo Grupal",w:40,np:1,ch:[
+   {id:"tg1",n:"Trabajo Grupal 1 (TG1)",s:"TG1",mx:8,w:40},
+   {id:"tg2",n:"Trabajo Grupal 2 (TG2)",s:"TG2",mx:12,w:60}]}]},
+ {id:"pa",n:"Examen Parcial (EP)",s:"Parcial",w:25,r:1},{id:"fi",n:"Examen Final (EF)",s:"Final",w:35,r:1}]}},
+epp:{n:"Evaluación Privada de Proyectos",pre:"",rf:1,i:"Prácticas y Trabajo Práctico pesa 44% y se forma con 4 prácticas calificadas (70% de ese bloque, que valen lo mismo) y el Trabajo Práctico. El Examen Parcial y el Examen Final pesan 28% cada uno. Los pesos indicados dentro del bloque suman 90% (70% + 20%), por eso se asume que el Trabajo Práctico vale 30% del bloque para completar el 100%. No se indicó cómo se redondea, por eso se asume que Prácticas y Trabajo Práctico, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Prácticas y Trabajo Práctico",s:"Prácticas y TP",w:44,r:1,ch:[
+  {id:"pc",n:"Prácticas Calificadas",s:"Prácticas",w:70,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pc4",n:"PC4",w:25}]},
+  {id:"tp",n:"Trabajo Práctico",s:"Trabajo Práctico",w:30}]},
+ {id:"pa",n:"Examen Parcial",w:28,r:1},{id:"fi",n:"Examen Final",w:28,r:1}]}},
+fc1:{n:"Finanzas Corporativas I",pre:"",rf:1,i:"Prácticas Calificadas y Participación en Clase pesa 40% y se forma con 3 prácticas calificadas y la Participación en Clase. El Examen Parcial y el Examen Final pesan 30% cada uno. No se indicó el peso de cada parte del bloque, por eso se asume que las 3 prácticas y la participación valen lo mismo (25% del bloque, 10% del curso cada una). Se asume que el bloque, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"nt",n:"Prácticas Calificadas y Participación en Clase",s:"Prácticas y Participación",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:25},{id:"pc2",n:"PC2",w:25},{id:"pc3",n:"PC3",w:25},{id:"pcl",n:"Participación en Clase",s:"Participación",w:25}]},
+ {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}}
 };
-const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","hdp","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
+const KS=["mat","len","inf","mat1","mat2","mat3","est1","adn","mne","hdp","asi","mke","emi","cos","hcp","efo","mic1","mic2","len1","eco1","eco2","mac1","sf","con","cfi","ctd","fce","cdc","gdp","gct","dos","int","ipfe","der1","dcg","fil","eti","rce","psc","soc","ant","cpol","mcg","tnd","siad","ffin","epp","fc1","mat4","esap","len2","psis","psi","hee","inv","lid"],ST={};let cur,S,idx,view="welcome",sumIn=false,faqIn=false,upFrom="pick",upY=0;
 /* Rutas: #cursos, #agregar-curso y #<clave del curso> (solo hash simple). rtLock evita bucles; rtBoot usa replaceState al arrancar. */
 let rtLock=false,rtBoot=false;
 const BASE_TITLE="My PonderUP: calculadora de ponderado y nota necesaria para aprobar";
@@ -1913,18 +2061,50 @@ const pend=()=>leaves(S.root).filter(l=>isP(l.id));
 const full=o=>{const v={};leaves(S.root).forEach(l=>{const m=l.mx||20;v[l.id]=isP(l.id)?(o[l.id]??0):Math.min(m,Math.max(0,+S.g[l.id]))*20/m});return v};
 /* Tabla de equivalencias del Factor Proyecto (nota vigesimal entera -> factor). Se usa con la propiedad fp de un grupo (ver Ronda 10). */
 const fpj=x=>{x=rnd(x);return x<1?.3:x<3?.5:x<6?.6:x<9?.7:x<12?.8:x<15?.9:x<18?1:1.05};
-const ev=(n,v)=>{let x;if(n.ch&&n.best){const a=n.ch.map(c=>ev(c,v)).sort((p,q)=>q-p).slice(0,n.best);x=a.reduce((s,y)=>s+y,0)/n.best}else x=n.ch?n.ch.reduce((s,c)=>s+ev(c,v)*(+c.w||0)/100,0):v[n.id];if(n.np)x=S.ns?0:Math.min(20,Math.max(0,(x+S.mo)*S.pr));if(n.fp)x*=fpj(ev(n.ch.find(c=>c.id===n.fp),v));return n.r?rnd(x):x};
+const ev=(n,v)=>{let x;if(n.ch&&n.best){const a=n.ch.map(c=>ev(c,v)).sort((p,q)=>q-p).slice(0,n.best);x=a.reduce((s,y)=>s+y,0)/n.best}else x=n.ch?n.ch.reduce((s,c)=>s+ev(c,v)*(+c.w||0)/100,0):v[n.id];if(n.np)x=S.ns?0:Math.min(20,Math.max(0,(x+S.mo)*S.pr));if(n.ax&&S.ax)x=Math.min(20,x+1);if(n.fp)x*=fpj(ev(n.ch.find(c=>c.id===n.fp),v));return n.r?rnd(x):x};
 const pass=a=>(S.rf?rnd(a):a)>=S.pm-1e-9;
 const inp=c=>{const v=S.g[c.id],f=v!==undefined&&v!=="",bd=f&&(+v>(c.mx||20)||+v<0);return `<label class="gi${f?" fl":""}${bd?" bad":""}"><input class="g" data-id="${c.id}" type="text" inputmode="decimal" enterkeyhint="next" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="6" placeholder="Por rendir" aria-label="Nota de ${c.n}" value="${v??""}"${f?` style="width:${String(v).length+.6}ch"`:""}><span class="sf">/${c.mx||20}</span></label>`};
 /* Modelo A: cada evaluación muestra su % sobre el total del curso (c.a se calcula en mkState). d:"" oculta el % (partes medidas en puntos). */
 const dv=c=>c.d===""?"":fmt(c.a)+"%";
 const absW=(n,p)=>(n.ch||[]).forEach(c=>{c.a=p*(+c.w||0)/100;absW(c,c.a)});
 /* Controles del Proyecto Integrador (solo cursos con fp): modificador de exposicion, evaluacion de pares y falta a la exposicion. Se guardan en S.mo, S.pr y S.ns. */
-const pjCtl=()=>{const mo=[[1,"Sobresaliente (+1)"],[0,"Suficiente (0)"]].concat([1,2,3,4,5,6,7,8,9,10].map(i=>[-i,"Insuficiente (-"+i+")"])),
- pr=[[1.05,"Sobresaliente sobre el promedio (1.05)"],[1,"En el promedio (1.00)"],[.9,"Por debajo del promedio (0.90)"],[.8,"Muy por debajo del promedio (0.80)"]];
- return `<div class="pjx"><div class="pjt">Ajustes del proyecto</div><label class="pjs"><span>Modificador de exposición</span><select data-px="mo" aria-label="Modificador de exposición">${mo.map(([v,t])=>`<option value="${v}"${S.mo===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="pjs"><span>Evaluación de pares</span><select data-px="pr" aria-label="Evaluación de pares">${pr.map(([v,t])=>`<option value="${v}"${S.pr===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="ck"><input type="checkbox" data-px="ns"${S.ns?" checked":""}> No fui a la exposición (sin justificar): el proyecto cuenta 0</label></div>`};
-const mkState=k=>{const root=clone(C[k].root);absW(root,100);return{root,g:{},rf:!!C[k].rf,pm:11,mo:0,pr:1,ns:0}};
-const row=(c,d)=>`<div class="row${c.ch?" grp":""}${c.b?" bd":""}" style="--d:${d}"><span class="nm">${c.n}${dv(c)?`<em>${dv(c)}</em>`:""}</span>${c.ch?`<span class="sv" id="sv-${c.id}">—</span>`:inp(c)}</div>`;
+const pjCtl=(tg)=>{const mo=(tg?[[2,"Sobresaliente en ambas (+2)"],[1,"Una sobresaliente (+1)"]]:[[1,"Sobresaliente (+1)"]]).concat([[0,"Suficiente (0)"]],(tg?[1,2,3,4,5,6,7,8,9,10,11,12]:[1,2,3,4,5,6,7,8,9,10]).map(i=>[-i,"Insuficiente (-"+i+")"])),
+ pr=tg?[[1.05,"Sobresaliente (1.05)"],[1,"Suficiente (1.00)"],[.9,"Regular (0.90)"],[.8,"Insuficiente (0.80)"]]:[[1.05,"Sobresaliente sobre el promedio (1.05)"],[1,"En el promedio (1.00)"],[.9,"Por debajo del promedio (0.90)"],[.8,"Muy por debajo del promedio (0.80)"]];
+ return `<div class="pjx"><div class="pjt">${tg?"Ajustes del trabajo grupal":"Ajustes del proyecto"}</div><label class="pjs"><span>${tg?"Modificadores de exposición (ME1 + ME2)":"Modificador de exposición"}</span><select data-px="mo" aria-label="Modificador de exposición">${mo.map(([v,t])=>`<option value="${v}"${S.mo===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="pjs"><span>Evaluación de pares</span><select data-px="pr" aria-label="Evaluación de pares">${pr.map(([v,t])=>`<option value="${v}"${S.pr===v?" selected":""}>${t}</option>`).join("")}</select></label><label class="ck"><input type="checkbox" data-px="ns"${S.ns?" checked":""}> No fui a una exposición (sin justificar): ${tg?"el trabajo grupal":"el proyecto"} cuenta 0</label></div>`};
+/* Punto extra (grupos con ax): +1 punto al promedio del grupo. Se guarda en S.ax. */
+const axCtl=()=>`<div class="pjx"><div class="pjt">Punto extra</div><label class="ck"><input type="checkbox" data-px="ax"${S.ax?" checked":""}> Me corresponde el punto extra en el promedio de prácticas (+1)</label></div>`;
+/* Ayuda "¿Varias notas?": para rubros que son un solo campo pero reunen varias notas (practicas, controles, casos...).
+   El alumno elige cuantas notas son y escribe las que ya tiene. Al usarla, el rubro se convierte en N notas (las vacias quedan "por rendir"),
+   el campo muestra el promedio y las notas se pueden desplegar. La cantidad se guarda en S.mvn y el estado desplegado en S.mvo. */
+const MV={"cfi":["cl"],"hee":["ac"],"ctd":["ep","cl"],"dcg":["cl","pc"],"gct":["io","ig"],"psc":["nt"],"lid":["ac"],"rce":["tc"],"ipfe":["af","ap","ae"],"cdc":["cp"],"gdp":["ca"],"hdp":["lb","oa"],"asi":["oa"],"mke":["ca"],"emi":["tc","av"],"cos":["pcs","paa"],"hcp":["ej"],"eti":["ac"],"dos":["ea"],"ant":["ee"],"tnd":["ca","pg"],"siad":["pc","cl"]};
+const mvOK=c=>!!(MV[cur]&&MV[cur].includes(c.id));
+const mvTxt=n=>S.mvo&&S.mvo[n.id]?"Ocultar notas":"Ver notas ("+n.ch.filter(c=>!isP(c.id)).length+" de "+n.ch.length+")";
+const mvBtn=c=>{if(!mvOK(c))return"";return `<span class="mvbs">`+(c.mvg?`<button type="button" class="mvb" data-act="tog" data-mv="${c.id}" aria-expanded="${S.mvo&&S.mvo[c.id]?"true":"false"}">${mvTxt(c)}</button><button type="button" class="mvb" data-act="open" data-mv="${c.id}" aria-expanded="false">Editar</button>`:`<button type="button" class="mvb" data-act="open" data-mv="${c.id}" aria-expanded="false">¿Varias notas?</button>`)+`</span>`};
+const mvIn=(i,v)=>`<input class="mvn" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="6" placeholder="Nota ${i}" aria-label="Nota ${i}" value="${v||""}">`;
+const mvAvg=p=>{const mx=+p.dataset.mx||20,all=[...p.querySelectorAll(".mvn")],v=all.map(i=>i.value.replace(/,/g,".").trim()).filter(x=>x!==""&&isFinite(+x)&&+x>=0&&+x<=mx).map(Number);return{n:v.length,t:all.length,a:v.length?v.reduce((s,x)=>s+x,0)/v.length:0}};
+const mvUpd=p=>{const r=mvAvg(p),o=p.querySelector(".mvr"),b=p.querySelector(".mvgo");if(r.n){o.textContent="Promedio de las que tienes: "+(Math.round(r.a*100)/100)+" ("+r.n+" de "+r.t+" notas)";b.disabled=false}else{o.textContent="Escribe al menos una nota";b.disabled=true}};
+const mvClose=()=>{document.querySelectorAll(".mvp").forEach(x=>x.remove());document.querySelectorAll('.mvb[data-act="open"][aria-expanded=true]').forEach(x=>x.setAttribute("aria-expanded","false"))};
+const mvStruct=(root,id,n)=>{let nd=null;walk(root,c=>{if(c.id===id)nd=c});if(!nd)return false;const b=nd.s||nd.n,mx=nd.mx||(nd.ch&&nd.ch[0]&&nd.ch[0].mx)||undefined;nd.mvg=1;nd.ch=Array.from({length:n},(_,i)=>({id:id+"__"+(i+1),n:"Nota "+(i+1),hn:b+" "+(i+1),w:100/n,pg:id,mx}));absW(root,100);return true};
+const mvRedraw=()=>{setCourse(cur);document.querySelectorAll("#tree .rv").forEach(x=>x.classList.remove("rv"))};
+const mvSet=(id,n,vals)=>{const nd=idx[id];if(!nd)return;delete S.g[id];(nd.ch||[]).forEach(c=>delete S.g[c.id]);if(!mvStruct(S.root,id,n))return;vals.forEach((v,i)=>{if(v!=="")S.g[id+"__"+(i+1)]=v});(S.mvn=S.mvn||{})[id]=n;(S.mvo=S.mvo||{})[id]=0;mvClose();mvRedraw()};
+const mvRevert=id=>{const nd=idx[id];if(!nd||!nd.mvg)return;(nd.ch||[]).forEach(c=>delete S.g[c.id]);delete nd.ch;delete nd.mvg;absW(S.root,100);if(S.mvn)delete S.mvn[id];if(S.mvo)delete S.mvo[id];mvClose();mvRedraw()};
+const mvOpen=b=>{const id=b.dataset.mv,was=b.getAttribute("aria-expanded")==="true";mvClose();if(was)return;const c=idx[id];if(!c)return;const host=b.closest(".row")||b.closest(".bh");if(!host)return;
+ const n0=c.mvg?c.ch.length:2,vs=c.mvg?c.ch.map(x=>S.g[x.id]??""):[],mx=(c.mvg?c.ch[0].mx:c.mx)||20,opts=[...Array(11)].map((_,i)=>`<option value="${i+2}"${i+2===n0?" selected":""}>${i+2}</option>`).join("");
+ host.insertAdjacentHTML("afterend",`<div class="mvp" data-for="${id}" data-mx="${mx}"><div class="mvt">Calcula tu promedio de ${c.n}</div><p class="mvh">Elige cuántas notas tiene este rubro y escribe las que ya tienes. Las que dejes vacías quedan como «por rendir».</p><label class="mvc"><span>¿Cuántas notas son?</span><select class="mvq" aria-label="Cantidad de notas">${opts}</select></label><div class="mvl">${Array.from({length:n0},(_,i)=>mvIn(i+1,vs[i])).join("")}</div><div class="mvr" aria-live="polite"></div><div class="mva"><button type="button" class="mvgo" disabled>Usar este promedio</button>${c.mvg?'<button type="button" class="mvrv">Volver a un solo campo</button>':""}<button type="button" class="mvx">Cerrar</button></div></div>`);
+ b.setAttribute("aria-expanded","true");const p=host.nextElementSibling;mvUpd(p);const f=[...p.querySelectorAll(".mvn")].find(i=>i.value==="")||p.querySelector(".mvn");f.focus();try{track("promedio_ayuda_abierto",{curso:cur,evaluacion:id,edicion:!!c.mvg})}catch(_){}};
+const mvUse=p=>{const id=p.dataset.for,mx=+p.dataset.mx||20,vals=[...p.querySelectorAll(".mvn")].map(i=>{const x=i.value.replace(/,/g,".").trim();return x!==""&&isFinite(+x)&&+x>=0&&+x<=mx?String(Math.round(+x*100)/100):""});if(!vals.some(v=>v!==""))return;mvSet(id,vals.length,vals);try{track("promedio_ayuda_usado",{curso:cur,evaluacion:id,notas:vals.filter(v=>v!=="").length,total:vals.length})}catch(_){}};
+const mvTog=b=>{const id=b.dataset.mv,nd=idx[id];if(!nd)return;S.mvo=S.mvo||{};const on=!S.mvo[id];S.mvo[id]=on?1:0;document.querySelectorAll('[data-pg="'+id+'"]').forEach(r=>r.hidden=!on);b.setAttribute("aria-expanded",on?"true":"false");b.textContent=mvTxt(nd)};
+document.addEventListener("click",e=>{const t=e.target;if(!t||!t.closest)return;const b=t.closest(".mvb");if(b){if(b.dataset.act==="tog")mvTog(b);else mvOpen(b);return}const p=t.closest(".mvp");if(!p)return;
+ if(t.closest(".mvx")){mvClose();return}
+ if(t.closest(".mvrv")){mvRevert(p.dataset.for);return}
+ if(t.closest(".mvgo"))mvUse(p)});
+document.addEventListener("change",e=>{const t=e.target;if(!t||!t.classList||!t.classList.contains("mvq"))return;const p=t.closest(".mvp"),l=p.querySelector(".mvl"),n=+t.value;while(l.children.length>n)l.lastElementChild.remove();while(l.children.length<n)l.insertAdjacentHTML("beforeend",mvIn(l.children.length+1));mvUpd(p)});
+document.addEventListener("input",e=>{const t=e.target;if(!t||!t.classList)return;
+ if(t.classList.contains("mvn")){const v=t.value.replace(/,/g,".").replace(/[^0-9.]/g,""),i=v.indexOf("."),w=i>=0?v.slice(0,i+1)+v.slice(i+1).replace(/\./g,""):v;if(w!==t.value)t.value=w;mvUpd(t.closest(".mvp"));return}
+ if(t.classList.contains("g")){const c=idx[t.dataset.id];if(c&&c.pg)setTimeout(()=>{const nd=idx[c.pg],b=document.querySelector('.mvb[data-act="tog"][data-mv="'+c.pg+'"]');if(nd&&b)b.textContent=mvTxt(nd)},0)}});
+document.addEventListener("keydown",e=>{const t=e.target;if(e.key==="Enter"&&t&&t.classList&&t.classList.contains("mvn")){e.preventDefault();const p=t.closest(".mvp"),g=p.querySelector(".mvgo");if(!g.disabled)mvUse(p)}else if(e.key==="Escape"&&t&&t.closest&&t.closest(".mvp"))mvClose()});
+const mkState=k=>{const root=clone(C[k].root);absW(root,100);return{root,g:{},rf:!!C[k].rf,pm:11,mo:0,pr:1,ns:0,ax:0}};
+const row=(c,d)=>`<div class="row${c.ch?" grp":""}${c.b?" bd":""}" style="--d:${d}"${c.pg?` data-pg="${c.pg}"${S.mvo&&S.mvo[c.pg]?"":" hidden"}`:""}><span class="nm">${c.n}${dv(c)?`<em>${dv(c)}</em>`:""}${mvBtn(c)}</span>${c.ch?`<span class="sv" id="sv-${c.id}">—</span>`:inp(c)}</div>`;
 
 const sl=(g,flat)=>{const o=[];const rec=(n,sh,k)=>{if(!n.ch||(n.z&&!flat)){o.push({id:n.id,n:n.n,s:n.s||n.n,w:sh,k,L:n.ch?leaves(n):null});return}const t=n.ch.reduce((a,x)=>a+(+x.w||0),0)||100;n.ch.forEach(x=>rec(x,sh*(+x.w||0)/t,k))};
  const t0=g.ch.reduce((a,x)=>a+(+x.w||0),0)||100;g.ch.forEach((c,k)=>rec(c,(+c.w||0)/t0*100,k));return o};
@@ -2004,14 +2184,14 @@ function setCourse(k){
   $("zm").innerHTML=`<div class="zb" id="zb">${L.map(x=>`<span class="zs" data-id="${x.id}" data-ids="${x.L?x.L.map(l=>l.id).join(","):x.id}" title="${x.n}" style="flex:${x.w};--sh:${SH[x.k%3]}%">${x.s}</span>`).join("")}</div>${lg}`}
  else $("zm").innerHTML="";
  let h="";
- G.forEach((g,i)=>{h+=`<div class="blk rv" data-b="${i}" style="--i:${i+4}"><div class="bh${g.ch?"":" lf"}"><div class="bn"><span class="pct">${fmt(g.w)}%</span><b>${g.n}${g.best?`<span class="bst">Cuentan los ${g.best} mejores de ${g.ch.length}</span>`:""}</b></div>${g.ch?`<span class="sv" id="sv-${g.id}">—</span>`:inp(g)}</div>`;
-  if(g.ch){h+=`<div class="bb">`;walk(g,(c,d)=>{h+=row(c,d)});if(g.fp)h+=pjCtl();h+=`</div>`}
+ G.forEach((g,i)=>{h+=`<div class="blk rv" data-b="${i}" style="--i:${i+4}"><div class="bh${g.ch?"":" lf"}"><div class="bn"><span class="pct">${fmt(g.w)}%</span><b>${g.n}${g.best?`<span class="bst">Cuentan los ${g.best} mejores de ${g.ch.length}</span>`:""}${mvBtn(g)}</b></div>${g.ch?`<span class="sv" id="sv-${g.id}">—</span>`:inp(g)}</div>`;
+  if(g.ch){h+=`<div class="bb">`;walk(g,(c,d)=>{h+=row(c,d)});if(g.fp||g.pj)h+=pjCtl(!!g.pj);if(g.ax)h+=axCtl();h+=`</div>`}
   h+=`</div>`});
  $("tree").innerHTML=h;
  {const L=document.querySelectorAll("#tree input.g");if(L.length)L[L.length-1].setAttribute("enterkeyhint","done")}
  $("tree").classList.toggle("hdots",G.slice(1).every(g=>!g.ch));
  renderInfo(k);
- let r="";walk(S.root,c=>r+=`<label class="ck"><input type="checkbox" data-r="${c.id}"${c.r?" checked":""}> Redondear ${c.n} a entero</label>`);
+ let r="";walk(S.root,c=>c.pg?0:r+=`<label class="ck"><input type="checkbox" data-r="${c.id}"${c.r?" checked":""}> Redondear ${c.n} a entero</label>`);
  $("rules").innerHTML=`<p>Marca lo que quieras redondear al entero (el .5 sube). Lo que dejes sin marcar se calcula con decimales.</p><div class="stl"><div class="sti"><div class="stt"><span class="tag y">Cada evaluación</span></div><div>${r}</div></div><div class="sti"><div class="stt"><span class="tag m">Promedio final</span></div><div><label class="ck"><input type="checkbox" id="rf"${S.rf?" checked":""}> Redondear el promedio final a entero (10.5 cuenta como 11)</label></div></div><div class="sti"><div class="stt"><span class="tag w">Los del curso</span></div><div><button type="button" class="btn" id="rs">Restablecer redondeos</button></div></div></div>`;
  $("pm").value=S.pm;
  prevOk=null;prevA=null;prevK=null;prevNum=null;
@@ -2250,7 +2430,7 @@ function update(){
    else if(w.length===1){const d=n.match(/^(\D+?)(\d+)$/);if(d){a=d[1];b=d[2]}}
    else{let best=1e9;for(let k=1;k<w.length;k++){const x=w.slice(0,k).join(" "),y=w.slice(k).join(" "),m=Math.max(x.length,y.length);if(m<=best){best=m;a=x;b=y}}}
    return `<span>${a}</span>${b?` <span>${b}</span>`:""}`};
-  const hdr=`<tr>${P.map(l=>`<th>${hn(l.n)}</th>`).join("")}<th class="pfc"><span>Promedio</span> <span>final</span></th></tr>`;
+  const hdr=`<tr>${P.map(l=>`<th>${hn(l.hn||l.n)}</th>`).join("")}<th class="pfc"><span>Promedio</span> <span>final</span></th></tr>`;
   const mk=o=>{const v=ev(R,full(o)),pv=S.rf?rnd(v):fmt(v);return `<tr>${P.map(l=>`<td>${fp(o[l.id],l)}</td>`).join("")}<td class="pfc">${pv}</td></tr>`};
   /* Combinaciones: las evaluaciones van en orden de rendición (las primeras son las más fáciles).
      Cada fila es una escalera que baja: primeras notas más altas, últimas más bajas, y todas llegan a la nota mínima.
@@ -2277,11 +2457,13 @@ function update(){
 const nd=t=>{let v=t.value.replace(/,/g,".").replace(/[^0-9.]/g,"");const i=v.indexOf(".");if(i>=0)v=v.slice(0,i+1)+v.slice(i+1).replace(/\./g,"");
  if(v!==t.value){const p=t.selectionStart,d=t.value.length-v.length;t.value=v;try{const q=Math.max(0,(p==null?v.length:p)-d);t.setSelectionRange(q,q)}catch(_){}}return v};
 const h=e=>{const t=e.target,id=t.dataset.id;
+ if(t.classList.contains("g")&&!idx[id])return;
  if(t.classList.contains("g")){let nv=nd(t);const mxv=idx[id].mx||20;let over=false;if(nv!==""&&+nv>mxv){over=true;nv=String(S.g[id]??"");t.value=nv}S.g[id]=nv;if(e.type==="input"&&t.value!==""&&!seenTyp.has(cur)){seenTyp.add(cur);track("nota_escribiendo",{curso:cur})}const gi=t.closest(".gi");if(gi){const f=t.value!=="";gi.classList.toggle("fl",f);const bd=f&&(+t.value>(idx[id].mx||20)||+t.value<0);gi.classList.toggle("bad",bd);if(bd&&typeof badFx==="function")badFx(gi,t,idx[id].mx||20);if(bd){const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}t.style.width=f?(t.value.length+.6)+"ch":"";if(over){gi.classList.add("bad");if(typeof badFx==="function")badFx(gi,t,mxv);clearTimeout(gi._bd);gi._bd=setTimeout(()=>gi.classList.remove("bad"),1100);const k=cur+":"+id;if(!seenBad.has(k)){seenBad.add(k);track("nota_fuera_de_rango",{curso:cur,evaluacion:id})}}}}
  else if(t.dataset.r)idx[t.dataset.r].r=t.checked?1:0;
  else if(t.dataset.px==="mo")S.mo=+t.value;
  else if(t.dataset.px==="pr")S.pr=+t.value;
  else if(t.dataset.px==="ns")S.ns=t.checked?1:0;
+ else if(t.dataset.px==="ax")S.ax=t.checked?1:0;
  else if(t.id==="rf")S.rf=t.checked;
  else if(t.id==="pm"){let v=nd(t),over=false;if(v!==""&&+v>20){over=true;v=String(S.pm);t.value=v}S.pm=Math.max(0,Math.min(20,+v||0));if(over){const ml=t.closest(".minl");if(ml){ml.classList.add("bad");if(typeof badFx==="function")badFx(ml,t,20);clearTimeout(ml._bd);ml._bd=setTimeout(()=>ml.classList.remove("bad"),1100)}}}
  else return;
@@ -2411,17 +2593,21 @@ function save(){try{const o={};
   if(t.pm!==11)e.pm=t.pm;
   if(t.rf!==!!C[k].rf)e.rf=t.rf;
   if(t.mo||t.pr!==1||t.ns)e.px={mo:t.mo,pr:t.pr,ns:t.ns?1:0};
-  const d=defR(k),r={};walk(t.root,c=>{if((c.r?1:0)!==d[c.id])r[c.id]=c.r?1:0});
+   if(t.ax)e.ax=1;
+   if(t.mvn&&Object.keys(t.mvn).length)e.mv=t.mvn;
+  const d=defR(k),r={};walk(t.root,c=>{if((c.r?1:0)!==(d[c.id]??0))r[c.id]=c.r?1:0});
   if(Object.keys(r).length)e.r=r;
   if(Object.keys(e).length)o[k]=e}
  localStorage.setItem(LSK,JSON.stringify({v:1,cur,c:o}))}catch(_){}}
 function load(){try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(!j||j.v!==1||!j.c)return null;
  for(const k in j.c){if(!C[k])continue;const e=j.c[k]||{},t=ST[k]=mkState(k),lv={},nd={};
+  if(e.mv&&MV[k])for(const id in e.mv){const n=+e.mv[id];if(MV[k].includes(id)&&Number.isInteger(n)&&n>=2&&n<=12&&mvStruct(t.root,id,n))(t.mvn=t.mvn||{})[id]=n}
   walk(t.root,c=>{nd[c.id]=c;if(!c.ch)lv[c.id]=1});
   if(e.g)for(const id in e.g){const v=String(e.g[id]);if(lv[id]&&v!==""&&isFinite(+v)&&+v>=0)t.g[id]=+v>(nd[id].mx||20)?String(nd[id].mx||20):v}
   if(typeof e.pm==="number"&&e.pm>=0&&e.pm<=20)t.pm=e.pm;
   if(typeof e.rf==="boolean")t.rf=e.rf;
   if(e.px){const m=+e.px.mo,q=+e.px.pr;if(Number.isInteger(m)&&m>=-10&&m<=1)t.mo=m;if([1.05,1,.9,.8].includes(q))t.pr=q;t.ns=e.px.ns?1:0}
+   if(e.ax)t.ax=1;
   if(e.r)for(const id in e.r)if(nd[id])nd[id].r=e.r[id]?1:0}
  const wg=k=>ST[k]&&Object.keys(ST[k].g).length>0;
  return (C[j.cur]&&wg(j.cur))?j.cur:(KS.find(wg)||null)}catch(_){return null}}
