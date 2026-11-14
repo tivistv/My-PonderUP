@@ -1776,8 +1776,8 @@ const C={
 mat:{n:"Matemáticas",rf:1,i:"La Nota de Trabajo (50%) sale de PC1 a PC4, que valen 10%, 10%, 15% y 15% del curso. El examen parcial pesa 20% y el final 30%. Las prácticas no se redondean; la Nota de Trabajo, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:50,r:1,ch:[{id:"pc1",n:"PC1",w:20},{id:"pc2",n:"PC2",w:20},{id:"pc3",n:"PC3",w:30},{id:"pc4",n:"PC4",w:30}]},
  {id:"pa",n:"Examen Parcial",w:20,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
-len:{n:"Lenguaje",rf:1,i:"El promedio de prácticas pesa 40% y se forma con PC1, PC2 y PC3, que valen lo mismo (13.33% cada una). El examen parcial y el final pesan 30% cada uno. El parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
- {id:"pr",n:"Prácticas",w:40,ch:[{id:"pc1",n:"PC1",w:T},{id:"pc2",n:"PC2",w:T},{id:"pc3",n:"PC3",w:T}]},
+len:{n:"Lenguaje",rf:1,i:"El promedio de prácticas pesa 40% y se forma con PC1, PC2 y PC3, que valen lo mismo (13.33% cada una). El examen parcial y el final pesan 30% cada uno. El promedio de prácticas, el parcial, el final y el promedio final se redondean al entero (el .5 sube).",root:{ch:[
+ {id:"pr",n:"Prácticas",w:40,r:1,ch:[{id:"pc1",n:"PC1",w:T},{id:"pc2",n:"PC2",w:T},{id:"pc3",n:"PC3",w:T}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
 inf:{n:"Informática",rf:1,i:"La Nota de Trabajo (35%) mezcla PC1 (12.25%), PC2 (15.75%) y el promedio de 3 controles (7% en total), y se redondea al entero antes de entrar al promedio final. El parcial pesa 30% y el final 35%; ambos y el promedio final también se redondean al entero (el .5 sube).",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:35,r:1,ch:[{id:"pc1",n:"PC1",w:35},{id:"pc2",n:"PC2",w:45},
