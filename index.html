@@ -1489,6 +1489,52 @@ footer .fl a.ig .igu{background:linear-gradient(currentColor,currentColor) 0 100
 .mva button{min-height:38px;padding:6px 12px;font:800 .75rem/1 Montserrat,"Montserrat Fallback",Arial,sans-serif;border-radius:2px;cursor:pointer;background:transparent;color:var(--ink);border:2px solid var(--ink)}
 .mva .mvgo{background:var(--green);border-color:var(--green);color:var(--navy)}
 .mva .mvgo:disabled{opacity:.45;cursor:default}
+
+/* ===== AJUSTE FINO DE TAMAÑOS: celulares, tablets y PC =====
+   - Una sola variable (--gw) fija el ancho de la casilla de nota en todas las filas y títulos, y baja en pantallas angostas
+     para que el nombre de la evaluación tenga más sitio.
+   - Las palabras ya no se parten a la mitad ("PAR-CIAL"): el texto solo se corta entre palabras. Si una palabra sola no cabe,
+     la letra de ese texto baja un poco (lo hace fitAll() en el script del final) y, como último recurso, se parte la palabra.
+   - El porcentaje ("15%") es una sola pieza: si no cabe junto al nombre, baja entero a la línea siguiente.
+   - Un solo salto de línea ordenado: la casilla de nota queda centrada en vertical respecto a todo el bloque. */
+:root{--gw:120px}
+@media (max-width:420px){:root{--gw:104px}}
+@media (max-width:360px){:root{--gw:96px}}
+@media (max-width:330px){:root{--gw:90px}}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+img,svg,video{max-width:100%}
+.bn b,.row .nm,.bst{overflow-wrap:break-word;word-break:normal;-webkit-hyphens:manual;hyphens:manual}
+.nm em{display:inline-block;white-space:nowrap;margin-left:.5em;vertical-align:baseline;line-height:1.2}
+.pct,.sf,.sv:not(.pn){white-space:nowrap}
+.gi{width:var(--gw)}
+.row{grid-template-columns:minmax(0,1fr) var(--gw);column-gap:10px}
+.bh>.gi,.bh>.sv{width:var(--gw);max-width:none;flex:none}
+.bh>.sv,.row>.sv{display:flex;align-items:center;justify-content:flex-end;min-height:40px}
+.sv.pn{white-space:normal;overflow-wrap:break-word;line-height:1.15;text-align:right}
+.bh .bn{align-items:center}
+.bn b{line-height:1.2}
+@media (max-width:420px){.bh{padding:12px 12px}.bn{gap:8px}.pct{font-size:1.5rem}.bn b{font-size:.8rem}}
+@media (max-width:360px){.bh{padding:12px 10px;gap:6px}.bn{gap:6px}.pct{font-size:1.35rem}.bn b{font-size:.76rem;letter-spacing:.01em}.bb{padding:0 12px 8px}.row{column-gap:8px}.nm{font-size:.94rem}.nm em{font-size:.74rem}}
+@media (max-width:330px){.pct{font-size:1.25rem}.bn b{font-size:.72rem}.nm{font-size:.9rem}.wrap{padding-left:14px;padding-right:14px}}
+/* Respaldo: si una palabra sola no cabe ni con la letra mínima, la casilla de nota baja debajo del título (orden, sin cortar palabras) */
+.bh.stk{flex-wrap:wrap;row-gap:10px}
+.bh.stk .bn{flex:1 1 100%}
+.bh.stk>.gi,.bh.stk>.sv{margin-left:auto}
+.row.stk{grid-template-columns:minmax(0,1fr);row-gap:6px}
+.row.stk>.gi,.row.stk>.sv{justify-self:end}
+@media (max-width:480px){.sgf textarea{min-height:92px}}
+/* Celular en horizontal: los títulos grandes se miden también por la altura de la pantalla */
+@media (max-height:500px) and (min-width:500px){#v-pick .wt.eq .t1,#v-pick .wt.eq .t2,#v-up .wt .t1,#v-up .wt .t2{font-size:clamp(1.7rem,min(8vw,14vh),3.2rem);line-height:1}#v-pick .wt.eq,#v-up .wt{margin-bottom:10px}}
+.bb.pcd .nm em{display:block;margin-left:0;margin-top:1px}
+/* Etiquetas de las barras de pesos: si no caben, se acortan con "…" en vez de cortarse por los dos lados */
+.zs.ell{display:block;text-align:center;line-height:30px;text-overflow:ellipsis;padding:0 2px}
+.wb span.ell{overflow:hidden;white-space:nowrap}
+/* Resumen: el confeti ya no puede ensanchar la página (en iPhone eso hacía que la pantalla se corriera o se achicara) */
+#sum{overflow-x:clip}
+/* Barra del promedio: más alta para que el agua se vea bien, con la pista hundida y bordes limpios */
+.pbar{height:16px;box-shadow:inset 0 1px 3px rgba(0,0,0,.18),inset 0 0 0 1px rgba(0,0,0,.04)}
+:root[data-theme="dark"] .pbar{box-shadow:inset 0 1px 3px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.05)}
+#pf{background-clip:padding-box}
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script>/* Vercel Analytics: no cuenta las visitas internas (dispositivos marcados con ?interno=1, localhost y previews de Vercel), igual que el filtro "interno" de PostHog. Es el unico filtro posible en Vercel: no deja filtrar por propiedades propias en el panel */
@@ -1743,10 +1789,10 @@ con:{n:"Fundamentos de Contabilidad",pre:"",rf:1,i:"Trabajos pesa 40% y se arma 
   {id:"cl",n:"Controles de Lectura",w:25,ch:[{id:"cl1",n:"CL1",w:50},{id:"cl2",n:"CL2",w:50}]},
   {id:"ap",n:"Participación",s:"P",w:5,b:1}]},
  {id:"pa",n:"Examen Parcial",w:30,r:1},{id:"fi",n:"Examen Final",w:30,r:1}]}},
-fce:{n:"Fundamentos de Ciencias Empresariales",pre:"",rf:1,i:"Los porcentajes de cada nota son sobre el 100% del curso. La Nota de Trabajo (40%) reúne 4 controles de lectura (20%), 5 notas de participación (10%) y 3 avances del trabajo final (10%). El Examen Final (35%) se compone del trabajo final escrito (5%), la exposición (10%) y el examen final escrito (20%). La Nota de Trabajo, el Examen Parcial, el Examen Final y la nota final se redondean al entero, y el .5 sube.",root:{ch:[
+fce:{n:"Fundamentos de Ciencias Empresariales",pre:"",rf:1,i:"Los porcentajes de cada nota son sobre el 100% del curso. La Nota de Trabajo (40%) reúne 4 controles de lectura (20%), 4 notas de participación (10%) y 3 avances del trabajo final (10%). El Examen Final (35%) se compone del trabajo final escrito (5%), la exposición (10%) y el examen final escrito (20%). La Nota de Trabajo, el Examen Parcial, el Examen Final y la nota final se redondean al entero, y el .5 sube.",root:{ch:[
  {id:"nt",n:"Nota de Trabajo",w:40,r:1,ch:[
   {id:"cl",n:"Controles de Lectura",w:50,ch:[{id:"c1",n:"Control 1",s:"C1",w:25},{id:"c2",n:"Control 2",s:"C2",w:25},{id:"c3",n:"Control 3",s:"C3",w:25},{id:"c4",n:"Control 4",s:"C4",w:25}]},
-  {id:"pr",n:"Participación en Clase",w:25,ch:[{id:"pe",n:"Participación 1",s:"P1",w:20},{id:"ca",n:"Participación 2",s:"P2",w:20},{id:"e3",n:"Participación 3",s:"P3",w:20},{id:"e4",n:"Participación 4",s:"P4",w:20},{id:"e5",n:"Participación 5",s:"P5",w:20}]},
+  {id:"pr",n:"Participación en Clase",w:25,ch:[{id:"pe",n:"Participación 1",s:"P1",w:25},{id:"ca",n:"Participación 2",s:"P2",w:25},{id:"e3",n:"Participación 3",s:"P3",w:25},{id:"e4",n:"Participación 4",s:"P4",w:25}]},
   {id:"av",n:"Avances del Trabajo Final",w:25,ch:[{id:"a1",n:"Avance 1",s:"A1",w:T},{id:"a2",n:"Avance 2",s:"A2",w:T},{id:"a3",n:"Avance 3",s:"A3",w:T}]}]},
  {id:"pa",n:"Examen Parcial",w:25,r:1},
  {id:"ef",n:"Examen Final",w:35,r:1,ch:[{id:"tf",n:"Trabajo Final",w:100/7},{id:"ex",n:"Exposición",w:200/7},{id:"fe",n:"Examen Escrito",w:400/7}]}]}},
@@ -2126,7 +2172,7 @@ const chk=()=>{const mOn=view==="tool"&&bodyIn&&!sumIn&&!faqIn,fm=$("fimini"),
  if(mOn&&!miniAn&&!$("mini").classList.contains("on")){miniAn=true;anim("mini_resumen_aparece")}$("mini").classList.toggle("on",mOn);
  $("tgw").classList.toggle("off",!tOn);
  $("tgw").classList.toggle("low",!(mOn||(fm&&fm.classList.contains("on"))))};
-function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;if(v==="pick"){renderPick();const qi=$("bqp");if(qi&&qi.value)bqU(qi)}document.body.classList.toggle("dk",v==="welcome"||v==="pick"||v==="up");track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo();routeSync()}
+function showView(v){if(v==="fi"&&!FI_ACTIVO)v="welcome";view=v;if(v==="pick"){renderPick();const qi=$("bqp");if(qi&&qi.value)bqU(qi)}document.body.classList.toggle("dk",v==="welcome"||v==="pick"||v==="up");track("pantalla",{vista:v});setEtapa({welcome:"inicio",pick:"elegir",tool:"curso",fi:"fi",up:"subir"}[v]||v);["welcome","pick","tool","fi","up"].forEach(x=>$("v-"+x).hidden=x!==v);window.scrollTo({top:0,behavior:"instant"});chk();fchk();trackCombo();routeSync();window.fitAll&&fitAll()}
 function closeList(){$("clist").hidden=true;$("cbtn").setAttribute("aria-expanded","false")}
 /* "Agrega tu curso": recuerda desde donde se abrio para volver al mismo lugar */
 function updUpLabels(){const t=upFrom==="tool"&&cur,s=document.querySelector("#upback span"),g=$("upgo");if(s)s.textContent=t?"← Volver a mi curso":"← Volver a cursos";if(g)g.textContent=t?"Volver a mi curso":"Volver a cursos"}
@@ -2202,6 +2248,7 @@ function setCourse(k){
  prevOk=null;prevA=null;prevK=null;prevNum=null;
  update();
  routeSync();
+ window.fitAll&&fitAll();
 }
 
 /* Pregunta 1 de "Cómo funciona": una fila por evaluación (con su peso total) y una fila de "Ten en cuenta" con las aclaraciones propias del curso */
@@ -2299,7 +2346,7 @@ function burst(){
  if(RM)return;anim("confeti_aprobar");const r=document.createElement("div");r.className="cf";r.setAttribute("aria-hidden","true");
  const cols=["#00F03C","#0A5CFF","#F000F0","#ffffff"];
  for(let i=0;i<26;i++){const p=document.createElement("i"),an=Math.random()*Math.PI*2,dist=50+Math.random()*90;
-  p.style.cssText=`--x:${Math.cos(an)*dist}px;--y:${Math.sin(an)*dist-40}px;--r:${Math.round(Math.random()*540-270)}deg;--c:${cols[i%4]};--s:${6+Math.round(Math.random()*6)}px;--d:${Math.round(Math.random()*90)}ms`;r.appendChild(p)}
+  p.style.cssText=`--x:${Math.min(Math.cos(an)*dist,22)}px;--y:${Math.sin(an)*dist-40}px;--r:${Math.round(Math.random()*540-270)}deg;--c:${cols[i%4]};--s:${6+Math.round(Math.random()*6)}px;--d:${Math.round(Math.random()*90)}ms`;r.appendChild(p)}
  $("sum").appendChild(r);setTimeout(()=>r.remove(),1500)}
 /* Estado de aprobacion. Con notas pendientes se miran los dos extremos: lo pendiente en 0 (lo), lo pendiente en 20 (hi), y el promedio parejo
    que hace falta en lo pendiente (nec, sobre 20). k: ya = aprobado seguro | aun = todavia se puede | no = imposible | fa / fd = final aprobado / desaprobado */
@@ -2346,35 +2393,46 @@ const waterTo=(()=>{
  const rest=()=>{if(raf)cancelAnimationFrame(raf);raf=0;on=false;L=T;Vl=A=Vp=Ap=0;
   pf.classList.remove("pf-agua");pf.style.clipPath=pf.style.webkitClipPath="";pf.style.removeProperty("--vw");cv.style.display="none"};
  const FR=(lp,yf,bu,lip,hh,u)=>[lp+bu*(1-(2*u-1)*(2*u-1))+lip*Math.pow(Math.sin(Math.PI*Math.pow(u,.7)),1.5),yf+(hh-yf)*u];
- let fc="255,255,255",fcn=0;
- const upc=()=>{if(fcn--<=0){fcn=24;const v=(getComputedStyle(pf).backgroundColor.match(/\d+/g)||[]).map(Number);if(v.length>=3&&v[0]+v[1]+v[2]>0)fc=v.slice(0,3).map(n=>Math.round(n*.45+140)).join(",")}};
  const fx=(lp,am,bu,yf,lip,hh)=>{
-  if(!cx)return;ensure();cv.style.display="block";upc();
-  const c=cx,cw=cols,t=Pm,P2=Math.PI*2,k=hh/12,nt=Math.max(2,Math.min(90,Math.ceil(lp/5))),NQ=14,xs=[],ys=[],qx=[],qy=[];
+  if(!cx)return;ensure();cv.style.display="block";
+  const c=cx,cw=cols,t=Pm,P2=Math.PI*2,k=hh/12,nt=Math.max(2,Math.min(120,Math.ceil(lp/4))),NQ=NP,xs=[],ys=[],qx=[],qy=[];
   c.setTransform(DP,0,0,DP,0,0);c.clearRect(0,0,cw,hp);
   for(let j=0;j<=nt;j++){const x=lp*j/nt;xs.push(x);ys.push(surf(x,am,lp))}
   for(let j=0;j<=NQ;j++){const f=FR(lp,yf,bu,lip,hh,j/NQ);qx.push(f[0]);qy.push(f[1])}
-  /* Todo el volumen se recorta al contorno del agua: no se pinta nada fuera de la barra ni sobre la pista */
-  c.save();c.beginPath();for(let j=0;j<=nt;j++)j?c.lineTo(xs[j],ys[j]):c.moveTo(xs[j],ys[j]);for(let j=0;j<=NQ;j++)c.lineTo(qx[j],qy[j]);c.lineTo(0,hh);c.closePath();c.clip();
-  let g=c.createLinearGradient(0,0,0,hh);g.addColorStop(0,"rgba(255,255,255,.3)");g.addColorStop(.5,"rgba(255,255,255,0)");g.addColorStop(1,"rgba(0,18,8,.3)");c.fillStyle=g;c.fillRect(0,0,cw,hh);
+  /* Contorno del agua (el mismo que usa el recorte de la barra): TODO se dibuja dentro de él, nada sale al frente ni cae sobre la pista */
+  const body=()=>{c.beginPath();for(let j=0;j<=nt;j++)j?c.lineTo(xs[j],ys[j]):c.moveTo(xs[j],ys[j]);for(let j=0;j<=NQ;j++)c.lineTo(qx[j],qy[j]);c.lineTo(0,hh);c.closePath()};
+  c.save();body();c.clip();
+  /* Profundidad: brillo arriba, sombra abajo */
+  let g=c.createLinearGradient(0,0,0,hh);g.addColorStop(0,"rgba(255,255,255,.24)");g.addColorStop(.38,"rgba(255,255,255,.02)");g.addColorStop(1,"rgba(0,20,10,.30)");c.fillStyle=g;c.fillRect(0,0,cw,hh);
+  /* Olas internas: tres capas que avanzan hacia el frente a distinta velocidad (efecto avalancha, sin salpicar) */
+  const sp=.9+am*1.6,top=lp+8;
+  const band=(yb,amp,wl,v,ph,col)=>{c.beginPath();c.moveTo(0,hh+1);for(let x=0;x<=top;x+=3){c.lineTo(x,yb+Math.sin(x*P2/wl-t*v*sp+ph)*amp+Math.sin(x*P2/(wl*.57)-t*v*sp*1.35+ph*2.1)*amp*.45)}c.lineTo(top,hh+1);c.closePath();c.fillStyle=col;c.fill()};
+  band(hh*.46,hh*.10,104,1.0,0,"rgba(255,255,255,.09)");
+  band(hh*.66,hh*.085,66,1.55,2.1,"rgba(0,24,12,.13)");
+  band(hh*.84,hh*.06,46,2.1,4.2,"rgba(255,255,255,.07)");
+  /* Destellos de luz que corren hacia el frente */
   g=c.createLinearGradient(0,0,0,hh);g.addColorStop(0,"#fff");g.addColorStop(1,"rgba(255,255,255,0)");c.fillStyle=g;
-  for(let n=0;n<18;n++){const sp=.4+(n%4)*.25,w=(1.5+(n%3)*2.2)*k,x0=((n*53.7+t*16*sp)%(lp+60))-30;c.globalAlpha=.12+(n%3)*.04;c.beginPath();c.moveTo(x0,0);c.lineTo(x0+w,0);c.lineTo(x0+w*2-hh*.5,hh);c.lineTo(x0-hh*.5,hh);c.fill()}
-  c.globalAlpha=1;c.lineWidth=Math.max(.8,k);
-  for(let n=0;n<2;n++){c.strokeStyle="rgba(255,255,255,"+(.2-.06*n)+")";c.beginPath();for(let x=0;x<=lp;x+=5){const v=hh*(.5+.22*n)+Math.sin(x*(.05+.012*n)+PH[n]*.8+n*2)*hh*.07;x?c.lineTo(x,v):c.moveTo(x,v)}c.stroke()}
-  g=c.createLinearGradient(0,0,Math.max(lp*.8,1),0);g.addColorStop(0,"rgba(0,18,8,.32)");g.addColorStop(1,"rgba(0,18,8,0)");c.fillStyle=g;c.fillRect(0,0,cw,hh);
-  g=c.createRadialGradient(lp-hh,hh*.3,0,lp-hh,hh*.3,hh*3);g.addColorStop(0,"rgba(255,255,255,.4)");g.addColorStop(1,"rgba(255,255,255,0)");c.fillStyle=g;c.fillRect(0,0,cw,hh);
-  c.restore();
-  /* Espuma: borde de la superficie, labio de la ola y burbujas (siempre dentro de la barra) */
-  const lw=Math.max(1,hh*.09),tr=()=>{c.beginPath();for(let j=0;j<=nt;j++)j?c.lineTo(xs[j],ys[j]):c.moveTo(xs[j],ys[j]);for(let j=0;j<=10;j++)c.lineTo(qx[j],qy[j])};
-  c.save();c.lineCap=c.lineJoin="round";c.strokeStyle="#fff";c.globalAlpha=.28;c.lineWidth=lw*2.4;tr();c.stroke();c.globalAlpha=.92;c.lineWidth=lw;tr();c.stroke();c.restore();
+  for(let n=0;n<12;n++){const s2=.4+(n%4)*.25,w=(1.5+(n%3)*2.2)*k,x0=((n*79.3+t*16*s2)%(lp+60))-30;c.globalAlpha=.09+(n%3)*.03;c.beginPath();c.moveTo(x0,0);c.lineTo(x0+w,0);c.lineTo(x0+w*2-hh*.5,hh);c.lineTo(x0-hh*.5,hh);c.fill()}
+  c.globalAlpha=1;
+  /* Fondo más oscuro al inicio y luz que crece hacia el frente: se lee como una masa de agua que avanza */
+  g=c.createLinearGradient(0,0,Math.max(lp*.85,1),0);g.addColorStop(0,"rgba(0,18,8,.30)");g.addColorStop(1,"rgba(0,18,8,0)");c.fillStyle=g;c.fillRect(0,0,cw,hh);
+  const fw=Math.min(lp,hh*4.2);g=c.createLinearGradient(lp-fw,0,lp+lip+bu,0);g.addColorStop(0,"rgba(255,255,255,0)");g.addColorStop(1,"rgba(255,255,255,.13)");c.fillStyle=g;c.fillRect(lp-fw,0,fw+lip+bu+2,hh);
+  /* Espuma de la cresta: línea clara sobre la superficie con un halo suave (solo la mitad de adentro se ve: por eso el grosor doble) */
+  const lw=Math.max(1,hh*.085),sf=()=>{c.beginPath();for(let j=0;j<=nt;j++)j?c.lineTo(xs[j],ys[j]):c.moveTo(xs[j],ys[j])};
+  c.lineCap=c.lineJoin="round";c.strokeStyle="#fff";
+  c.globalAlpha=.16;c.lineWidth=lw*5;sf();c.stroke();
+  c.globalAlpha=.85;c.lineWidth=lw*2;sf();c.stroke();
+  /* Borde frontal: un filo claro que marca hasta dónde llega el agua */
+  c.beginPath();for(let j=0;j<=NQ;j++)j?c.lineTo(qx[j],qy[j]):c.moveTo(qx[j],qy[j]);
+  c.globalAlpha=.34;c.lineWidth=lw*2.2;c.stroke();
+  /* Burbujas y espuma: se quedan pegadas a la superficie y al frente, siempre hacia adentro del agua */
   c.fillStyle="#fff";
-  for(let n=0;n<26;n++){const s0=n/25;let x,y;if(s0<.72){const d=Math.min(nt,Math.round(nt*(.6+.4*s0/.72)));x=xs[d];y=ys[d]}else{const d=Math.round((s0-.72)/.28*10);x=qx[d];y=qy[d]}
-   const r=(.5+1.3*Math.abs(Math.sin(n*12.9+t*1.3)))*k;c.globalAlpha=.4+.5*Math.sin(n*7+t*2);c.beginPath();c.arc(x+Math.sin(n*5+t)*1.5,cl(y+Math.cos(n*3+t*1.5)*1.2,1,hh-1),r,0,P2);c.fill()}
-  /* Gotas despedidas al frente: solo dentro del recuadro de la barra */
-  c.fillStyle="rgb("+fc+")";
-  for(let n=0;n<22;n++){const ph=(t*.8+n*.173)%1,x=lp+lip*.7+ph*(hh*1.6+(n%6)*hh*.5),y=yf+hh*.15-Math.sin(ph*Math.PI)*(hh*.35+(n%5)*hh*.08)+ph*ph*hh*.6;
-   if(x<cw-1&&y>.8&&y<hh-.8){c.globalAlpha=(1-ph)*.95;c.beginPath();c.arc(x,y,(.6+(n%4)*.35)*k*(1-ph*.5),0,P2);c.fill()}}
-  c.globalAlpha=1};
+  for(let n=0;n<16;n++){
+   const u=(n/16+.07*Math.sin(t*.55+n*1.7)+1)%1,r=(.4+.85*Math.abs(Math.sin(n*12.9+t*.9)))*k;let x,y;
+   if(u<.7){const d=Math.min(nt,Math.round(nt*(.55+.45*u/.7)));x=xs[d];y=ys[d]+r+.7+Math.abs(Math.sin(n*3.1+t*.8))*hh*.12}
+   else{const d=Math.min(NQ,Math.round((u-.7)/.3*NQ));x=qx[d]-r-.9-Math.abs(Math.sin(n*2.3+t*.7))*hh*.1;y=qy[d]}
+   c.globalAlpha=.2+.32*Math.abs(Math.sin(n*7+t*1.4));c.beginPath();c.arc(x,cl(y,r+.5,hh-r-.5),r,0,P2);c.fill()}
+  c.globalAlpha=1;c.restore()};
  const draw=()=>{
   const lp=Math.max(0,L*W/100),am=Math.max(A,IDLE),g=cl(lp/8,0,1)*cl((W-lp)/8,0,1),bu=cl(Vp/70,-1,1)*2.2*g,hh=HH;
   pf.style.setProperty("--vw",Math.max(0,L).toFixed(3)+"%");
@@ -2382,7 +2440,7 @@ const waterTo=(()=>{
   const nt=Math.max(2,Math.min(120,Math.ceil(lp/6)));let q="";
   for(let j=0;j<=nt;j++){const x=lp*j/nt;q+=(j?",":"")+x.toFixed(1)+"px "+surf(x,am,lp).toFixed(2)+"px"}
   const yf=surf(lp,am,lp);
-  const lip=Math.max(0,Math.min(W-lp-1,hh*.55*cl(A*1.3+.3,0,1)*cl(lp/60,0,1)));for(let j=0;j<=NP;j++){const f=FR(lp,yf,bu,lip,hh,j/NP);q+=","+f[0].toFixed(2)+"px "+f[1].toFixed(2)+"px"}
+  const lip=Math.max(0,Math.min(W-lp-1,hh*.5*cl(A*1.3,0,1)*cl(lp/60,0,1)));for(let j=0;j<=NP;j++){const f=FR(lp,yf,bu,lip,hh,j/NP);q+=","+f[0].toFixed(2)+"px "+f[1].toFixed(2)+"px"}
   q+=",0px "+hh+"px";
   pf.style.clipPath=pf.style.webkitClipPath="polygon("+q+")";
   fx(lp,am,bu,yf,lip,hh)};
@@ -3299,6 +3357,55 @@ pl.addEventListener("touchend",tStop,{passive:true});pl.addEventListener("touchc
 })();
 </script>
 <script>document.addEventListener("input",function(e){var t=e.target;if(t&&t.matches&&t.matches('#sim input[type=range]')){var mx=parseFloat(t.max)||20;t.style.setProperty("--p",(parseFloat(t.value)/mx*100)+"%")}});</script>
+<script>/* Ajuste de textos en la pantalla del curso. Ninguna palabra se parte a la mitad ni se sale de su caja:
+   si una palabra sola no cabe, baja un poco la letra de ese texto (hasta un mínimo). Etiquetas de las barras de pesos: se achican, y si aun asi no caben, llevan "…" (o sin el signo %).
+   Se vuelve a calcular al cambiar de curso, al girar o redimensionar la pantalla y cuando termina de cargar la fuente. */
+(function(){
+ var raf=0,tm=0;
+ var rg=document.createRange();
+ /* ancho de la palabra más larga (sin partir): detecta desbordes de menos de 1 px que scrollWidth redondea */
+ function wide(el){var cs=getComputedStyle(el),cw=el.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0),mx=0,w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT),n,re=/\S+/g,m;
+  while((n=w.nextNode())){if(n.parentNode&&n.parentNode.closest&&n.parentNode.closest(".mvbs"))continue;re.lastIndex=0;var t=n.nodeValue;while((m=re.exec(t))){rg.setStart(n,m.index);rg.setEnd(n,m.index+m[0].length);var r=rg.getBoundingClientRect();if(r.width>mx)mx=r.width}}
+  return mx>cw+.01}
+ function over(el){return el.scrollWidth>el.clientWidth+.5||(el.clientWidth>0&&wide(el))}
+ function shrink(el,minPx){
+  el.style.fontSize="";el.style.overflowWrap="normal";
+  var base=parseFloat(getComputedStyle(el).fontSize)||16,fs=base,min=Math.max(minPx,base*.72),n=0;
+  while(over(el)&&fs>min&&n++<24){fs=Math.max(min,fs-.5);el.style.fontSize=fs+"px"}
+  var bad=over(el);el.style.overflowWrap="";return bad}
+ window.fitAll=function(){
+  cancelAnimationFrame(raf);raf=requestAnimationFrame(run)};
+ function run(){
+  var v=document.getElementById("v-tool");if(!v||v.hidden)return;
+  try{
+   document.querySelectorAll("#tree .stk").forEach(function(e){e.classList.remove("stk")});
+   document.querySelectorAll("#tree .bn b,#tree .row .nm,#tree .bst").forEach(function(el){
+    if(shrink(el,10.5)){var box=el.closest(".bh,.row");if(box){box.classList.add("stk");shrink(el,10.5)}}});
+   /* Parejo: si en un grupo el porcentaje de alguna fila baja a la segunda línea, baja en todas las filas de ese grupo */
+   document.querySelectorAll("#tree .bb").forEach(function(g){g.classList.remove("pcd")});
+   document.querySelectorAll("#tree .bb").forEach(function(g){var drop=false;
+    g.querySelectorAll(".row:not(.grp) .nm").forEach(function(nm){var em=nm.querySelector("em");if(!em)return;
+     var a=em.getBoundingClientRect(),b=nm.getBoundingClientRect();if(a.top-b.top>a.height*.9)drop=true});
+    if(drop)g.classList.add("pcd")});
+   document.querySelectorAll("#zm .zs").forEach(function(el){el.classList.remove("ell");el.style.fontSize="";
+    var base=parseFloat(getComputedStyle(el).fontSize)||11,fs=base,n=0;
+    while(over(el)&&fs>8&&n++<12){fs-=.5;el.style.fontSize=fs+"px"}
+    if(over(el))el.classList.add("ell")});
+   document.querySelectorAll("#wbar span").forEach(function(el){
+    if(el.dataset.t===undefined)el.dataset.t=el.textContent;
+    el.textContent=el.dataset.t;el.classList.remove("ell");el.style.fontSize="";
+    var base=parseFloat(getComputedStyle(el).fontSize)||13,fs=base,n=0;
+    while(over(el)&&fs>9&&n++<12){fs-=.5;el.style.fontSize=fs+"px"}
+    if(over(el)){el.textContent=el.dataset.t.replace("%","");
+     while(over(el)&&fs>7&&n++<24){fs-=.5;el.style.fontSize=fs+"px"}
+     if(over(el)){el.classList.add("ell");el.style.fontSize="0"}}})
+  }catch(e){}}
+ function later(){clearTimeout(tm);tm=setTimeout(window.fitAll,120)}
+ window.addEventListener("resize",later);window.addEventListener("orientationchange",later);
+ if(document.fonts){if(document.fonts.ready)document.fonts.ready.then(window.fitAll);if(document.fonts.addEventListener)document.fonts.addEventListener("loadingdone",later)}
+ window.fitAll();
+})();
+</script>
 </body>
 </html>
 
